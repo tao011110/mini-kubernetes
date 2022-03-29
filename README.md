@@ -7,4 +7,5 @@
  - [Go by example - CN](https://gobyexample-cn.github.io/)
  - [Kubernets架构](https://www.kubernetes.org.cn/kubernetes%e8%ae%be%e8%ae%a1%e6%9e%b6%e6%9e%84)
  - [zookeeper概述](https://www.w3cschool.cn/zookeeper/)
-
+ - [Kubernets文档](http://docs.kubernetes.org.cn) "概念"里有各种名词解释
+ - [Knative](https://knative.dev/docs/getting-started/first-broker/)
