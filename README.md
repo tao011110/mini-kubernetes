@@ -23,6 +23,7 @@
 ### Golang
  - [Go by example - CN](https://gobyexample-cn.github.io/)
  - [Go 常见应用程序项目的基本布局](https://github.com/golang-standards/project-layout)
+ - [Go程序设计语言](https://books.studygolang.com/gopl-zh/ch0/ch0-01.html)
 
 ### Runc
  - [runc](https://github.com/opencontainers/runc)
