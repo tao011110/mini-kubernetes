@@ -24,7 +24,7 @@
  - [Go by example - CN](https://gobyexample-cn.github.io/)
  - [Go 常见应用程序项目的基本布局](https://github.com/golang-standards/project-layout)
  - [Go程序设计语言](https://books.studygolang.com/gopl-zh/ch0/ch0-01.html)
-
+ - [Go Programming Language](docs/The%20Go%20Programming%20Language%20(Alan%20A.%20A.%20Donovan,%20Brian%20W.%20Kernighan).pdf)
 ### Runc
  - [runc](https://github.com/opencontainers/runc)
 
