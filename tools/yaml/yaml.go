@@ -1,4 +1,4 @@
-package main
+package yaml
 
 import (
 	"os"
@@ -102,11 +102,14 @@ func ReadYamlConfig(path string) (*Pod,error){
 	if f, err := os.Open(path); err != nil {
 		return nil,err
 	} else {
-		yaml.NewDecoder(f).Decode(pod)
-		if((*pod).ApiVersion != "v1") {
+		err := yaml.NewDecoder(f).Decode(pod)
+		if err != nil {
+			return nil,err
+		}
+		if (*pod).ApiVersion != "v1" {
 			fmt.Println("apiVersion should be v1!")
 			return nil,err
-		} else if((*pod).Kind != "Pod") {
+		} else if(*pod).Kind != "Pod" {
 			fmt.Println("kind should be Pod!")
 			return nil,err
 		}
