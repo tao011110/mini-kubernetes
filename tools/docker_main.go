@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/container"
+	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/docker"
 )
 
 func main() {
-	path := "./container/container_test2.yaml"
+	path := "./container/docker_test3.yaml"
 
-	containerIDs := container.CreateContrainer(path)
+	containerIDs := docker.CreateContrainer(path)
 
 	for _, id := range containerIDs {
 		fmt.Printf("has created: %s\n", id)
-		container.StartContainer(id)
+		docker.StartContainer(id)
 		//container.RestartContainer(id)
 		//container.StopContainer(id)
 		//container.RemoveContainer(id)

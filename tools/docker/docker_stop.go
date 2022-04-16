@@ -1,4 +1,4 @@
-package container
+package docker
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func RestartContainer(containerID string) {
+func StopContainer(containerID string) {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		fmt.Printf("%v\n", err)
@@ -15,11 +15,11 @@ func RestartContainer(containerID string) {
 	}
 	defer cli.Close()
 	timeout := time.Second * 5
-	err = cli.ContainerRestart(context.Background(), containerID, &timeout)
+	err = cli.ContainerStop(context.Background(), containerID, &timeout)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	} else {
-		fmt.Printf("container %s has been restarted\n", containerID)
+		fmt.Printf("container %s has been stopped\n", containerID)
 	}
 }
