@@ -1,11 +1,12 @@
-package main
+package docker_test
 
 import (
 	"fmt"
 	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/docker"
+	"testing"
 )
 
-func main() {
+func Test(t *testing.T) {
 	path := "./container/docker_test3.yaml"
 
 	containerIDs := docker.CreateContrainer(path)

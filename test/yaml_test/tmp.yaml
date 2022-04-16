@@ -1,20 +1,20 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod1
+  name: metadata
 nodeName: <string>
 nodeSelector: obeject
 
 spec:
   containers:
-    - name: hello
-      image: hello-world:latest
-      command:
-      args:
+    - name: container0
+      image: 172.98.35.26:5000/collectservice:54657696
+      command: [c1,c2]
+      args: [a1,a2]
       workingDir: /home/app/
       volumeMounts:
         - name: volume
-          mountPath: /vpath
+          mountPath: vpath
 
       ports:
         - name: http
@@ -25,7 +25,7 @@ spec:
       resources:
         limits:
           cpu: "1"
-          memory: 128M
+          memory: 4Gi
         requests:
           cpu: 500m
           memory: 1Gi
@@ -38,8 +38,8 @@ spec:
       port: 80
       scheme: scheme
       HttpHeaders:
-      - name: header
-        value: header_value
+        - name: header
+          value: header_value
     initialDelaySeconds: 1
     timeoutSeconds: 2
     periodSeconds: 3

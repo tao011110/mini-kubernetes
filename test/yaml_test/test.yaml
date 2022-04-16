@@ -38,8 +38,8 @@ spec:
       port: number
       scheme: string
       HttpHeaders:
-      - name: string
-        value: string
+        - name: string
+          value: string
     initialDelaySeconds:  <integer>
     timeoutSeconds:       <integer>
     periodSeconds:        <integer>

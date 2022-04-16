@@ -3,6 +3,7 @@ package docker
 import (
 	"context"
 	"fmt"
+	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/def"
 	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/yaml"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
@@ -13,7 +14,7 @@ import (
 )
 
 // Create the Pause container, which acts as the parent of all containers in the pod
-func createPauseContainer(cli *client.Client, cons []yaml.Container, podName string) string {
+func createPauseContainer(cli *client.Client, cons []def.Container, podName string) string {
 	ImageEnsure("registry.aliyuncs.com/google_containers/pause")
 	config := &container.Config{
 		Image: "registry.aliyuncs.com/google_containers/pause",
@@ -56,7 +57,7 @@ func CreateContrainer(path string) []string {
 		containerMode := "container:" + pauseContainerID
 		hostConfig := generateHostConfig(con, containerMode)
 
-		tmpCons := make([]yaml.Container, 0)
+		tmpCons := make([]def.Container, 0)
 		tmpCons = append(tmpCons, con)
 		//exportsPort, _ := generatePort(con)
 		//fmt.Println(exportsPort)
@@ -76,7 +77,7 @@ func CreateContrainer(path string) []string {
 }
 
 // generate Config
-func generateConfig(con yaml.Container) *container.Config {
+func generateConfig(con def.Container) *container.Config {
 	config := &container.Config{
 		Image:      con.Image,
 		WorkingDir: con.WorkingDir,
@@ -93,7 +94,7 @@ func generateConfig(con yaml.Container) *container.Config {
 }
 
 // generate HostConfig
-func generateHostConfig(con yaml.Container, containerMode string) *container.HostConfig {
+func generateHostConfig(con def.Container, containerMode string) *container.HostConfig {
 	resourcesConfig := container.Resources{}
 
 	limits := con.Resources.ResourceLimit
@@ -172,7 +173,7 @@ func generateHostConfig(con yaml.Container, containerMode string) *container.Hos
 }
 
 // get exposedPorts and hostPorts
-func generatePorts(cons []yaml.Container) (nat.PortSet, nat.PortMap) {
+func generatePorts(cons []def.Container) (nat.PortSet, nat.PortMap) {
 	exportPorts := make(nat.PortSet)
 	portMap := make(nat.PortMap)
 	for _, con := range cons {
