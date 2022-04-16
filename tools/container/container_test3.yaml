@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod3
+nodeName: <string>
+nodeSelector: obeject
+
+spec:
+  containers:
+    - name: hello
+      image: hello-world:latest
+      command:
+      args:
+      workingDir: /home/app/
+      volumeMounts:
+        - name: volume
+          mountPath: /vpath
+
+      ports:
+        - name: http1
+          containerPort: 80
+          hostPort: 190
+          protocol: TCP
+
+      resources:
+        limits:
+          cpu: "1"
+          memory: 128M
+        requests:
+          cpu: 500m
+          memory: 1Mi
+
+    - name: nginx
+      image: nginx:latest
+      command:
+      args:
+      workingDir: /home/app/
+      volumeMounts:
+        - name: volume
+          mountPath: /vpath
+
+      ports:
+        - name: http2
+          containerPort: 390
+          hostPort: 300
+          protocol: TCP
+
+      resources:
+        limits:
+          cpu: "1"
+          memory: 500M
+        requests:
+          cpu: "1"
+          memory: 10Mi
+
+  livenessProbe:
+    exec:
+      command: execmd
+    httpGet:
+      path: /keeplive
+      port: 80
+      scheme: scheme
+      HttpHeaders:
+        - name: header
+          value: header_value
+    initialDelaySeconds: 1
+    timeoutSeconds: 2
+    periodSeconds: 3
+    failureThreshold: 4
+    successThreshold: 5
+
+  volumes:
+    - name: config
+      hostPath: cpath
