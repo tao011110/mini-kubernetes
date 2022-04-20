@@ -1,0 +1,5 @@
+package kubelet
+
+func sendHeartbeat() {
+
+}

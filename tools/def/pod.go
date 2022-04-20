@@ -1,5 +1,10 @@
 package def
 
+import (
+	"github.com/golang/protobuf/ptypes/timestamp"
+	"net"
+)
+
 type Volume struct {
 	Name     string `yaml:"name"`
 	HostPath string `yaml:"hostPath"`
@@ -86,4 +91,22 @@ type Pod struct {
 	Metadata   Meta   `yaml:"metadata"`
 	// NodeID和NodeSelector迭代三再加
 	Spec Spec `yaml:"spec"`
+}
+
+const (
+	PENDING   uint8 = 0 //docker并未运行, 如正在下载镜像等
+	RUNNING   uint8 = 1 //
+	SUCCEEDED uint8 = 2 //所有docker均正常结束
+	FAILED    uint8 = 3
+	UNKNOWN   uint8 = 4 //连接不到node, 用于master
+)
+
+type PodInstance struct {
+	Pod
+	IP              net.IPAddr
+	NodeID          uint64
+	StartTime       timestamp.Timestamp
+	Status          uint8
+	ContainerStatus []uint8
+	RestartCount    uint64
 }
