@@ -1,4 +1,4 @@
-module github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME
+module mini-kubernets
 
 go 1.14
 
@@ -16,4 +16,6 @@ require (
 	github.com/stretchr/testify v1.7.1 // indirect
 	google.golang.org/grpc v1.45.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
+	github.com/google/cadvisor v0.39.3
+
 )

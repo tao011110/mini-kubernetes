@@ -2,8 +2,8 @@ package yaml
 
 import (
 	"fmt"
-	def "github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/def"
 	"gopkg.in/yaml.v2"
+	"mini-kubernets/tools/def"
 	"os"
 )
 

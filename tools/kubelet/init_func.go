@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/def"
-	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/httpget"
+	"mini-kubernets/tools/def"
+	"mini-kubernets/tools/httpget"
 	"net"
 	"os"
 )

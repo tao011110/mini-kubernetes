@@ -12,6 +12,18 @@ import (
 	"strings"
 )
 
+/*
+	HOW TO USE:
+		err:=httpclient.Post("http://localhost:8080/...").
+            ContentType("application/json").
+            Body(`{"name":"lewiskong"}`).
+            AddHeader("Referer","localhost").
+            AddCookie("uin","guest").
+            GetString(&str).
+            GetJson(&obj). //when the result is json
+            Execute()
+*/
+
 type HttpMethod string
 
 const (

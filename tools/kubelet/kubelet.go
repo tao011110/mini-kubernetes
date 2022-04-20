@@ -2,14 +2,19 @@ package kubelet
 
 import (
 	"fmt"
-	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/def"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"mini-kubernets/tools/def"
 	"os"
+	"time"
 )
 
+/*
+	shared between all routines
+*/
+var node = def.Node{}
+
 func main() {
-	node := def.Node{}
 	parseArgs(&node.NodeName, &node.MasterIpAndPort, &node.LocalPort)
 	node.NodeIP = getLocalIP()
 	if node.NodeIP == nil {
@@ -40,11 +45,17 @@ func main() {
 	e.GET("/restartPod", restartPod)
 
 	/*
-		Goroutines
+		heartbeats, per minute
 	*/
-	go sendHeartbeat()
+	ticker := time.NewTicker(60 * time.Second)
+	go func() {
+		for range ticker.C {
+			sendHeartbeat()
+		}
+	}()
 
 	e.Logger.Fatal(e.Start(":80"))
+
 }
 
 func stopAll(c echo.Context) error {
