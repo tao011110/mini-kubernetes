@@ -1,12 +1,12 @@
-package main
+package resource_test
 
 import (
 	"fmt"
 	"mini-kubernets/tools/resource"
-	//"testing"
+	"testing"
 )
 
-func main() {
+func Test(t *testing.T) {
 	nodeResource := resource.GetNodeResourceInfo()
 	fmt.Printf("%+v\n", nodeResource)
 	client_, err := resource.StartCadvisor()
