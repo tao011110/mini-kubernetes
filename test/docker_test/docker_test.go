@@ -1,7 +1,7 @@
 package docker_test
 
 import (
-	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/docker"
+	"mini-kubernetes/tools/docker"
 	"testing"
 )
 

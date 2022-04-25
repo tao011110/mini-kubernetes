@@ -3,14 +3,14 @@ package docker
 import (
 	"context"
 	"fmt"
-	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/def"
-	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/yaml"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"log"
+	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/yaml"
 	"strconv"
 )
 
