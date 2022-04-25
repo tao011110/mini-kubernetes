@@ -1,4 +1,4 @@
-package cadvisor_client
+package resource
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ import (
 func StartCadvisor() (*client.Client, error) {
 	arg := fmt.Sprintf("--port=%d", def.CADVISOR_PORT)
 	cmd := exec.Command("./cadvisor", arg)
-	err := cmd.Run()
+	err := cmd.Start()
 	if err != nil {
 		return nil, err
 	}
@@ -34,17 +34,15 @@ func GetContainerInfoByName(cAdvisorClient *client.Client, name string) *v1.Cont
 	return info
 }
 
-func GetNodeResourceInfo(cAdvisorClient *client.Client) def.NodeResource {
+func GetNodeResourceInfo() def.NodeResource {
 	totalCPUPercent, _ := cpu.Percent(2*time.Second, false)
 	perCPUPercent, _ := cpu.Percent(2*time.Second, true)
 	cpuInfo, _ := cpu.Info()
 	vmInFo, _ := mem.VirtualMemory()
-	NetI
 	return def.NodeResource{
 		TotalCPUPercent: totalCPUPercent[0],
 		PerCPUPercent:   perCPUPercent,
 		CPUInfo:         cpuInfo,
 		MemoryInfo:      *vmInFo,
 	}
-
 }

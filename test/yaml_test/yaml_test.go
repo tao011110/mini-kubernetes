@@ -3,8 +3,8 @@ package yaml_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/YOUR-USER-OR-ORG-NAME/YOUR-REPO-NAME/tools/yaml"
 	"log"
+	"mini-kubernets/tools/yaml"
 	"testing"
 )
 
