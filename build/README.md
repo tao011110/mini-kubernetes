@@ -1,4 +1,17 @@
-# `/build`
+# About cadvisor
+
+if `./cadvisor: /lib/x86_64-linux-gnu/libc.so.6: version GLIBC_2.32 not found (required by ./cadvisor)`
+
+run following commands
+````shell
+wget http://ftp.gnu.org/gnu/glibc/glibc-2.23.tar.gz
+tar -zxvf  glibc-2.32.tar.gz
+mkdir glibc-2.32-build
+cd glibc-2.32-build
+../glibc-2.32/configure  --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin
+make -j8
+make install
+````
 
 Packaging and Continuous Integration.
 
