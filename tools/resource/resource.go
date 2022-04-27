@@ -6,7 +6,7 @@ import (
 	v1 "github.com/google/cadvisor/info/v1"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/mem"
-	"mini-kubernets/tools/def"
+	"mini-kubernetes/tools/def"
 	"os/exec"
 	"time"
 )

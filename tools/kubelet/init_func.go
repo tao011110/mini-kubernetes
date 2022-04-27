@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"mini-kubernets/tools/def"
-	"mini-kubernets/tools/httpget"
+	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/httpget"
 	"net"
 	"os"
 )

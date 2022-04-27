@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"mini-kubernets/tools/def"
-	"mini-kubernets/tools/httpget"
+	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/httpget"
 	"time"
 )
 
