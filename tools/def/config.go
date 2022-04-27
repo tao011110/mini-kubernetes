@@ -1,6 +1,6 @@
 package def
 
 const (
-	CADVISOR_PORT = 8080
-	ETCD_PORT     = 2379
+	CadvisorPort = 8080
+	EtcdPort     = 2379
 )

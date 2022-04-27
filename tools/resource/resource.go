@@ -12,13 +12,13 @@ import (
 )
 
 func StartCadvisor() (*client.Client, error) {
-	arg := fmt.Sprintf("--port=%d", def.CADVISOR_PORT)
+	arg := fmt.Sprintf("--port=%d", def.CadvisorPort)
 	cmd := exec.Command("./cadvisor", arg)
 	err := cmd.Start()
 	if err != nil {
 		return nil, err
 	}
-	url := fmt.Sprintf("http://localhost:%d/", def.CADVISOR_PORT)
+	url := fmt.Sprintf("http://localhost:%d/", def.CadvisorPort)
 	return client.NewClient(url)
 }
 
