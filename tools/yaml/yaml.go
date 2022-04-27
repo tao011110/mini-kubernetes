@@ -3,7 +3,7 @@ package yaml
 import (
 	"fmt"
 	"gopkg.in/yaml.v2"
-	"mini-kubernets/tools/def"
+	"mini-kubernetes/tools/def"
 	"os"
 )
 

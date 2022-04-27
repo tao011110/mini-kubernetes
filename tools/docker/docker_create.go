@@ -5,16 +5,30 @@ import (
 	"fmt"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"log"
-	"mini-kubernets/tools/def"
-	"mini-kubernets/tools/yaml"
+	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/yaml"
 	"strconv"
 )
 
+func generateNetworkingConfig(networkID string) *network.NetworkingConfig {
+	endpointsConfigmap := make(map[string]*network.EndpointSettings)
+	endpointSetting := &network.EndpointSettings{
+		NetworkID: networkID,
+	}
+	endpointsConfigmap["miniK8S-bridge"] = endpointSetting
+	networkingConfig := &network.NetworkingConfig{
+		EndpointsConfig: endpointsConfigmap,
+	}
+
+	return networkingConfig
+}
+
 // Create the Pause container, which acts as the parent of all containers in the pod
-func createPauseContainer(cli *client.Client, cons []def.Container, podName string) string {
+func createPauseContainer(cli *client.Client, cons []def.Container, podName string, networkID string) string {
 	ImageEnsure("registry.aliyuncs.com/google_containers/pause")
 	config := &container.Config{
 		Image: "registry.aliyuncs.com/google_containers/pause",
@@ -24,7 +38,9 @@ func createPauseContainer(cli *client.Client, cons []def.Container, podName stri
 	config.ExposedPorts = exportsPort
 	hostConfig.PortBindings = portMap
 
-	body, err := cli.ContainerCreate(context.Background(), config, hostConfig, nil, nil, "pause-"+podName)
+	networkingConfig := generateNetworkingConfig(networkID)
+
+	body, err := cli.ContainerCreate(context.Background(), config, hostConfig, networkingConfig, nil, "pause-"+podName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,7 +49,9 @@ func createPauseContainer(cli *client.Client, cons []def.Container, podName stri
 	return body.ID
 }
 
-func CreateContrainer(path string) []string {
+// CreateContrainer The 1st arg is the path of .yaml file used to create the pod
+// The 2nd arg is the cniIP of the node
+func CreateContrainer(path string, cniIP string) []string {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		log.Fatal(err)
@@ -48,8 +66,11 @@ func CreateContrainer(path string) []string {
 	containers := pod.Spec.Containers
 	containerIDs := make([]string, 0)
 
+	// Create the NetBridge if necessary
+	networkID := CreateNetBridge(cniIP)
+
 	// Create the Pause container
-	pauseContainerID := createPauseContainer(cli, containers, pod.Metadata.Name)
+	pauseContainerID := createPauseContainer(cli, containers, pod.Metadata.Name, networkID)
 
 	for _, con := range containers {
 		config := generateConfig(con)
@@ -63,9 +84,11 @@ func CreateContrainer(path string) []string {
 		//fmt.Println(exportsPort)
 		//config.ExposedPorts = exportsPort
 
+		networkingConfig := generateNetworkingConfig(networkID)
+
 		ImageEnsure(con.Image)
 
-		body, err := cli.ContainerCreate(context.Background(), config, hostConfig, nil, nil, con.Name)
+		body, err := cli.ContainerCreate(context.Background(), config, hostConfig, networkingConfig, nil, con.Name)
 		if err != nil {
 			log.Fatal(err)
 		}

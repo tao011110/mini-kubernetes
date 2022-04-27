@@ -1,4 +1,4 @@
-module mini-kubernets
+module mini-kubernetes
 
 go 1.14
 
@@ -19,6 +19,7 @@ require (
 	github.com/stretchr/testify v1.7.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
+	go.etcd.io/etcd/client/v3 v3.5.0
 	google.golang.org/grpc v1.45.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 
