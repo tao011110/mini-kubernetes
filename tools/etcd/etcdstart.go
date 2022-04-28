@@ -10,6 +10,32 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
+/*
+ * kubelet 向 master 注册时调用
+ * master 将 kubelet 的etcd加入集群
+ * nodeIPAndPort 格式示例 127.0.0.1:2380
+ */
+func addToCluster(nodeName *string, nodeIPAndPort *string) {
+	// 调用 ./etcdctl member add 'name' --peer-urls="" 查看状态
+	cmd := exec.Command("./etcdctl", "member", "add", *nodeName, "--peer-urls=https://"+*nodeIPAndPort)
+	// cmd.Dir 填etcd执行文件所在目录
+	cmd.Dir = "/home/parallels/Downloads/etcd-v3.5.3-linux-arm64"
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout //标准输出内容到out中
+	cmd.Stderr = &stderr //标准输出内容到err中
+
+	err := cmd.Run()
+	outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
+	fmt.Printf("./etcdctl member add %s --peer-urls=https://%s\n", *nodeName, *nodeIPAndPort)
+	fmt.Printf("out:\n%serr:\n%s", outStr, errStr)
+
+	if err != nil {
+		fmt.Printf("[Info] master add new etcd into cluster failed, err:%v\n", err)
+	} else {
+		fmt.Printf("[Info] master add new etcd into cluster sucess\n")
+	}
+}
+
 // Start
 //	@dir: ""if the same dir
 func Start(dir string, etcdPort uint) (*clientv3.Client, error) {
