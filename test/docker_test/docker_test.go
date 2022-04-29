@@ -1,7 +1,6 @@
 package docker_test
 
 import (
-	"fmt"
 	"mini-kubernetes/tools/docker"
 	"testing"
 )
@@ -9,7 +8,7 @@ import (
 func Test(t *testing.T) {
 	path := "./docker_test3.yaml"
 
-	containerIDs := docker.CreateContrainer(path, "172.18.0.0")
+	containerIDs := docker.CreateContrainer(path, "10.24.0.0")
 
 	for _, id := range containerIDs {
 		t.Logf("has created: %s\n", id)
