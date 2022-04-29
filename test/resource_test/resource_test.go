@@ -2,7 +2,7 @@ package resource_test
 
 import (
 	"fmt"
-	"mini-kubernets/tools/resource"
+	"mini-kubernetes/tools/resource"
 	"testing"
 )
 

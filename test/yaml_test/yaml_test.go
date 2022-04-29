@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"mini-kubernets/tools/yaml"
+	"mini-kubernetes/tools/yaml"
 	"testing"
 )
 
