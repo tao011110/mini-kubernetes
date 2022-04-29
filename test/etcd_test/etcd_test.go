@@ -36,6 +36,7 @@ func Test(t *testing.T) {
 
 	// get操作
 	resp := etcd.Get(cli, "testetcdapi") // 获取指定K的值
+
 	if resp == nil {
 		fmt.Printf("resp is nil\n")
 		return

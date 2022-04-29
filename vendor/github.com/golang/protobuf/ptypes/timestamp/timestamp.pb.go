@@ -47,7 +47,7 @@ func file_github_com_golang_protobuf_ptypes_timestamp_timestamp_proto_init() {
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
-			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
+			GoPackagePath: reflect.TypnaeOf(x{}).PkgPath(),
 			RawDescriptor: file_github_com_golang_protobuf_ptypes_timestamp_timestamp_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   0,

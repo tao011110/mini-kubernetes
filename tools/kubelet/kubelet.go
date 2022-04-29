@@ -5,8 +5,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/etcd"
+	"mini-kubernetes/tools/resource"
 	"os"
-	"time"
 )
 
 /*
@@ -26,6 +27,7 @@ func main() {
 		fmt.Println("network error, cannot register to master")
 		os.Exit(0)
 	}
+
 	/*
 		creat echo instance
 	*/
@@ -37,22 +39,18 @@ func main() {
 	/*
 		register handlers
 	*/
-	e.GET("/creatAndStartPod", creatAndStartPod)
-	e.GET("/stopPod", stopPod)
-	e.GET("/removePod", removePod)
-	e.GET("/stopAndRemovePod", stopAndRemovePod)
-	e.GET("/stopAll", stopAll)
-	e.GET("/restartPod", restartPod)
+	etcdClient, err := etcd.Start("", def.EtcdPort)
+	if err != nil {
+		e.Logger.Error("Start etcd error!")
+		os.Exit(0)
+	}
+	cadvisorClient, err := resource.StartCadvisor()
+	if err != nil {
+		e.Logger.Error("Start cadvisor error!")
+		os.Exit(0)
+	}
 
-	/*
-		heartbeats, per minute
-	*/
-	ticker := time.NewTicker(60 * time.Second)
-	go func() {
-		for range ticker.C {
-			sendHeartbeat()
-		}
-	}()
+	go EtcdWatcher(etcdClient, node.NodeID, e)
 
 	e.Logger.Fatal(e.Start(":80"))
 

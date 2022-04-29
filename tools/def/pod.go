@@ -1,8 +1,7 @@
 package def
 
 import (
-	"github.com/golang/protobuf/ptypes/timestamp"
-	"net"
+	"time"
 )
 
 type Volume struct {
@@ -101,12 +100,18 @@ const (
 	UNKNOWN   uint8 = 4 //连接不到node, 用于master
 )
 
+type ContainerStatus struct {
+	ID     string `json:"ID"`
+	Status uint8  `json:"status"`
+}
+
 type PodInstance struct {
 	Pod
-	IP              net.IPAddr          `json:"ip"`
-	NodeID          uint64              `json:"nodeID"`
-	StartTime       timestamp.Timestamp `json:"startTime"`
-	Status          uint8               `json:"status"`
-	ContainerStatus []uint8             `json:"containerStatus"`
-	RestartCount    uint64              `json:"restartCount"`
+	Name            string            `json:"name"`
+	IP              string            `json:"ip"`
+	NodeID          uint64            `json:"nodeID"`
+	StartTime       time.Time         `json:"startTime"`
+	Status          uint8             `json:"status"`
+	ContainerStatus []ContainerStatus `json:"containerStatus"`
+	RestartCount    uint64            `json:"restartCount"`
 }
