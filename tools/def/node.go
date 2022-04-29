@@ -21,4 +21,5 @@ type Node struct {
 	MasterIpAndPort          string
 	LocalPort                int
 	LastHeartbeatSuccessTime int64
+	CniIP                    net.IP
 }

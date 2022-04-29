@@ -27,8 +27,9 @@ import (
 type HttpMethod string
 
 const (
-	httpGet  HttpMethod = "GET"
-	httpPost HttpMethod = "POST"
+	httpGet    HttpMethod = "GET"
+	httpPost   HttpMethod = "POST"
+	httpDelete HttpMethod = "DELETE"
 )
 
 type HttpClient struct {
@@ -62,6 +63,23 @@ func Post(rawurl string) *HttpClient {
 	client := CreateDefault()
 	client.method = httpPost
 	client.request, client.Error = http.NewRequest("POST", "", nil)
+	if client.Error != nil {
+		return client
+	}
+
+	rawurl, err := HandleURL(client, rawurl)
+	if err != nil {
+		client.Error = err
+	}
+
+	return client.handle(rawurl)
+}
+
+func DELETE(rawurl string) *HttpClient {
+	client := CreateDefault()
+	client.method = httpDelete
+
+	client.request, client.Error = http.NewRequest("DELETE", "", nil)
 	if client.Error != nil {
 		return client
 	}
@@ -190,21 +208,21 @@ func (client *HttpClient) GetJce(v interface{}) *HttpClient {
 	return client
 }
 
-func (client *HttpClient) Execute() (err error) {
+func (client *HttpClient) Execute() (err error, status string) {
 
 	if client.Error != nil {
-		return client.Error
+		return client.Error, "500"
 	}
 
 	c := http.DefaultClient
 	rsp, err := c.Do(client.request)
 
 	if err != nil {
-		return err
+		return err, rsp.Status[:3]
 	}
 	content, err := ioutil.ReadAll(rsp.Body)
 	if err != nil {
-		return err
+		return err, rsp.Status[:3]
 	}
 	//debug
 	// fmt.Println(string(content[:]))
@@ -213,19 +231,19 @@ func (client *HttpClient) Execute() (err error) {
 		case "string":
 			err := setString(value, content)
 			if err != nil {
-				return err
+				return err, rsp.Status[:3]
 			}
 
 		case "json":
 			err := setJSON(value, content)
 			if err != nil {
-				return err
+				return err, rsp.Status[:3]
 			}
 
 		case "jsonp":
 			err := setJSONP(value, content)
 			if err != nil {
-				return err
+				return err, rsp.Status[:3]
 			}
 
 		case "jce":
@@ -234,11 +252,11 @@ func (client *HttpClient) Execute() (err error) {
 		}
 	}
 	if err != nil {
-		return err
+		return err, rsp.Status[:3]
 	}
 	//debug
 	// fmt.Println(string(content[:]))
-	return nil
+	return nil, rsp.Status[:3]
 }
 
 func setString(v *interface{}, content []byte) error {

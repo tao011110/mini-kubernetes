@@ -62,7 +62,7 @@ func registerToMaster(node *def.Node) error {
 	}
 
 	body, _ := json.Marshal(request)
-	err := httpget.Post("http://" + node.MasterIpAndPort + "/register_node").
+	err, _ := httpget.Post("http://" + node.MasterIpAndPort + "/register_node").
 		ContentType("application/json").
 		Body(bytes.NewReader(body)).
 		GetJson(&response).

@@ -10,16 +10,19 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
-/*
- * kubelet 向 master 注册时调用
- * master 将 kubelet 的etcd加入集群
- * nodeIPAndPort 格式示例 127.0.0.1:2380
- */
-func addToCluster(nodeName *string, nodeIPAndPort *string) {
+// Dir etcd执行文件所在目录
+//var Dir = "/home/parallels/Downloads/etcd-v3.5.3-linux-arm64"
+var Dir = "/opt/etcd-v3.3.0-rc.0-linux-amd64"
+
+// AddToCluster
+// kubelet 向 master 注册时调用
+// master 将 kubelet 的etcd加入集群
+// nodeIPAndPort 格式示例 127.0.0.1:2380
+func AddToCluster(nodeName *string, nodeIPAndPort *string) {
 	// 调用 ./etcdctl member add 'name' --peer-urls="" 查看状态
 	cmd := exec.Command("./etcdctl", "member", "add", *nodeName, "--peer-urls=https://"+*nodeIPAndPort)
 	// cmd.Dir 填etcd执行文件所在目录
-	cmd.Dir = "/home/parallels/Downloads/etcd-v3.5.3-linux-arm64"
+	cmd.Dir = Dir
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout //标准输出内容到out中
 	cmd.Stderr = &stderr //标准输出内容到err中
@@ -43,7 +46,7 @@ func Start(dir string, etcdPort uint) (*clientv3.Client, error) {
 	// 调用 ./etcdctl member list 查看状态
 	cmd := exec.Command("./etcdctl", "member", "list")
 	// cmd.Dir 填etcd执行文件所在目录
-	cmd.Dir = "/home/parallels/Downloads/etcd-v3.5.3-linux-arm64"
+	cmd.Dir = Dir
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout //标准输出内容到out中
 	cmd.Stderr = &stderr //标准输出内容到err中
@@ -63,7 +66,7 @@ func Start(dir string, etcdPort uint) (*clientv3.Client, error) {
 
 	// etcd 还未启动，尝试启动
 	cmd = exec.Command("./etcd")
-	cmd.Dir = "/home/parallels/Downloads/etcd-v3.5.3-linux-arm64"
+	cmd.Dir = Dir
 
 	if err := cmd.Start(); err != nil {
 		fmt.Printf("open etcd failed, err:%v\n", err)
