@@ -94,17 +94,23 @@ func handleCreatePod(c echo.Context) error {
 func handleDeletePod(c echo.Context) error {
 	podName := c.Param("podName")
 
-	delete_api.DeletePod(cli, podName)
-	fmt.Println("Pod " + podName + " has been deleted")
-
-	return c.String(200, "Pod "+podName+" has been deleted")
+	if delete_api.DeletePod(cli, podName) == true {
+		fmt.Println("Pod " + podName + " has been deleted")
+		return c.String(200, "Pod "+podName+" has been deleted")
+	} else {
+		fmt.Println("Pod " + podName + " has been deleted")
+		return c.String(404, "Pod "+podName+" doesn't exist")
+	}
 }
 
 func handleGetPod(c echo.Context) error {
 	podName := c.Param("podName")
-
-	podInstance := get_api.GetPod(cli, podName)
+	podInstance, flag := get_api.GetPod(cli, podName)
 	fmt.Println(podInstance)
+
+	if flag == false {
+		return c.JSON(404, podInstance)
+	}
 
 	return c.JSON(200, podInstance)
 }

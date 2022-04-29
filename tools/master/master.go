@@ -7,7 +7,7 @@ import (
 	"mini-kubernetes/tools/etcd"
 )
 
-var Ip = "192.168.47.19"
+var IP = "192.168.47.19"
 var Port = "8000"
 
 func Start() {
@@ -20,5 +20,5 @@ func Start() {
 	defer cli.Close()
 
 	//启动apiserver, 注意Linux / Unix系统默认规定,低端口号(1-1024),user组是不能访问的,需要root组才行
-	apiserver.Start(Ip, Port, cli)
+	apiserver.Start(IP, Port, cli)
 }

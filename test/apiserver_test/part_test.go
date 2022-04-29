@@ -16,7 +16,7 @@ func Test(t *testing.T) {
 	node := def.Node{}
 	node.LocalPort = 80
 	node.NodeName = "node1"
-	node.MasterIpAndPort = master.Ip + ":" + master.Port
+	node.MasterIpAndPort = master.IP + ":" + master.Port
 	addr, _ := net.InterfaceAddrs()
 	for _, address := range addr {
 		if ip, flag_ := address.(*net.IPNet); flag_ && !ip.IP.IsLoopback() {
@@ -34,7 +34,7 @@ func Test(t *testing.T) {
 		LocalPort: node.LocalPort,
 	}
 	body, _ := json.Marshal(request)
-	err := httpget.Post("http://" + node.MasterIpAndPort + "/register_node").
+	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/register_node").
 		ContentType("application/json").
 		Body(bytes.NewReader(body)).
 		GetJson(&response).
@@ -45,14 +45,16 @@ func Test(t *testing.T) {
 	}
 	node.NodeID = response.NodeID
 	node.NodeName = response.NodeName
-	fmt.Printf("register_node response is: %v\n", response)
+	node.CniIP = response.CniIP
+	fmt.Printf("register_node is %s and response is: %v\n", status, response)
 
 	//test create_pod
+	//需要发送给apiserver的参数为 pod def.Pod
 	pod, _ := yaml.ReadYamlConfig("../docker_test/docker_test3.yaml")
 	request2 := *pod
 	response2 := ""
 	body2, _ := json.Marshal(request2)
-	err = httpget.Post("http://" + node.MasterIpAndPort + "/create_pod").
+	err, status = httpget.Post("http://" + node.MasterIpAndPort + "/create_pod").
 		ContentType("application/json").
 		Body(bytes.NewReader(body2)).
 		GetString(&response2).
@@ -61,12 +63,13 @@ func Test(t *testing.T) {
 		fmt.Println("err")
 		fmt.Println(err)
 	}
-	fmt.Printf("create_pod response is: %s\n", response2)
+	fmt.Printf("create_pod is %s and response is: %s\n", status, response2)
 
 	//test get_pod
+	//需要发送给apiserver的参数为 podName string
 	podName := "pod3"
 	response3 := def.Pod{}
-	err = httpget.Get("http://" + node.MasterIpAndPort + "/get_pod/" + podName).
+	err, status = httpget.Get("http://" + node.MasterIpAndPort + "/get_pod/" + podName).
 		ContentType("application/json").
 		GetJson(&response3).
 		Execute()
@@ -74,12 +77,17 @@ func Test(t *testing.T) {
 		fmt.Println("err")
 		fmt.Println(err)
 	}
-
-	fmt.Printf("get_pod response is: %v\n", response3)
+	fmt.Printf("get_pod status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("get pod %s successfully and the response is: %v\n", podName, response3)
+	} else {
+		fmt.Printf("pod %s doesn't exist\n", podName)
+	}
 
 	//test delete_pod
+	//需要发送给apiserver的参数为 podName string
 	response4 := ""
-	err = httpget.DELETE("http://" + node.MasterIpAndPort + "/delete_pod/" + podName).
+	err, status = httpget.DELETE("http://" + node.MasterIpAndPort + "/delete_pod/" + podName).
 		ContentType("application/json").
 		GetString(&response4).
 		Execute()
@@ -87,5 +95,11 @@ func Test(t *testing.T) {
 		fmt.Println("err")
 		fmt.Println(err)
 	}
-	fmt.Printf("delete_pod response is: %v\n", response4)
+
+	fmt.Printf("get_pod status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("delete pod %s successfully and the response is: %v\n", podName, response4)
+	} else {
+		fmt.Printf("pod %s doesn't exist\n", podName)
+	}
 }

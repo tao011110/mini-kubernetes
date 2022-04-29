@@ -16,7 +16,7 @@ func sendHeartbeat() {
 	}
 
 	body, _ := json.Marshal(request)
-	err := httpget.Post("http://" + node.MasterIpAndPort + "/heartbeat").
+	err, _ := httpget.Post("http://" + node.MasterIpAndPort + "/heartbeat").
 		ContentType("application/json").
 		Body(bytes.NewReader(body)).
 		Execute()

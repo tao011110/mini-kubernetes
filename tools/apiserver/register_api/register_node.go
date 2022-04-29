@@ -2,18 +2,17 @@ package register_api
 
 import (
 	"encoding/json"
-	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 	"net"
+	"strconv"
 	"time"
 )
 
 var registeredNodeID = 0
 
 func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpAndPort string) (int, net.IP) {
-	fmt.Println("RegisterNode")
 	registeredNodeID++
 
 	//将新加入集群的node写入到etcd当中
@@ -26,7 +25,7 @@ func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpA
 	newFollower.LastHeartbeatSuccessTime = time.Now().Unix()
 	newFollower.CniIP = distributeCniIP()
 	nodeValue, _ := json.Marshal(newFollower)
-	etcd.Put(cli, "/node/"+newFollower.NodeName, string(nodeValue))
+	etcd.Put(cli, "/node/"+strconv.Itoa(registeredNodeID), string(nodeValue))
 
 	//将 kubelet 的etcd加入etcd集群中
 	nodeIPAndPort := newFollower.NodeIP.String() + ":2380"
@@ -38,8 +37,6 @@ func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpA
 
 func distributeCniIP() net.IP {
 	cniIP := net.IPv4(10, 24, byte(registeredNodeID), 0)
-	fmt.Println("cniIP")
-	fmt.Println(cniIP)
 
 	return cniIP
 }

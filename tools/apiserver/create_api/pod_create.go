@@ -6,6 +6,7 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
+	"strconv"
 )
 
 func CreatePod(cli *clientv3.Client, pod def.Pod) int {
@@ -14,7 +15,6 @@ func CreatePod(cli *clientv3.Client, pod def.Pod) int {
 
 	//TODO: This node should be decided by scheduler in the future
 	nodeID := 1
-	nodeName := "node1"
 
 	// 将新创建的pod写入到etcd当中
 	podKey := "/pod/" + pod.Metadata.Name
@@ -36,7 +36,7 @@ func CreatePod(cli *clientv3.Client, pod def.Pod) int {
 	etcd.Put(cli, podInstanceKey, string(podInstanceValue))
 
 	//更新相应node中的PodInstances列表
-	nodeKey := "/node/" + nodeName
+	nodeKey := "/node/" + strconv.Itoa(nodeID)
 	nodeValue := etcd.Get(cli, nodeKey).Kvs[0].Value
 	var node def.Node
 	err = json.Unmarshal(nodeValue, &node)
@@ -53,7 +53,7 @@ func CreatePod(cli *clientv3.Client, pod def.Pod) int {
 	etcd.Put(cli, nodeKey, string(nodeValue))
 
 	//更新kubelet watch的node-PodInstance table
-	nodePIKey := "/nodePodInstance/" + nodeName
+	nodePIKey := "/nodePodInstance/" + strconv.Itoa(nodeID)
 	nodePIValue := make([]byte, 0)
 	podInstanceList := make([]string, 0)
 	kvs := etcd.Get(cli, nodePIKey).Kvs
