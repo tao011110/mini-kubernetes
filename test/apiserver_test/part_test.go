@@ -7,6 +7,7 @@ import (
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/master"
+	"mini-kubernetes/tools/pod"
 	"mini-kubernetes/tools/yaml"
 	"net"
 	"testing"
@@ -49,9 +50,9 @@ func Test(t *testing.T) {
 	fmt.Printf("register_node is %s and response is: %v\n", status, response)
 
 	//test create_pod
-	//需要发送给apiserver的参数为 pod def.Pod
-	pod, _ := yaml.ReadYamlConfig("../docker_test/docker_test3.yaml")
-	request2 := *pod
+	//需要发送给apiserver的参数为 pod_ def.Pod
+	pod_, _ := yaml.ReadYamlConfig("../docker_test/docker_test3.yaml")
+	request2 := *pod_
 	response2 := ""
 	body2, _ := json.Marshal(request2)
 	err, status = httpget.Post("http://" + node.MasterIpAndPort + "/create_pod").
@@ -68,7 +69,7 @@ func Test(t *testing.T) {
 	//test get_pod
 	//需要发送给apiserver的参数为 podName string
 	podName := "pod3"
-	response3 := def.Pod{}
+	response3 := pod.Pod{}
 	err, status = httpget.Get("http://" + node.MasterIpAndPort + "/get_pod/" + podName).
 		ContentType("application/json").
 		GetJson(&response3).
@@ -79,9 +80,9 @@ func Test(t *testing.T) {
 	}
 	fmt.Printf("get_pod status is %s\n", status)
 	if status == "200" {
-		fmt.Printf("get pod %s successfully and the response is: %v\n", podName, response3)
+		fmt.Printf("get pod_ %s successfully and the response is: %v\n", podName, response3)
 	} else {
-		fmt.Printf("pod %s doesn't exist\n", podName)
+		fmt.Printf("pod_ %s doesn't exist\n", podName)
 	}
 
 	//test delete_pod
@@ -98,8 +99,8 @@ func Test(t *testing.T) {
 
 	fmt.Printf("get_pod status is %s\n", status)
 	if status == "200" {
-		fmt.Printf("delete pod %s successfully and the response is: %v\n", podName, response4)
+		fmt.Printf("delete pod_ %s successfully and the response is: %v\n", podName, response4)
 	} else {
-		fmt.Printf("pod %s doesn't exist\n", podName)
+		fmt.Printf("pod_ %s doesn't exist\n", podName)
 	}
 }
