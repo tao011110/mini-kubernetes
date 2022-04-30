@@ -5,16 +5,17 @@ import (
 	"fmt"
 	"github.com/docker/docker/client"
 	"log"
-	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/docker"
 )
 
-func CreateAndStartPod(podInstance *def.PodInstance) {
+func (podInstance *PodInstance) CreateAndStartPod() {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer cli.Close()
+	defer func(cli *client.Client) {
+		_ = cli.Close()
+	}(cli)
 
 	if err != nil {
 		log.Fatal(err)
@@ -35,7 +36,7 @@ func CreateAndStartPod(podInstance *def.PodInstance) {
 		containerMode := "container:" + pauseContainerID
 		hostConfig := docker.GenerateHostConfig(con, containerMode)
 
-		tmpCons := make([]def.Container, 0)
+		tmpCons := make([]Container, 0)
 		tmpCons = append(tmpCons, con)
 		//exportsPort, _ := generatePort(con)
 		//fmt.Println(exportsPort)
@@ -48,7 +49,7 @@ func CreateAndStartPod(podInstance *def.PodInstance) {
 		body, err := cli.ContainerCreate(context.Background(), config, hostConfig, networkingConfig, nil, con.Name)
 		if err != nil {
 			//if error, stop all containers has been created
-			podInstance.Status = def.FAILED
+			podInstance.Status = FAILED
 			for _, id := range containerIDs {
 				docker.StopContainer(id)
 				_, _ = docker.RemoveContainer(id)
@@ -59,8 +60,9 @@ func CreateAndStartPod(podInstance *def.PodInstance) {
 		fmt.Println("created " + body.ID)
 		containerIDs = append(containerIDs, body.ID)
 		docker.StartContainer(body.ID)
-		podInstance.ContainerStatus[index].Status = def.RUNNING
+		podInstance.ContainerStatus[index].Status = RUNNING
 		podInstance.ContainerStatus[index].ID = body.ID
 	}
-	podInstance.Status = def.RUNNING
+	podInstance.Status = RUNNING
+	go podInstance.PodDaemon()
 }

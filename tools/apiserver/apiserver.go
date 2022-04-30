@@ -12,6 +12,7 @@ import (
 	"mini-kubernetes/tools/apiserver/get_api"
 	"mini-kubernetes/tools/apiserver/register_api"
 	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/pod"
 	"strconv"
 )
 
@@ -71,7 +72,7 @@ func handleRegisterNode(c echo.Context) error {
 }
 
 func handleCreatePod(c echo.Context) error {
-	pod := def.Pod{}
+	pod_ := pod.Pod{}
 	requestBody := new(bytes.Buffer)
 	_, err := requestBody.ReadFrom(c.Request().Body)
 	if err != nil {
@@ -79,16 +80,16 @@ func handleCreatePod(c echo.Context) error {
 		panic(err)
 	}
 
-	err = json.Unmarshal(requestBody.Bytes(), &pod)
+	err = json.Unmarshal(requestBody.Bytes(), &pod_)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
 
-	nodeID := create_api.CreatePod(cli, pod)
-	fmt.Println("Pod " + pod.Metadata.Name + " has been created at node " + strconv.Itoa(nodeID))
+	nodeID := create_api.CreatePod(cli, pod_)
+	fmt.Println("Pod " + pod_.Metadata.Name + " has been created at node " + strconv.Itoa(nodeID))
 
-	return c.String(200, "Pod "+pod.Metadata.Name+" has been created at node "+strconv.Itoa(nodeID))
+	return c.String(200, "Pod "+pod_.Metadata.Name+" has been created at node "+strconv.Itoa(nodeID))
 }
 
 func handleDeletePod(c echo.Context) error {

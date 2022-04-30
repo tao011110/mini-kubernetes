@@ -1,4 +1,4 @@
-package def
+package pod
 
 import (
 	"time"
@@ -93,11 +93,12 @@ type Pod struct {
 }
 
 const (
-	PENDING   uint8 = 0 //docker并未运行, 如正在下载镜像等
-	RUNNING   uint8 = 1 //
-	SUCCEEDED uint8 = 2 //所有docker均正常结束
-	FAILED    uint8 = 3
-	UNKNOWN   uint8 = 4 //连接不到node, 用于master
+	PENDING    uint8 = 0 //docker并未运行, 如正在下载镜像等
+	RUNNING    uint8 = 1 //
+	SUCCEEDED  uint8 = 2 //所有docker均正常结束
+	FAILED     uint8 = 3
+	UNKNOWN    uint8 = 4 //连接不到node, 用于master
+	RESTARTING uint8 = 5
 )
 
 type ContainerStatus struct {
@@ -105,13 +106,21 @@ type ContainerStatus struct {
 	Status uint8  `json:"status"`
 }
 
+type InstanceStatus struct {
+	StartTest            bool `json:"start_test"`
+	LastDetectSuccess    bool `json:"last_detect_success"`
+	ConsecutiveFailures  uint `json:"consecutive_failures"`
+	ConsecutiveSuccesses uint `json:"consecutive_successes"`
+}
+
 type PodInstance struct {
 	Pod
-	Name            string            `json:"name"`
-	IP              string            `json:"ip"`
-	NodeID          uint64            `json:"nodeID"`
-	StartTime       time.Time         `json:"startTime"`
-	Status          uint8             `json:"status"`
-	ContainerStatus []ContainerStatus `json:"containerStatus"`
-	RestartCount    uint64            `json:"restartCount"`
+	Name              string            `json:"name"`
+	IP                string            `json:"ip"`
+	NodeID            uint64            `json:"nodeID"`
+	StartTime         time.Time         `json:"startTime"`
+	Status            uint8             `json:"status"`
+	ContainerStatus   []ContainerStatus `json:"containerStatus"`
+	RestartCount      uint64            `json:"restartCount"`
+	PodInstanceStatus InstanceStatus    `json:"podInstanceStatus"`
 }

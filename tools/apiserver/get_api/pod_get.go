@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
-	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
+	"mini-kubernetes/tools/pod"
 )
 
-func GetPod(cli *clientv3.Client, podName string) (*def.PodInstance, bool) {
+func GetPod(cli *clientv3.Client, podName string) (*pod.PodInstance, bool) {
 	flag := false
 	podInstanceKey := "/podInstance/" + podName
 	kv := etcd.Get(cli, podInstanceKey).Kvs
-	podInstance := def.PodInstance{}
+	podInstance := pod.PodInstance{}
 	podInstanceValue := make([]byte, 0)
 	if len(kv) != 0 {
 		podInstanceValue = kv[0].Value

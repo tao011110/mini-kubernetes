@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	clientv3 "go.etcd.io/etcd/client/v3"
-	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/pod"
 	"sort"
@@ -15,34 +13,34 @@ type PodInstances struct {
 	Instances []string
 }
 
-func EtcdWatcher(cli *clientv3.Client, nodeID int, e *echo.Echo) {
-	key := fmt.Sprintf("Node%d_podInstances", nodeID)
-	watch := etcd.Watch(cli, key)
+func EtcdWatcher(e *echo.Echo) {
+	key := fmt.Sprintf("Node%d_podInstances", node.NodeID)
+	watch := etcd.Watch(node.EtcdClient, key)
 	for wc := range watch {
 		for _, w := range wc.Events {
 			var instances []string
 			_ = json.Unmarshal(w.Kv.Value, &instances)
-			handlePodInstancesChange(instances, e, cli)
+			handlePodInstancesChange(instances, e)
 		}
 	}
 }
 
-func handlePodInstancesChange(instances []string, e *echo.Echo, cli *clientv3.Client) {
+func handlePodInstancesChange(instances []string, e *echo.Echo) {
 	adds, deletes := comparePodList(instances)
 	for _, add := range adds {
-		resp := etcd.Get(cli, add)
-		podInstance := def.PodInstance{}
+		resp := etcd.Get(node.EtcdClient, add)
+		podInstance := pod.PodInstance{}
 		jsonString := ``
 		for _, ev := range resp.Kvs {
 			jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
 		}
 		jsonString = fmt.Sprintf(`{%s}`, jsonString)
 		_ = json.Unmarshal([]byte(jsonString), &podInstance)
-		pod.CreateAndStartPod(&podInstance)
-		node.PodInstances = append(node.PodInstances, podInstance)
+		podInstance.CreateAndStartPod()
+		node.PodInstances = append(node.PodInstances, &podInstance)
 	}
 	for _, index := range deletes {
-		pod.StopAndRemovePod(&node.PodInstances[index])
+		node.PodInstances[index].StopAndRemovePod()
 	}
 }
 

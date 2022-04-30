@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/docker"
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/resource"
 	"os"
@@ -27,6 +28,7 @@ func main() {
 		fmt.Println("network error, cannot register to master")
 		os.Exit(0)
 	}
+	docker.CreateNetBridge(node.CniIP.String())
 
 	/*
 		creat echo instance
@@ -36,26 +38,22 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	/*
-		register handlers
-	*/
 	etcdClient, err := etcd.Start("", def.EtcdPort)
 	if err != nil {
 		e.Logger.Error("Start etcd error!")
 		os.Exit(0)
 	}
+	node.EtcdClient = etcdClient
 	cadvisorClient, err := resource.StartCadvisor()
 	if err != nil {
 		e.Logger.Error("Start cadvisor error!")
 		os.Exit(0)
 	}
+	node.CadvisorClient = cadvisorClient
 
-	go EtcdWatcher(etcdClient, node.NodeID, e)
+	go EtcdWatcher(e)
+	go ResourceMonitoring()
 
 	e.Logger.Fatal(e.Start(":80"))
 
-}
-
-func stopAll(c echo.Context) error {
-	return nil
 }

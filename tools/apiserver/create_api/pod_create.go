@@ -6,19 +6,20 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
+	"mini-kubernetes/tools/pod"
 	"strconv"
 )
 
-func CreatePod(cli *clientv3.Client, pod def.Pod) int {
-	podInstance := def.PodInstance{}
-	podInstance.Pod = pod
+func CreatePod(cli *clientv3.Client, pod_ pod.Pod) int {
+	podInstance := pod.PodInstance{}
+	podInstance.Pod = pod_
 
 	//TODO: This node should be decided by scheduler in the future
 	nodeID := 1
 
 	// 将新创建的pod写入到etcd当中
-	podKey := "/pod/" + pod.Metadata.Name
-	podValue, err := json.Marshal(pod)
+	podKey := "/pod/" + pod_.Metadata.Name
+	podValue, err := json.Marshal(pod_)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		panic(err)
@@ -27,7 +28,7 @@ func CreatePod(cli *clientv3.Client, pod def.Pod) int {
 
 	//将新创建的podInstance写入到etcd当中
 	podInstance.NodeID = uint64(nodeID)
-	podInstanceKey := "/podInstance/" + pod.Metadata.Name
+	podInstanceKey := "/podInstance/" + pod_.Metadata.Name
 	podInstanceValue, err := json.Marshal(podInstance)
 	if err != nil {
 		fmt.Printf("%v\n", err)

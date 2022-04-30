@@ -73,5 +73,6 @@ func registerToMaster(node *def.Node) error {
 	}
 	node.NodeID = response.NodeID
 	node.NodeName = response.NodeName
+	node.CniIP = response.CniIP
 	return nil
 }
