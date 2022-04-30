@@ -45,7 +45,7 @@ func CreatePod(cli *clientv3.Client, pod_ pod.Pod) int {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	node.PodInstances = append(node.PodInstances, podInstance)
+	node.PodInstances = append(node.PodInstances, &podInstance)
 	nodeValue, err = json.Marshal(node)
 	if err != nil {
 		fmt.Printf("%v\n", err)
