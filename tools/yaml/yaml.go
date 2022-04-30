@@ -3,12 +3,12 @@ package yaml
 import (
 	"fmt"
 	"gopkg.in/yaml.v2"
-	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/pod"
 	"os"
 )
 
-func ReadYamlConfig(path string) (*def.Pod, error) {
-	pod := &def.Pod{}
+func ReadYamlConfig(path string) (*pod.Pod, error) {
+	pod := &pod.Pod{}
 	if f, err := os.Open(path); err != nil {
 		return nil, err
 	} else {
