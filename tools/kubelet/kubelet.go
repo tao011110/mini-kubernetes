@@ -11,9 +11,6 @@ import (
 	"os"
 )
 
-/*
-	shared between all routines
-*/
 var node = def.Node{}
 
 func main() {
@@ -51,8 +48,9 @@ func main() {
 	}
 	node.CadvisorClient = cadvisorClient
 
-	go EtcdWatcher(e)
+	go EtcdWatcher()
 	go ResourceMonitoring()
+	go ContainerCheck()
 
 	e.Logger.Fatal(e.Start(":80"))
 

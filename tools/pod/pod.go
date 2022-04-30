@@ -104,9 +104,10 @@ const (
 type ContainerStatus struct {
 	ID     string `json:"ID"`
 	Status uint8  `json:"status"`
+	Name   string `json:"name"`
 }
 
-type InstanceStatus struct {
+type InstanceSpec struct {
 	StartTest            bool `json:"start_test"`
 	LastDetectSuccess    bool `json:"last_detect_success"`
 	ConsecutiveFailures  uint `json:"consecutive_failures"`
@@ -115,12 +116,13 @@ type InstanceStatus struct {
 
 type PodInstance struct {
 	Pod
+	ID                string            `json:"ID"`
 	Name              string            `json:"name"`
 	IP                string            `json:"ip"`
 	NodeID            uint64            `json:"nodeID"`
 	StartTime         time.Time         `json:"startTime"`
 	Status            uint8             `json:"status"`
-	ContainerStatus   []ContainerStatus `json:"containerStatus"`
+	ContainerSpec     []ContainerStatus `json:"containerStatus"`
 	RestartCount      uint64            `json:"restartCount"`
-	PodInstanceStatus InstanceStatus    `json:"podInstanceStatus"`
+	PodInstanceStatus InstanceSpec      `json:"podInstanceStatus"`
 }

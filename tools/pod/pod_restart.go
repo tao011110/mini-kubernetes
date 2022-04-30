@@ -6,10 +6,10 @@ import (
 
 func (podInstance *PodInstance) RestartPod() {
 	podInstance.Status = RESTARTING
-	for index, container := range podInstance.ContainerStatus {
+	for index, container := range podInstance.ContainerSpec {
 		docker.RestartContainer(container.ID)
-		podInstance.ContainerStatus[index].Status = SUCCEEDED
+		podInstance.ContainerSpec[index].Status = SUCCEEDED
 	}
 	podInstance.Status = SUCCEEDED
-	podInstance.PodInstanceStatus = InstanceStatus{}
+	podInstance.PodInstanceStatus = InstanceSpec{}
 }

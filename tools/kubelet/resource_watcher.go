@@ -6,6 +6,7 @@ import (
 	"github.com/robfig/cron"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
+	"mini-kubernetes/tools/pod"
 	"mini-kubernetes/tools/resource"
 	"time"
 )
@@ -28,19 +29,22 @@ func ResourceMonitoring() {
 
 func recordResource() {
 	for _, podInstance := range node.PodInstances {
+		if podInstance.Status != pod.RUNNING {
+			continue
+		}
 		memoryUsage := uint64(0)
 		cpuLoadAverage := int32(0)
-		for _, container := range podInstance.ContainerStatus {
-			info := resource.GetContainerInfoByName(node.CadvisorClient, container.ID)
+		for _, container := range podInstance.ContainerSpec {
+			info := resource.GetContainerInfoByName(node.CadvisorClient, container.Name)
 			memoryUsage += info.Stats[len(info.Stats)-1].Memory.Usage
 			cpuLoadAverage += info.Stats[len(info.Stats)-1].Cpu.LoadAverage
 		}
-		key := fmt.Sprintf("%s_resource_usage", podInstance.Name)
+		key := fmt.Sprintf("%s_resource_usage", podInstance.ID)
 		resp := etcd.Get(node.EtcdClient, key)
 		resourceSeq := def.ResourceUsageSequence{}
 		jsonString := ``
 		for _, ev := range resp.Kvs {
-			jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
+			jsonString += fmt.Sprintf(`"%s":"%s", `, ev.Key, ev.Value)
 		}
 		jsonString = fmt.Sprintf(`{%s}`, jsonString)
 		_ = json.Unmarshal([]byte(jsonString), &resourceSeq)
@@ -52,7 +56,7 @@ func recordResource() {
 		if len(resourceSeq.Sequence) < 30 {
 			resourceSeq.Sequence = append(resourceSeq.Sequence, resourceUsage)
 		} else {
-			resourceSeq.Sequence[29] = resourceUsage
+			resourceSeq.Sequence = append(resourceSeq.Sequence[1:], resourceUsage)
 		}
 		byts, _ := json.Marshal(resourceSeq)
 		etcd.Put(node.EtcdClient, key, string(byts))
@@ -76,7 +80,7 @@ func recordResource() {
 	if len(resourceSeq.Sequence) < 30 {
 		resourceSeq.Sequence = append(resourceSeq.Sequence, resourceUsage)
 	} else {
-		resourceSeq.Sequence[29] = resourceUsage
+		resourceSeq.Sequence = append(resourceSeq.Sequence[1:], resourceUsage)
 	}
 	byts, _ := json.Marshal(resourceSeq)
 	etcd.Put(node.EtcdClient, key, string(byts))

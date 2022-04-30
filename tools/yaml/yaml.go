@@ -8,22 +8,22 @@ import (
 )
 
 func ReadYamlConfig(path string) (*pod.Pod, error) {
-	pod := &pod.Pod{}
+	pod_ := &pod.Pod{}
 	if f, err := os.Open(path); err != nil {
 		return nil, err
 	} else {
-		err := yaml.NewDecoder(f).Decode(pod)
+		err := yaml.NewDecoder(f).Decode(pod_)
 		if err != nil {
 			return nil, err
 		}
-		if (*pod).ApiVersion != "v1" {
+		if (*pod_).ApiVersion != "v1" {
 			fmt.Println("apiVersion should be v1!")
 			return nil, err
-		} else if (*pod).Kind != "Pod" {
+		} else if (*pod_).Kind != "Pod" {
 			fmt.Println("kind should be Pod!")
 			return nil, err
 		}
 	}
-	fmt.Println("pod: ", pod)
-	return pod, nil
+	fmt.Println("pod_: ", pod_)
+	return pod_, nil
 }
