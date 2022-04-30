@@ -117,7 +117,6 @@ type InstanceSpec struct {
 type PodInstance struct {
 	Pod
 	ID                string            `json:"ID"`
-	Name              string            `json:"name"`
 	IP                string            `json:"ip"`
 	NodeID            uint64            `json:"nodeID"`
 	StartTime         time.Time         `json:"startTime"`
