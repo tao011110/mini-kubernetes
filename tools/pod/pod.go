@@ -81,7 +81,8 @@ type Spec struct {
 }
 
 type Meta struct {
-	Name string `yaml:"name" json:"name"`
+	Name  string `yaml:"name" json:"name"`
+	Label string `yaml:"label" json:"label"`
 }
 
 type Pod struct {

@@ -1,0 +1,10 @@
+kind: DNS
+name: dns-name
+host: example.com
+paths:
+  - path: /
+    service: service-name
+    port: 80
+  - path: /temp
+    service: service-name
+    port: 80

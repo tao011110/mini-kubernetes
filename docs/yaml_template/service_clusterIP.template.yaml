@@ -1,0 +1,12 @@
+apiVersion: v1             #API的版本号，版本号可以用 kubectl api-versions 查询到
+kind: Service              #表明资源对象，例如Pod、RC、Service、Namespace及Node等
+metadata:                  #资源对象的元数据定义
+  name: engine             #service名称
+spec:                      #资源对象的详细定义，持久化到etcd中保存
+  type: ClusterIP          #Service类型，ClusterIP供kubernates集群内部pod访问
+  ports:                   #暴露的端口列表
+    - port: 8080             #Service监听的端口，对应ClusterIP，即ClusterIP+ServicePort供集群内部pod访问的
+      targetPort: 8080       #对应pod中容器的端口
+      protocol: TCP          #协议，支持TCP、UDP，默认TCP
+  selector:                #label选择器，管理label对应的pod
+    name: enginehttpmanage #pod的label
