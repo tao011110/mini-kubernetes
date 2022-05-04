@@ -9,7 +9,7 @@ import (
 )
 
 func Test(t *testing.T) {
-	pod, err := yaml.ReadYamlConfig("tmp.yaml")
+	pod, err := yaml.ReadPodYamlConfig("tmp.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}

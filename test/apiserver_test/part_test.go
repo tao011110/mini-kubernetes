@@ -51,7 +51,7 @@ func Test(t *testing.T) {
 
 	//test create_pod
 	//需要发送给apiserver的参数为 pod_ def.Pod
-	pod_, _ := yaml.ReadYamlConfig("../docker_test/docker_test3.yaml")
+	pod_, _ := yaml.ReadPodYamlConfig("../docker_test/docker_test3.yaml")
 	request2 := *pod_
 	response2 := ""
 	body2, _ := json.Marshal(request2)

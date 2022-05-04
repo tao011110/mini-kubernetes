@@ -1,4 +1,4 @@
-package dns
+package def
 
 type PathPair struct {
 	Path    string `yaml:"path" json:"path"`

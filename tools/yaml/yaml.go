@@ -2,16 +2,13 @@ package yaml
 
 import (
 	"fmt"
-	"mini-kubernetes/tools/pod"
-	"mini-kubernetes/tools/yaml/template/clusterIP"
-	"mini-kubernetes/tools/yaml/template/dns"
-	"mini-kubernetes/tools/yaml/template/nodeport"
-	"os"
-
 	"gopkg.in/yaml.v2"
+	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/pod"
+	"os"
 )
 
-func ReadYamlConfig(path string) (*pod.Pod, error) {
+func ReadPodYamlConfig(path string) (*pod.Pod, error) {
 	pod_ := &pod.Pod{}
 	if f, err := os.Open(path); err != nil {
 		return nil, err
@@ -32,8 +29,8 @@ func ReadYamlConfig(path string) (*pod.Pod, error) {
 	return pod_, nil
 }
 
-func ReadServiceClusterIPConfig(path string) (*clusterIP.ClusterIP, error) {
-	service_c := &clusterIP.ClusterIP{}
+func ReadServiceClusterIPConfig(path string) (*def.ClusterIP, error) {
+	service_c := &def.ClusterIP{}
 	if f, err := os.Open(path); err != nil {
 		return nil, err
 	} else {
@@ -56,8 +53,8 @@ func ReadServiceClusterIPConfig(path string) (*clusterIP.ClusterIP, error) {
 	return service_c, nil
 }
 
-func ReadServiceNodeportConfig(path string) (*nodeport.Nodeport, error) {
-	service_n := &nodeport.Nodeport{}
+func ReadServiceNodeportConfig(path string) (*def.Nodeport, error) {
+	service_n := &def.Nodeport{}
 	if f, err := os.Open(path); err != nil {
 		return nil, err
 	} else {
@@ -80,8 +77,8 @@ func ReadServiceNodeportConfig(path string) (*nodeport.Nodeport, error) {
 	return service_n, nil
 }
 
-func ReadDNSConfig(path string) (*dns.DNS, error) {
-	dns_ := &dns.DNS{}
+func ReadDNSConfig(path string) (*def.DNS, error) {
+	dns_ := &def.DNS{}
 	if f, err := os.Open(path); err != nil {
 		return nil, err
 	} else {

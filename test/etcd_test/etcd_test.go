@@ -19,7 +19,7 @@ func Test(t *testing.T) {
 	defer cli.Close()
 
 	//put get delete watch示例
-	pod, err := yaml.ReadYamlConfig("./yaml/test-2.yaml")
+	pod, err := yaml.ReadPodYamlConfig("./yaml/test-2.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
