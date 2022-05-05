@@ -41,6 +41,23 @@ func Get(cli *clientv3.Client, key string) *clientv3.GetResponse {
 	return resp
 }
 
+func GetWithPrefix(cli *clientv3.Client, prefix string) *clientv3.GetResponse {
+	if cli == nil {
+		fmt.Printf("nil client\n")
+		return nil
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	resp, err := cli.Get(ctx, prefix, clientv3.WithPrefix()) // 获取指定前缀K的值
+	cancel()
+
+	if err != nil {
+		fmt.Printf("get to etcd failed")
+		return nil
+	}
+	return resp
+}
+
 func Delete(cli *clientv3.Client, key string) {
 	if cli == nil {
 		fmt.Printf("nil client\n")

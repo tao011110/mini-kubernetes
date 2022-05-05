@@ -6,12 +6,11 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
-	"mini-kubernetes/tools/pod"
 	"strconv"
 )
 
-func CreatePod(cli *clientv3.Client, pod_ pod.Pod) int {
-	podInstance := pod.PodInstance{}
+func CreatePod(cli *clientv3.Client, pod_ def.Pod) int {
+	podInstance := def.PodInstance{}
 	podInstance.Pod = pod_
 
 	//TODO: This node should be decided by scheduler in the future

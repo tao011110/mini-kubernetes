@@ -8,7 +8,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"log"
-	"mini-kubernetes/tools/pod"
+	"mini-kubernetes/tools/def"
 	"strconv"
 )
 
@@ -26,7 +26,7 @@ func GenerateNetworkingConfig(networkID string) *network.NetworkingConfig {
 }
 
 // Create the Pause container, which acts as the parent of all containers in the pod
-func CreatePauseContainer(cli *client.Client, cons []pod.Container, podName string, networkID string) string {
+func CreatePauseContainer(cli *client.Client, cons []def.Container, podName string, networkID string) string {
 	ImageEnsure("registry.aliyuncs.com/google_containers/pause")
 	config := &container.Config{
 		Image: "registry.aliyuncs.com/google_containers/pause",
@@ -48,7 +48,7 @@ func CreatePauseContainer(cli *client.Client, cons []pod.Container, podName stri
 }
 
 // generate Config
-func GenerateConfig(con pod.Container) *container.Config {
+func GenerateConfig(con def.Container) *container.Config {
 	config := &container.Config{
 		Image:      con.Image,
 		WorkingDir: con.WorkingDir,
@@ -65,7 +65,7 @@ func GenerateConfig(con pod.Container) *container.Config {
 }
 
 // generate HostConfig
-func GenerateHostConfig(con pod.Container, containerMode string) *container.HostConfig {
+func GenerateHostConfig(con def.Container, containerMode string) *container.HostConfig {
 	resourcesConfig := container.Resources{}
 
 	limits := con.Resources.ResourceLimit
@@ -144,7 +144,7 @@ func GenerateHostConfig(con pod.Container, containerMode string) *container.Host
 }
 
 // get exposedPorts and hostPorts
-func generatePorts(cons []pod.Container) (nat.PortSet, nat.PortMap) {
+func generatePorts(cons []def.Container) (nat.PortSet, nat.PortMap) {
 	exportPorts := make(nat.PortSet)
 	portMap := make(nat.PortMap)
 	for _, con := range cons {

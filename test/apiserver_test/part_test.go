@@ -7,7 +7,6 @@ import (
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/master"
-	"mini-kubernetes/tools/pod"
 	"mini-kubernetes/tools/yaml"
 	"net"
 	"testing"
@@ -68,39 +67,59 @@ func Test(t *testing.T) {
 
 	//test get_pod
 	//需要发送给apiserver的参数为 podName string
-	podName := "pod3"
-	response3 := pod.Pod{}
-	err, status = httpget.Get("http://" + node.MasterIpAndPort + "/get_pod/" + podName).
-		ContentType("application/json").
-		GetJson(&response3).
-		Execute()
-	if err != nil {
-		fmt.Println("err")
-		fmt.Println(err)
-	}
-	fmt.Printf("get_pod status is %s\n", status)
-	if status == "200" {
-		fmt.Printf("get pod_ %s successfully and the response is: %v\n", podName, response3)
-	} else {
-		fmt.Printf("pod_ %s doesn't exist\n", podName)
-	}
+	//podName := "pod3"
+	//response3 := def.Pod{}
+	//err, status = httpget.Get("http://" + node.MasterIpAndPort + "/get_pod/" + podName).
+	//	ContentType("application/json").
+	//	GetJson(&response3).
+	//	Execute()
+	//if err != nil {
+	//	fmt.Println("err")
+	//	fmt.Println(err)
+	//}
+	//fmt.Printf("get_pod status is %s\n", status)
+	//if status == "200" {
+	//	fmt.Printf("get pod_ %s successfully and the response is: %v\n", podName, response3)
+	//} else {
+	//	fmt.Printf("pod_ %s doesn't exist\n", podName)
+	//}
 
 	//test delete_pod
 	//需要发送给apiserver的参数为 podName string
-	response4 := ""
-	err, status = httpget.DELETE("http://" + node.MasterIpAndPort + "/delete_pod/" + podName).
+	//response4 := ""
+	//err, status = httpget.DELETE("http://" + node.MasterIpAndPort + "/delete_pod/" + podName).
+	//	ContentType("application/json").
+	//	GetString(&response4).
+	//	Execute()
+	//if err != nil {
+	//	fmt.Println("err")
+	//	fmt.Println(err)
+	//}
+	//
+	//fmt.Printf("get_pod status is %s\n", status)
+	//if status == "200" {
+	//	fmt.Printf("delete pod_ %s successfully and the response is: %v\n", podName, response4)
+	//} else {
+	//	fmt.Printf("pod_ %s doesn't exist\n", podName)
+	//}
+
+	// test get_all_pod
+	response5 := make([]string, 0)
+	err, status = httpget.Get("http://" + node.MasterIpAndPort + "/get/all/pod").
 		ContentType("application/json").
-		GetString(&response4).
+		GetJson(&response5).
 		Execute()
 	if err != nil {
 		fmt.Println("err")
 		fmt.Println(err)
 	}
-
-	fmt.Printf("get_pod status is %s\n", status)
+	fmt.Printf("get_all_pod status is %s\n", status)
 	if status == "200" {
-		fmt.Printf("delete pod_ %s successfully and the response is: %v\n", podName, response4)
+		fmt.Println("All pods are as follows")
+		for _, podName := range response5 {
+			fmt.Println(podName)
+		}
 	} else {
-		fmt.Printf("pod_ %s doesn't exist\n", podName)
+		fmt.Printf("No pod exists\n")
 	}
 }

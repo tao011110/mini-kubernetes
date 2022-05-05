@@ -12,7 +12,6 @@ import (
 	"mini-kubernetes/tools/apiserver/get_api"
 	"mini-kubernetes/tools/apiserver/register_api"
 	"mini-kubernetes/tools/def"
-	"mini-kubernetes/tools/pod"
 	"strconv"
 )
 
@@ -38,6 +37,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 
 	// handle get-api
 	e.GET("/get_pod/:podName", handleGetPod)
+	e.GET("/get/all/pod", handleGetAllPod)
 
 	e.Logger.Fatal(e.Start(":" + port))
 }
@@ -72,7 +72,7 @@ func handleRegisterNode(c echo.Context) error {
 }
 
 func handleCreatePod(c echo.Context) error {
-	pod_ := pod.Pod{}
+	pod_ := def.Pod{}
 	requestBody := new(bytes.Buffer)
 	_, err := requestBody.ReadFrom(c.Request().Body)
 	if err != nil {
@@ -114,4 +114,15 @@ func handleGetPod(c echo.Context) error {
 	}
 
 	return c.JSON(200, podInstance)
+}
+
+func handleGetAllPod(c echo.Context) error {
+	podInstanceNameList, flag := get_api.GetAllPod(cli)
+	fmt.Println(podInstanceNameList)
+
+	if flag == false {
+		return c.JSON(404, podInstanceNameList)
+	}
+
+	return c.JSON(200, podInstanceNameList)
 }

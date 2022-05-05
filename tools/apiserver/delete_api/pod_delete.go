@@ -6,7 +6,6 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
-	"mini-kubernetes/tools/pod"
 	"strconv"
 )
 
@@ -26,7 +25,7 @@ func DeletePod(cli *clientv3.Client, podName string) bool {
 	etcd.Delete(cli, podKey)
 
 	//更新相应node中的PodInstances列表
-	podInstance := pod.PodInstance{}
+	podInstance := def.PodInstance{}
 	err := json.Unmarshal(podInstanceValue, &podInstance)
 	if err != nil {
 		fmt.Printf("%v\n", err)
@@ -40,7 +39,7 @@ func DeletePod(cli *clientv3.Client, podName string) bool {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	podInstances := make([]*pod.PodInstance, len(node.PodInstances)-1)
+	podInstances := make([]*def.PodInstance, len(node.PodInstances)-1)
 	podInstanceList := make([]string, len(node.PodInstances)-1)
 	for _, pi := range node.PodInstances {
 		if pi.Pod.Metadata.Name != podInstance.Pod.Metadata.Name {
