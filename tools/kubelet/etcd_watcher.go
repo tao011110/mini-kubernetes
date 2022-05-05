@@ -3,6 +3,7 @@ package kubelet
 import (
 	"encoding/json"
 	"fmt"
+	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/pod"
 	"sort"
@@ -24,24 +25,24 @@ func handlePodInstancesChange(instances []string) {
 	adds, deletes := comparePodList(instances)
 	for _, add := range adds {
 		resp := etcd.Get(node.EtcdClient, add)
-		podInstance := pod.PodInstance{}
+		podInstance := def.PodInstance{}
 		jsonString := ``
 		for _, ev := range resp.Kvs {
 			jsonString += fmt.Sprintf(`"%s":"%s", `, ev.Key, ev.Value)
 		}
 		jsonString = fmt.Sprintf(`{%s}`, jsonString)
 		_ = json.Unmarshal([]byte(jsonString), &podInstance)
-		if podInstance.Status != pod.PENDING {
+		if podInstance.Status != def.PENDING {
 			continue
 		}
-		podInstance.CreateAndStartPod(&node)
+		pod.CreateAndStartPod(&podInstance, &node)
 		node.PodInstances = append(node.PodInstances, &podInstance)
 	}
 	for _, index := range deletes {
-		if node.PodInstances[index].Status != pod.RUNNING {
+		if node.PodInstances[index].Status != def.RUNNING {
 			continue
 		}
-		node.PodInstances[index].StopAndRemovePod(&node)
+		pod.StopAndRemovePod(node.PodInstances[index], &node)
 		//node.PodInstances = append(node.PodInstances[:index], node.PodInstances[index+1:]...)
 	}
 }

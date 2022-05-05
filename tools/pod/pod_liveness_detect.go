@@ -2,10 +2,11 @@ package pod
 
 import (
 	"fmt"
+	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
 )
 
-func (podInstance *PodInstance) DetectLiveness() {
+func DetectLiveness(podInstance *def.PodInstance) {
 	path := fmt.Sprintf("http://%s:%d%s",
 		podInstance.IP,
 		podInstance.Spec.LivenessProbe.HttpGetRequest.Port,

@@ -6,13 +6,13 @@ import (
 	"mini-kubernetes/tools/util"
 )
 
-func (podInstance *PodInstance) StopAndRemovePod(node *def.Node) {
-	podInstance.Status = SUCCEEDED
+func StopAndRemovePod(podInstance *def.PodInstance, node *def.Node) {
+	podInstance.Status = def.SUCCEEDED
 	util.PersistPodInstance(*podInstance, node.EtcdClient)
 	for index, container := range podInstance.ContainerSpec {
 		docker.StopContainer(container.ID)
 		_, _ = docker.RemoveContainer(container.ID)
-		podInstance.ContainerSpec[index].Status = SUCCEEDED
+		podInstance.ContainerSpec[index].Status = def.SUCCEEDED
 		util.PersistPodInstance(*podInstance, node.EtcdClient)
 	}
 }

@@ -1,4 +1,4 @@
-package pod
+package def
 
 import (
 	"time"
@@ -74,23 +74,23 @@ type LivenessProbe struct {
 	HttpGetRequest HttpRequest `yaml:"httpGet" json:"http_get_request"`
 }
 
-type Spec struct {
+type PodSpec struct {
 	Containers    []Container   `yaml:"containers" json:"containers"`
 	LivenessProbe LivenessProbe `yaml:"livenessProbe" json:"livenessProbe"`
 	Volumes       []Volume      `yaml:"volumes" json:"volumes"`
 }
 
-type Meta struct {
+type PodMeta struct {
 	Name  string `yaml:"name" json:"name"`
 	Label string `yaml:"label" json:"label"`
 }
 
 type Pod struct {
-	ApiVersion string `yaml:"apiVersion" json:"api_version"`
-	Kind       string `yaml:"kind" json:"kind"`
-	Metadata   Meta   `yaml:"metadata" json:"metadata"`
+	ApiVersion string  `yaml:"apiVersion" json:"api_version"`
+	Kind       string  `yaml:"kind" json:"kind"`
+	Metadata   PodMeta `yaml:"metadata" json:"metadata"`
 	// NodeID和NodeSelector迭代三再加
-	Spec Spec `yaml:"spec" json:"spec"`
+	Spec PodSpec `yaml:"spec" json:"spec"`
 }
 
 const (

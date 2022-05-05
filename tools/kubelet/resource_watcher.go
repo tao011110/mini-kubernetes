@@ -6,7 +6,6 @@ import (
 	"github.com/robfig/cron"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
-	"mini-kubernetes/tools/pod"
 	"mini-kubernetes/tools/resource"
 	"time"
 )
@@ -29,7 +28,7 @@ func ResourceMonitoring() {
 
 func recordResource() {
 	for _, podInstance := range node.PodInstances {
-		if podInstance.Status != pod.RUNNING {
+		if podInstance.Status != def.RUNNING {
 			continue
 		}
 		memoryUsage := uint64(0)

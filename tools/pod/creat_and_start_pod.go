@@ -10,7 +10,7 @@ import (
 	"mini-kubernetes/tools/util"
 )
 
-func (podInstance *PodInstance) CreateAndStartPod(node *def.Node) {
+func CreateAndStartPod(podInstance *def.PodInstance, node *def.Node) {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		log.Fatal(err)
@@ -38,7 +38,7 @@ func (podInstance *PodInstance) CreateAndStartPod(node *def.Node) {
 		containerMode := "container:" + pauseContainerID
 		hostConfig := docker.GenerateHostConfig(con, containerMode)
 
-		tmpCons := make([]Container, 0)
+		tmpCons := make([]def.Container, 0)
 		tmpCons = append(tmpCons, con)
 		//exportsPort, _ := generatePort(con)
 		//fmt.Println(exportsPort)
@@ -56,7 +56,7 @@ func (podInstance *PodInstance) CreateAndStartPod(node *def.Node) {
 			name)
 		if err != nil {
 			//if error, stop all containers has been created
-			podInstance.Status = FAILED
+			podInstance.Status = def.FAILED
 			util.PersistPodInstance(*podInstance, node.EtcdClient)
 			for _, id := range containerIDs {
 				docker.StopContainer(id)
@@ -68,12 +68,12 @@ func (podInstance *PodInstance) CreateAndStartPod(node *def.Node) {
 		fmt.Println("created " + body.ID)
 		containerIDs = append(containerIDs, body.ID)
 		docker.StartContainer(body.ID)
-		podInstance.ContainerSpec[index].Status = RUNNING
+		podInstance.ContainerSpec[index].Status = def.RUNNING
 		podInstance.ContainerSpec[index].ID = body.ID
 		podInstance.ContainerSpec[index].Name = name
 		util.PersistPodInstance(*podInstance, node.EtcdClient)
 	}
-	podInstance.Status = RUNNING
+	podInstance.Status = def.RUNNING
 	util.PersistPodInstance(*podInstance, node.EtcdClient)
 	/* 暂时不使用 */
 	//go podInstance.PodDaemon()

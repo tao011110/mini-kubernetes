@@ -5,7 +5,6 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/mem"
 	clientv3 "go.etcd.io/etcd/client/v3"
-	"mini-kubernetes/tools/pod"
 	"net"
 )
 
@@ -17,7 +16,7 @@ type NodeResource struct {
 }
 
 type Node struct {
-	PodInstances             []*pod.PodInstance
+	PodInstances             []*PodInstance
 	NodeID                   int
 	NodeIP                   net.IP
 	NodeName                 string

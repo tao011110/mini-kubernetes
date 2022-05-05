@@ -1,7 +1,6 @@
 package def
 
 import (
-	"mini-kubernetes/tools/pod"
 	"net"
 )
 
@@ -25,5 +24,5 @@ type RegisterToMasterRequest struct {
 */
 type NodeToMasterHeartBeatRequest struct {
 	NodeID       int
-	PodInstances []pod.PodInstance
+	PodInstances []PodInstance
 }

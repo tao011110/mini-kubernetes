@@ -1,15 +1,16 @@
 package pod
 
 import (
+	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/docker"
 )
 
-func (podInstance *PodInstance) RestartPod() {
-	podInstance.Status = RESTARTING
+func RestartPod(podInstance *def.PodInstance) {
+	podInstance.Status = def.RESTARTING
 	for index, container := range podInstance.ContainerSpec {
 		docker.RestartContainer(container.ID)
-		podInstance.ContainerSpec[index].Status = SUCCEEDED
+		podInstance.ContainerSpec[index].Status = def.SUCCEEDED
 	}
-	podInstance.Status = SUCCEEDED
-	podInstance.PodInstanceStatus = InstanceSpec{}
+	podInstance.Status = def.SUCCEEDED
+	podInstance.PodInstanceStatus = def.InstanceSpec{}
 }

@@ -1,20 +1,21 @@
 package pod
 
 import (
+	"mini-kubernetes/tools/def"
 	"time"
 )
 
-func (podInstance *PodInstance) PodDaemon() {
+func PodDaemon(podInstance *def.PodInstance) {
 	time.Sleep(time.Duration(podInstance.Spec.LivenessProbe.InitialDelaySeconds) * time.Second)
 	for {
-		if podInstance.Status == RUNNING {
-			podInstance.DetectLiveness()
+		if podInstance.Status == def.RUNNING {
+			DetectLiveness(podInstance)
 			if podInstance.PodInstanceStatus.LastDetectSuccess == false &&
 				podInstance.PodInstanceStatus.ConsecutiveFailures >= uint(podInstance.Spec.LivenessProbe.FailureThreshold) {
-				podInstance.RestartPod()
+				RestartPod(podInstance)
 			}
 		}
-		if podInstance.Status == SUCCEEDED || podInstance.Status == FAILED {
+		if podInstance.Status == def.SUCCEEDED || podInstance.Status == def.FAILED {
 			break
 		}
 		time.Sleep(time.Duration(podInstance.Spec.LivenessProbe.PeriodSeconds) * time.Second)
