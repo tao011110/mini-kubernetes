@@ -12,7 +12,6 @@ import (
 	"mini-kubernetes/tools/apiserver/get_api"
 	"mini-kubernetes/tools/apiserver/register_api"
 	"mini-kubernetes/tools/def"
-	"mini-kubernetes/tools/pod"
 	"strconv"
 )
 
@@ -72,7 +71,7 @@ func handleRegisterNode(c echo.Context) error {
 }
 
 func handleCreatePod(c echo.Context) error {
-	pod_ := pod.Pod{}
+	pod_ := def.Pod{}
 	requestBody := new(bytes.Buffer)
 	_, err := requestBody.ReadFrom(c.Request().Body)
 	if err != nil {

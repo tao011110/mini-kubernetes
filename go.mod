@@ -8,6 +8,7 @@ require (
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/docker v20.10.14+incompatible
 	github.com/docker/go-connections v0.4.0
+	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/golang/protobuf v1.5.2
 	github.com/google/cadvisor v0.39.3
 	github.com/labstack/echo/v4 v4.7.2

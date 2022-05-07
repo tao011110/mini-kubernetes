@@ -7,7 +7,6 @@ import (
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/master"
-	"mini-kubernetes/tools/pod"
 	"mini-kubernetes/tools/yaml"
 	"net"
 	"testing"
@@ -69,7 +68,7 @@ func Test(t *testing.T) {
 	//test get_pod
 	//需要发送给apiserver的参数为 podName string
 	podName := "pod3"
-	response3 := pod.Pod{}
+	response3 := def.Pod{}
 	err, status = httpget.Get("http://" + node.MasterIpAndPort + "/get_pod/" + podName).
 		ContentType("application/json").
 		GetJson(&response3).

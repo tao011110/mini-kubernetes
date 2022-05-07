@@ -1,0 +1,13 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: zuul
+zuul:
+  routes:
+    springcloud-mainservice:
+      path: /mainservice/**
+      url: http://localhost:8888
+    springcloud-findauthor:
+      path: /findauthor/**
+      url: http://localhost:9090

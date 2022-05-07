@@ -63,21 +63,21 @@ type Exec struct {
 	Command string `yaml:"command" json:"command"`
 }
 
-type LivenessProbe struct {
-	InitialDelaySeconds uint32 `yaml:"initialDelaySeconds" json:"initial_delay_seconds"`
-	TimeoutSeconds      uint32 `yaml:"timeoutSeconds" json:"timeout_seconds"`
-	PeriodSeconds       uint32 `yaml:"periodSeconds" json:"period_seconds"`
-	FailureThreshold    uint32 `yaml:"failureThreshold" json:"failure_threshold"`
-	SuccessThreshold    uint32 `yaml:"successThreshold" json:"success_threshold"`
-
-	Exec           Exec        `yaml:"exec" json:"exec"`
-	HttpGetRequest HttpRequest `yaml:"httpGet" json:"http_get_request"`
-}
+//type LivenessProbe struct {
+//	InitialDelaySeconds uint32 `yaml:"initialDelaySeconds" json:"initial_delay_seconds"`
+//	TimeoutSeconds      uint32 `yaml:"timeoutSeconds" json:"timeout_seconds"`
+//	PeriodSeconds       uint32 `yaml:"periodSeconds" json:"period_seconds"`
+//	FailureThreshold    uint32 `yaml:"failureThreshold" json:"failure_threshold"`
+//	SuccessThreshold    uint32 `yaml:"successThreshold" json:"success_threshold"`
+//
+//	Exec           Exec        `yaml:"exec" json:"exec"`
+//	HttpGetRequest HttpRequest `yaml:"httpGet" json:"http_get_request"`
+//}
 
 type PodSpec struct {
-	Containers    []Container   `yaml:"containers" json:"containers"`
-	LivenessProbe LivenessProbe `yaml:"livenessProbe" json:"livenessProbe"`
-	Volumes       []Volume      `yaml:"volumes" json:"volumes"`
+	Containers []Container `yaml:"containers" json:"containers"`
+	//LivenessProbe LivenessProbe `yaml:"livenessProbe" json:"livenessProbe"`
+	Volumes []Volume `yaml:"volumes" json:"volumes"`
 }
 
 type PodMeta struct {
