@@ -43,6 +43,9 @@ github.com/docker/go-connections/sockets
 github.com/docker/go-connections/tlsconfig
 # github.com/docker/go-units v0.4.0
 github.com/docker/go-units
+# github.com/ghodss/yaml v1.0.0
+## explicit
+github.com/ghodss/yaml
 # github.com/go-logr/logr v1.2.2
 github.com/go-logr/logr
 # github.com/go-ole/go-ole v1.2.6

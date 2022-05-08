@@ -23,7 +23,6 @@ type Meta struct {
 type PortPair struct {
 	Port       uint16 `yaml:"port" json:"port"`
 	TargetPort string `yaml:"targetPort" json:"targetPort"`
-	NodePort   uint16 `yaml:"nodePort" json:"nodePort"`
 	Protocol   string `yaml:"protocol" json:"protocol"`
 }
 
@@ -52,4 +51,9 @@ type Service struct {
 	Type          string          `yaml:"type" json:"type"`
 	IP            string          `yaml:"IP" json:"IP"`
 	PortsBindings []PortsBindings `yaml:"portsBindings" json:"portsBindings"`
+}
+
+type ClusterIPInstance struct {
+	ClusterIP
+	IP string
 }
