@@ -22,6 +22,7 @@ type Node struct {
 	NodeName                 string
 	MasterIpAndPort          string
 	LocalPort                int
+	ProxyPort                int
 	LastHeartbeatSuccessTime int64
 	CniIP                    net.IP
 	EtcdClient               *clientv3.Client

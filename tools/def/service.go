@@ -5,9 +5,10 @@ type Selector struct {
 }
 
 type Spec struct {
-	Type     string     `yaml:"type" json:"type"`
-	Ports    []PortPair `yaml:"ports" json:"ports"`
-	Selector Selector   `yaml:"selector" json:"selector"`
+	Type      string     `yaml:"type" json:"type"`
+	ClusterIP string     `yaml:"clusterIP" json:"clusterIP"`
+	Ports     []PortPair `yaml:"ports" json:"ports"`
+	Selector  Selector   `yaml:"selector" json:"selector"`
 }
 
 type Labels struct {
@@ -38,4 +39,17 @@ type ClusterIP struct {
 	Kind       string `yaml:"kind" json:"kind"`
 	Metadata   Meta   `yaml:"metadata" json:"metadata"`
 	Spec       Spec   `yaml:"spec" json:"spec"`
+}
+
+type PortsBindings struct {
+	Ports     PortPair `yaml:"ports" json:"ports"`
+	Endpoints []string `yaml:"endpoints" json:"endpoints"`
+}
+
+type Service struct {
+	Name          string          `yaml:"name" json:"name"`
+	Selector      Selector        `yaml:"selector" json:"selector"`
+	Type          string          `yaml:"type" json:"type"`
+	IP            string          `yaml:"IP" json:"IP"`
+	PortsBindings []PortsBindings `yaml:"portsBindings" json:"portsBindings"`
 }

@@ -7,6 +7,7 @@ import (
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/docker"
 	"mini-kubernetes/tools/etcd"
+	"mini-kubernetes/tools/kubeproxy"
 	"mini-kubernetes/tools/resource"
 	"os"
 )
@@ -16,6 +17,7 @@ var node = def.Node{}
 func main() {
 	parseArgs(&node.NodeName, &node.MasterIpAndPort, &node.LocalPort)
 	node.NodeIP = getLocalIP()
+	node.ProxyPort = kubeproxy.ProxyPort
 	if node.NodeIP == nil {
 		fmt.Println("get local ip error")
 		os.Exit(0)

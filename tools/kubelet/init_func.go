@@ -59,6 +59,7 @@ func registerToMaster(node *def.Node) error {
 		NodeName:  node.NodeName,
 		LocalIP:   node.NodeIP,
 		LocalPort: node.LocalPort,
+		ProxyPort: node.ProxyPort,
 	}
 
 	body, _ := json.Marshal(request)

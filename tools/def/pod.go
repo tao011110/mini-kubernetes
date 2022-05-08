@@ -81,8 +81,12 @@ type PodSpec struct {
 }
 
 type PodMeta struct {
-	Name  string `yaml:"name" json:"name"`
-	Label string `yaml:"label" json:"label"`
+	Name   string    `yaml:"name" json:"name"`
+	Labels PodLabels `yaml:"labels" json:"labels"`
+}
+
+type PodLabels struct {
+	Name string `yaml:"name" json:"name"`
 }
 
 type Pod struct {

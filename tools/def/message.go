@@ -17,6 +17,7 @@ type RegisterToMasterRequest struct {
 	NodeName  string
 	LocalIP   net.IP
 	LocalPort int
+	ProxyPort int
 }
 
 /*

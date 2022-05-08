@@ -8,6 +8,7 @@ import (
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/docker"
 	"mini-kubernetes/tools/util"
+	"strings"
 )
 
 func CreateAndStartPod(podInstance *def.PodInstance, node *def.Node) {
@@ -27,10 +28,13 @@ func CreateAndStartPod(podInstance *def.PodInstance, node *def.Node) {
 	containerIDs := make([]string, 0)
 
 	// Create the NetBridge if necessary
-	networkID := docker.CreateNetBridge(podInstance.IP)
+	networkID := docker.CreateNetBridge(node.CniIP.String())
 
 	// Create the Pause container
-	pauseContainerID := docker.CreatePauseContainer(cli, containers, podInstance.Metadata.Name, networkID)
+	pauseContainerID := docker.CreatePauseContainer(cli, containers, podInstance.ID, networkID)
+	pauserDetail, _ := docker.InspectContainer(pauseContainerID)
+	podInstance.IP = pauserDetail.NetworkSettings.Networks["miniK8S-bridge"].IPAddress
+	fmt.Printf("podInstance.IP is %s\n", podInstance.IP)
 
 	for index, con := range containers {
 		config := docker.GenerateConfig(con)
@@ -47,7 +51,9 @@ func CreateAndStartPod(podInstance *def.PodInstance, node *def.Node) {
 		networkingConfig := docker.GenerateNetworkingConfig(networkID)
 
 		docker.ImageEnsure(con.Image)
-		name := podInstance.ID + `-` + con.Name
+		prefix := podInstance.ID[1:]
+		prefix = strings.Replace(prefix, "/", "-", -1)
+		name := prefix + `-` + con.Name
 		body, err := cli.ContainerCreate(
 			context.Background(),
 			config, hostConfig,

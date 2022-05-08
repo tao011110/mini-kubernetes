@@ -28,6 +28,8 @@ func CreatePod(cli *clientv3.Client, pod_ def.Pod) int {
 	//将新创建的podInstance写入到etcd当中
 	podInstance.NodeID = uint64(nodeID)
 	podInstanceKey := "/podInstance/" + pod_.Metadata.Name
+	podInstance.ID = podInstanceKey
+	podInstance.ContainerSpec = make([]def.ContainerStatus, len(pod_.Spec.Containers))
 	podInstanceValue, err := json.Marshal(podInstance)
 	if err != nil {
 		fmt.Printf("%v\n", err)
