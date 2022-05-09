@@ -1,4 +1,4 @@
-package kubelet
+package kubelet_routines
 
 import (
 	"encoding/json"
@@ -9,20 +9,20 @@ import (
 	"sort"
 )
 
-func EtcdWatcher() {
+func EtcdWatcher(node *def.Node) {
 	key := fmt.Sprintf("Node%d_podInstances", node.NodeID)
 	watch := etcd.Watch(node.EtcdClient, key)
 	for wc := range watch {
 		for _, w := range wc.Events {
 			var instances []string
 			_ = json.Unmarshal(w.Kv.Value, &instances)
-			handlePodInstancesChange(instances)
+			handlePodInstancesChange(node, instances)
 		}
 	}
 }
 
-func handlePodInstancesChange(instances []string) {
-	adds, deletes := comparePodList(instances)
+func handlePodInstancesChange(node *def.Node, instances []string) {
+	adds, deletes := comparePodList(node, instances)
 	for _, add := range adds {
 		resp := etcd.Get(node.EtcdClient, add)
 		podInstance := def.PodInstance{}
@@ -35,19 +35,19 @@ func handlePodInstancesChange(instances []string) {
 		if podInstance.Status != def.PENDING {
 			continue
 		}
-		pod.CreateAndStartPod(&podInstance, &node)
+		pod.CreateAndStartPod(&podInstance, node)
 		node.PodInstances = append(node.PodInstances, &podInstance)
 	}
 	for _, index := range deletes {
 		if node.PodInstances[index].Status != def.RUNNING {
 			continue
 		}
-		pod.StopAndRemovePod(node.PodInstances[index], &node)
+		pod.StopAndRemovePod(node.PodInstances[index], node)
 		//node.PodInstances = append(node.PodInstances[:index], node.PodInstances[index+1:]...)
 	}
 }
 
-func comparePodList(instancesNew []string) (added []string, deleted []int) {
+func comparePodList(node *def.Node, instancesNew []string) (added []string, deleted []int) {
 	var instancesCurrent []string
 	sort.Strings(instancesNew)
 	for index, instance := range node.PodInstances {
