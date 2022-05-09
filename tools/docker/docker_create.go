@@ -10,6 +10,7 @@ import (
 	"log"
 	"mini-kubernetes/tools/def"
 	"strconv"
+	"strings"
 )
 
 func GenerateNetworkingConfig(networkID string) *network.NetworkingConfig {
@@ -26,7 +27,9 @@ func GenerateNetworkingConfig(networkID string) *network.NetworkingConfig {
 }
 
 // Create the Pause container, which acts as the parent of all containers in the pod
-func CreatePauseContainer(cli *client.Client, cons []def.Container, podName string, networkID string) string {
+func CreatePauseContainer(cli *client.Client, cons []def.Container, prefix string, networkID string) string {
+	prefix = prefix[1:]
+	prefix = strings.Replace(prefix, "/", "-", -1)
 	ImageEnsure("registry.aliyuncs.com/google_containers/pause")
 	config := &container.Config{
 		Image: "registry.aliyuncs.com/google_containers/pause",
@@ -38,7 +41,7 @@ func CreatePauseContainer(cli *client.Client, cons []def.Container, podName stri
 
 	networkingConfig := GenerateNetworkingConfig(networkID)
 
-	body, err := cli.ContainerCreate(context.Background(), config, hostConfig, networkingConfig, nil, "pause-"+podName)
+	body, err := cli.ContainerCreate(context.Background(), config, hostConfig, networkingConfig, nil, prefix+"pause")
 	if err != nil {
 		log.Fatal(err)
 	}

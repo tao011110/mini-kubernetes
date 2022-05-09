@@ -81,8 +81,12 @@ type PodSpec struct {
 }
 
 type PodMeta struct {
-	Name  string `yaml:"name" json:"name"`
-	Label string `yaml:"label" json:"label"`
+	Name   string    `yaml:"name" json:"name"`
+	Labels PodLabels `yaml:"labels" json:"labels"`
+}
+
+type PodLabels struct {
+	Name string `yaml:"name" json:"name"`
 }
 
 type Pod struct {
@@ -125,4 +129,12 @@ type PodInstance struct {
 	ContainerSpec     []ContainerStatus `json:"containerStatus"`
 	RestartCount      uint64            `json:"restartCount"`
 	PodInstanceStatus InstanceSpec      `json:"podInstanceStatus"`
+}
+
+type PodInstanceBrief struct {
+	Name     string        `json:"name"`
+	Ready    string        `json:"ready"`
+	Status   uint8         `json:"status"`
+	Restarts uint64        `json:"restarts"`
+	Age      time.Duration `json:"age"`
 }

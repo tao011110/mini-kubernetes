@@ -57,8 +57,10 @@ func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.C
 		ApiVersion: `v1`,
 		Kind:       `Pod`,
 		Metadata: def.PodMeta{
-			Name:  podName,
-			Label: podLabel,
+			Name: podName,
+			Labels: def.PodLabels{
+				Name: podLabel,
+			},
 		},
 		Spec: def.PodSpec{
 			Containers: []def.Container{

@@ -218,6 +218,7 @@ func (client *HttpClient) Execute() (err error, status string) {
 	rsp, err := c.Do(client.request)
 
 	if err != nil {
+		fmt.Println(err)
 		return err, rsp.Status[:3]
 	}
 	content, err := ioutil.ReadAll(rsp.Body)

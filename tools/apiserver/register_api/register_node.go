@@ -22,6 +22,7 @@ func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpA
 	newFollower.NodeName = request.NodeName
 	newFollower.MasterIpAndPort = IpAndPort
 	newFollower.LocalPort = request.LocalPort
+	newFollower.ProxyPort = request.ProxyPort
 	newFollower.LastHeartbeatSuccessTime = time.Now().Unix()
 	newFollower.CniIP = distributeCniIP()
 	nodeValue, _ := json.Marshal(newFollower)
@@ -36,7 +37,7 @@ func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpA
 }
 
 func distributeCniIP() net.IP {
-	cniIP := net.IPv4(10, 24, byte(registeredNodeID), 0)
+	cniIP := net.IPv4(10, byte(registeredNodeID), 0, 0)
 
 	return cniIP
 }

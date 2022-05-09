@@ -14,9 +14,11 @@ func CreateNetBridge(cniIP string) string {
 
 	for _, network := range networks {
 		if network.Name == name {
+			fmt.Println("No need to create miniK8S-bridge")
 			return network.ID
 		}
 	}
+	fmt.Println("cniIP is " + cniIP)
 
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
@@ -25,7 +27,7 @@ func CreateNetBridge(cniIP string) string {
 	}
 	defer cli.Close()
 	ipamConfig := make([]network.IPAMConfig, 0)
-	subnet := cniIP + "/16"
+	subnet := cniIP + "/24"
 	gateway := string([]byte(cniIP)[:len(cniIP)-1]) + "1"
 	tmpConfig := network.IPAMConfig{
 		Subnet:  subnet,

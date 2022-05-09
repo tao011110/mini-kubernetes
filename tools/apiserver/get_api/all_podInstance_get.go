@@ -8,13 +8,13 @@ import (
 	"mini-kubernetes/tools/etcd"
 )
 
-func GetAllPod(cli *clientv3.Client) ([]string, bool) {
+func GetAllPodInstance(cli *clientv3.Client) ([]def.PodInstance, bool) {
 	flag := false
 	podInstanceKey := "/podInstance/"
 	kvs := etcd.GetWithPrefix(cli, podInstanceKey).Kvs
 	podInstance := def.PodInstance{}
 	podInstanceValue := make([]byte, 0)
-	podInstanceNameList := make([]string, 0)
+	podInstanceList := make([]def.PodInstance, 0)
 	if len(kvs) != 0 {
 		for _, kv := range kvs {
 			podInstanceValue = kv.Value
@@ -24,10 +24,10 @@ func GetAllPod(cli *clientv3.Client) ([]string, bool) {
 				panic(err)
 			}
 			fmt.Println("podInstance.Metadata.Name is " + podInstance.Metadata.Name)
-			podInstanceNameList = append(podInstanceNameList, podInstance.Metadata.Name)
+			podInstanceList = append(podInstanceList, podInstance)
 		}
 		flag = true
 	}
 
-	return podInstanceNameList, flag
+	return podInstanceList, flag
 }
