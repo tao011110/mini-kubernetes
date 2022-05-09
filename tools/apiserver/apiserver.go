@@ -237,17 +237,23 @@ func handleGetPod(c echo.Context) error {
 }
 
 func handleGetAllPod(c echo.Context) error {
+	fmt.Println("handleGetAllPod")
 	podInstanceList, flag := get_api.GetAllPodInstance(cli)
-	fmt.Println(podInstanceList)
+	podInstanceNameList := make([]string, 0)
+	for _, podInstance := range podInstanceList {
+		podInstanceNameList = append(podInstanceNameList, podInstance.Metadata.Name)
+	}
+	fmt.Println(podInstanceNameList)
 
 	if flag == false {
-		return c.JSON(404, podInstanceList)
+		return c.JSON(404, podInstanceNameList)
 	}
 
-	return c.JSON(200, podInstanceList)
+	return c.JSON(200, podInstanceNameList)
 }
 
 func handleGetAllPodStatus(c echo.Context) error {
+	fmt.Println("handleGetAllPodStatus")
 	podInstanceBriefList, flag := get_api.GetAllPodInstanceStatus(cli)
 	fmt.Println(podInstanceBriefList)
 

@@ -1,6 +1,7 @@
 package get_api
 
 import (
+	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"strconv"
@@ -21,6 +22,9 @@ func GetAllPodInstanceStatus(cli *clientv3.Client) ([]def.PodInstanceBrief, bool
 		for _, container := range containers {
 			if container.Status == def.RUNNING {
 				count++
+			} else {
+				fmt.Println("wadadawdawdwa")
+				fmt.Println(container.Status)
 			}
 		}
 		brief.Ready = strconv.Itoa(count) + "/" + strconv.Itoa(len(containers))

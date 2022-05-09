@@ -142,7 +142,7 @@ func testGetAllPod() {
 }
 
 func testGetAllPodStatus() {
-	response5 := make([]string, 0)
+	response5 := make([]def.PodInstanceBrief, 0)
 	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/all/podStatus").
 		ContentType("application/json").
 		GetJson(&response5).
@@ -165,16 +165,16 @@ func testGetAllPodStatus() {
 func TestPod(t *testing.T) {
 	testRegisterNode()
 
-	//var path = "../docker_test/docker_test3.yaml"
-	//testCreatePod(path)
+	var path = "./podForService.yaml"
+	testCreatePod(path)
 	//
 	//testGetPod()
 	//
 	//testDeletePod()
 	//
-	//testGetAllPod()
+	testGetAllPod()
 
-	//testGetAllPodStatus()
+	testGetAllPodStatus()
 }
 
 func testCreateCIService(path string) {

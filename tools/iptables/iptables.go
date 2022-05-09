@@ -55,6 +55,7 @@ type Rule struct {
 	DestinationPort string
 	DNAT            string
 	Probability     string
+	RobinN          int
 }
 
 type IPTables struct {
