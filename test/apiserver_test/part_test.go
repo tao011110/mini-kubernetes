@@ -133,8 +133,29 @@ func testGetAllPod() {
 	fmt.Printf("get_all_pod status is %s\n", status)
 	if status == "200" {
 		fmt.Println("All pods are as follows")
-		for _, podName := range response5 {
-			fmt.Println(podName)
+		for _, podInstance := range response5 {
+			fmt.Printf("%v\n", podInstance)
+		}
+	} else {
+		fmt.Printf("No pod exists\n")
+	}
+}
+
+func testGetAllPodStatus() {
+	response5 := make([]string, 0)
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/all/podStatus").
+		ContentType("application/json").
+		GetJson(&response5).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_all_pod status is %s\n", status)
+	if status == "200" {
+		fmt.Println("All pods' brief information is as follows")
+		for _, podInstanceBrief := range response5 {
+			fmt.Printf("%v\n", podInstanceBrief)
 		}
 	} else {
 		fmt.Printf("No pod exists\n")
@@ -152,6 +173,8 @@ func TestPod(t *testing.T) {
 	//testDeletePod()
 	//
 	//testGetAllPod()
+
+	//testGetAllPodStatus()
 }
 
 func testCreateCIService(path string) {

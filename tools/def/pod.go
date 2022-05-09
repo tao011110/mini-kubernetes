@@ -130,3 +130,11 @@ type PodInstance struct {
 	RestartCount      uint64            `json:"restartCount"`
 	PodInstanceStatus InstanceSpec      `json:"podInstanceStatus"`
 }
+
+type PodInstanceBrief struct {
+	Name     string        `json:"name"`
+	Ready    string        `json:"ready"`
+	Status   uint8         `json:"status"`
+	Restarts uint64        `json:"restarts"`
+	Age      time.Duration `json:"age"`
+}

@@ -29,6 +29,9 @@ func CreatePod(cli *clientv3.Client, pod_ def.Pod) int {
 	podInstance.NodeID = uint64(nodeID)
 	podInstanceKey := "/podInstance/" + pod_.Metadata.Name
 	podInstance.ID = podInstanceKey
+	// NOTICE: 此处的IP设置仅供测试使用
+	//podInstance.IP = "10.24.0.2"
+
 	podInstance.ContainerSpec = make([]def.ContainerStatus, len(pod_.Spec.Containers))
 	podInstanceValue, err := json.Marshal(podInstance)
 	if err != nil {

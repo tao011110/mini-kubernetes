@@ -9,6 +9,7 @@ import (
 	"mini-kubernetes/tools/docker"
 	"mini-kubernetes/tools/util"
 	"strings"
+	"time"
 )
 
 func CreateAndStartPod(podInstance *def.PodInstance, node *def.Node) {
@@ -80,6 +81,7 @@ func CreateAndStartPod(podInstance *def.PodInstance, node *def.Node) {
 		util.PersistPodInstance(*podInstance, node.EtcdClient)
 	}
 	podInstance.Status = def.RUNNING
+	podInstance.StartTime = time.Now()
 	util.PersistPodInstance(*podInstance, node.EtcdClient)
 	/* 暂时不使用 */
 	//go podInstance.PodDaemon()

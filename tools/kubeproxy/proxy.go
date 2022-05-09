@@ -53,17 +53,23 @@ func addCIPServiceRule(c echo.Context) error {
 
 	rules := make([]iptables.Rule, 0)
 	for _, pair := range service.PortsBindings {
+		num := len(pair.Endpoints)
+		i := 1
 		for _, endpoint := range pair.Endpoints {
+			probability := strconv.FormatFloat(1/(float64(num-i+1)), 'f', 4, 64)
 			rule := iptables.Rule{
 				Protocol:        pair.Ports.Protocol,
 				DestinationIP:   service.IP,
 				DestinationPort: strconv.Itoa(int(pair.Ports.Port)),
 				DNAT:            endpoint + ":" + pair.Ports.TargetPort,
+				Probability:     probability,
 			}
 			fmt.Printf("add rule is %v\n", rule)
 			rules = append(rules, rule)
 			err = ipt.Append("nat", "PREROUTING", "-p", rule.Protocol,
-				"-d", rule.DestinationIP, "--dport", rule.DestinationPort, "-j", "DNAT", "--to", rule.DNAT)
+				"-d", rule.DestinationIP, "--dport", "-m", "statistic", "--mode", "random",
+				"--probability", rule.Probability,
+				rule.DestinationPort, "-j", "DNAT", "--to", rule.DNAT)
 			//err = ipt.Append("nat", "OUTPUT", "-p", rule.Protocol,
 			//	"-d", rule.DestinationIP, "--dport", rule.DestinationPort, "-j", "DNAT", "--to", rule.DNAT)
 			if err != nil {
@@ -90,7 +96,9 @@ func deleteCIPServiceRule(c echo.Context) error {
 	for _, rule := range rules {
 		fmt.Printf("delete rule is %v\n", rule)
 		err := ipt.Delete("nat", "PREROUTING", "-p", rule.Protocol,
-			"-d", rule.DestinationIP, "--dport", rule.DestinationPort, "-j", "DNAT", "--to", rule.DNAT)
+			"-d", rule.DestinationIP, "--dport", "-m", "statistic", "--mode", "random",
+			"--probability", rule.Probability,
+			rule.DestinationPort, "-j", "DNAT", "--to", rule.DNAT)
 
 		if err != nil {
 			fmt.Printf("Add clusterIP service failed: %v", err)
