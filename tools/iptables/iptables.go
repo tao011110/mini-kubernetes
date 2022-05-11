@@ -54,7 +54,6 @@ type Rule struct {
 	DestinationIP   string
 	DestinationPort string
 	DNAT            string
-	Probability     string
 	RobinN          int
 }
 

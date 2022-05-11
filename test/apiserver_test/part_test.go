@@ -68,7 +68,7 @@ func testCreatePod(path string) {
 	}
 	fmt.Printf("create_pod is %s and response is: %s\n", status, response2)
 
-	//TODO: 在kubelet正常运行后，这部分测试代码可以删除
+	//TODO:在kubelet正常运行后，这部分测试代码可以删除
 	podInstance := def.PodInstance{}
 	podInstance.Pod = *pod_
 	podInstance.NodeID = uint64(node.NodeID)

@@ -54,27 +54,20 @@ func addCIPServiceRule(c echo.Context) error {
 	rules := make([]iptables.Rule, 0)
 	for _, pair := range service.PortsBindings {
 		num := len(pair.Endpoints)
-		i := 1
+		i := 0
 		for _, endpoint := range pair.Endpoints {
-			probability := strconv.FormatFloat(1/(float64(num-i+1)), 'f', -1, 64)
 			rule := iptables.Rule{
 				Protocol:        pair.Ports.Protocol,
 				DestinationIP:   service.IP,
 				DestinationPort: strconv.Itoa(int(pair.Ports.Port)),
 				DNAT:            endpoint + ":" + pair.Ports.TargetPort,
-				Probability:     probability,
-				RobinN:          num - i + 1,
+				RobinN:          num - i,
 			}
 			fmt.Printf("add rule is %v\n", rule)
 			rules = append(rules, rule)
-			fmt.Println(len(rule.Probability))
-			//err = ipt.Append("nat", "PREROUTING", "-p", rule.Protocol,
-			//	"-d", rule.DestinationIP, "--dport", rule.DestinationPort, "-m", "statistic",
-			//	"--mode", "random", "--probability", rule.Probability,
-			//	"-j", "DNAT", "--to", rule.DNAT)
 			err = ipt.Append("nat", "PREROUTING", "-p", rule.Protocol,
 				"-d", rule.DestinationIP, "--dport", rule.DestinationPort, "-m", "statistic",
-				"--mode", "nth", "--every", strconv.Itoa(2), "--packet", "1",
+				"--mode", "nth", "--every", strconv.Itoa(rule.RobinN), "--packet", "0",
 				"-j", "DNAT", "--to", rule.DNAT)
 			//err = ipt.Append("nat", "OUTPUT", "-p", rule.Protocol,
 			//	"-d", rule.DestinationIP, "--dport", rule.DestinationPort, "-j", "DNAT", "--to", rule.DNAT)
@@ -101,10 +94,6 @@ func deleteCIPServiceRule(c echo.Context) error {
 
 	for _, rule := range rules {
 		fmt.Printf("delete rule is %v\n", rule)
-		//err := ipt.Delete("nat", "PREROUTING", "-p", rule.Protocol,
-		//	"-d", rule.DestinationIP, "--dport", rule.DestinationPort, "-m", "statistic",
-		//	"--mode", "random", "--probability", rule.Probability,
-		//	"-j", "DNAT", "--to", rule.DNAT)
 		err := ipt.Delete("nat", "PREROUTING", "-p", rule.Protocol,
 			"-d", rule.DestinationIP, "--dport", rule.DestinationPort, "-m", "statistic",
 			"--mode", "nth", "--every", strconv.Itoa(rule.RobinN), "--packet", "0",

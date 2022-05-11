@@ -13,7 +13,7 @@ func CreatePod(cli *clientv3.Client, pod_ def.Pod) int {
 	podInstance := def.PodInstance{}
 	podInstance.Pod = pod_
 
-	//TODO: This node should be decided by scheduler in the future
+	//TODO:This node should be decided by scheduler in the future
 	nodeID := 1
 
 	// 将新创建的pod写入到etcd当中
