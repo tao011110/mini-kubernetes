@@ -11,6 +11,8 @@ github.com/containerd/containerd/platforms
 github.com/coreos/go-semver/semver
 # github.com/coreos/go-systemd/v22 v22.3.2
 github.com/coreos/go-systemd/v22/journal
+# github.com/cpuguy83/go-md2man/v2 v2.0.0
+github.com/cpuguy83/go-md2man/v2/md2man
 # github.com/docker/distribution v2.8.1+incompatible
 ## explicit
 github.com/docker/distribution/digestset
@@ -94,11 +96,15 @@ github.com/pkg/errors
 github.com/robfig/cron
 # github.com/robfig/cron/v3 v3.0.0
 ## explicit
+# github.com/russross/blackfriday/v2 v2.0.1
+github.com/russross/blackfriday/v2
 # github.com/shirou/gopsutil v3.21.11+incompatible
 ## explicit
 github.com/shirou/gopsutil/cpu
 github.com/shirou/gopsutil/internal/common
 github.com/shirou/gopsutil/mem
+# github.com/shurcooL/sanitized_anchor_name v1.0.0
+github.com/shurcooL/sanitized_anchor_name
 # github.com/sirupsen/logrus v1.8.1
 github.com/sirupsen/logrus
 # github.com/stretchr/testify v1.7.1
@@ -108,6 +114,9 @@ github.com/sirupsen/logrus
 github.com/tklauser/go-sysconf
 # github.com/tklauser/numcpus v0.4.0
 github.com/tklauser/numcpus
+# github.com/urfave/cli v1.22.8
+## explicit
+github.com/urfave/cli
 # github.com/valyala/bytebufferpool v1.0.0
 github.com/valyala/bytebufferpool
 # github.com/valyala/fasttemplate v1.2.1
