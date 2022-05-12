@@ -69,13 +69,13 @@ func main() {
 }
 
 /*
-	command format:./kubelet --name `nodeName` --master `masterIP:port` --port `localPort`
-	for example: ./kubelet --name node1 --master 192.168.55.184:80 --port 80
+	command format:./kubelet -name `nodeName` -master `masterIP:port` -port `localPort`
+	for example: ./kubelet -name node1 -master 192.168.55.184:80 -port 80
 */
 func parseArgs(nodeName *string, masterIPAndPort *string, localPort *int) {
-	flag.StringVar(nodeName, "--name", "undefined", "name of the node, `node+nodeIP` by default")
-	flag.StringVar(masterIPAndPort, "--master", "undefined", "name of the node, `node+nodeIP` by default")
-	flag.IntVar(localPort, "--port", 80, "local port to communicate with master")
+	flag.StringVar(nodeName, "name", "undefined", "name of the node, `node+nodeIP` by default")
+	flag.StringVar(masterIPAndPort, "master", "undefined", "name of the node, `node+nodeIP` by default")
+	flag.IntVar(localPort, "port", 80, "local port to communicate with master")
 	flag.Parse()
 	/*
 		TODO: Check IP format legality
@@ -218,7 +218,7 @@ func recordResource() {
 		byts, _ := json.Marshal(resourceSeq)
 		etcd.Put(node.EtcdClient, key, string(byts))
 	}
-	key := fmt.Sprintf("%d_resource_usage", node.NodeID)
+	key := def.KeyNodeResourceUsage(node.NodeID)
 	resp := etcd.Get(node.EtcdClient, key)
 	resourceSeq := def.ResourceUsageSequence{}
 	jsonString := ``
@@ -233,6 +233,7 @@ func recordResource() {
 		MemoryUsage: nodeResource.MemoryInfo.Used,
 		MemoryTotal: nodeResource.MemoryInfo.Total,
 		Time:        time.Now(),
+		CPUNum:      len(nodeResource.PerCPUPercent),
 	}
 	if len(resourceSeq.Sequence) < 30 {
 		resourceSeq.Sequence = append(resourceSeq.Sequence, resourceUsage)
