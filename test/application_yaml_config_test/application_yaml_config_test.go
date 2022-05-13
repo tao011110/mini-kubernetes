@@ -16,8 +16,10 @@ func Test(t *testing.T) {
 			def.PathPairDetail{
 				Path: "testPath",
 				Port: 8080,
-				Service: def.ClusterIPInstance{
-					IP: "1.1.1.1",
+				Service: def.ClusterIPSvc{
+					Spec: def.Spec{
+						ClusterIP: "1.1.1.1",
+					},
 				},
 			},
 		},

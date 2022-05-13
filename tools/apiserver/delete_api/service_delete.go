@@ -8,7 +8,7 @@ import (
 	"mini-kubernetes/tools/etcd"
 )
 
-func DeleteClusterIPService(cli *clientv3.Client, serviceName string) (string, bool) {
+func DeleteService(cli *clientv3.Client, serviceName string) (string, bool) {
 	// 在etcd中删除service
 	serviceKey := "/service/" + serviceName
 	clusterIP := ""

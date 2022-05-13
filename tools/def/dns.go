@@ -14,9 +14,9 @@ type DNS struct {
 }
 
 type PathPairDetail struct {
-	Path    string            `yaml:"path" json:"path"`
-	Service ClusterIPInstance `yaml:"service" json:"service"`
-	Port    uint16            `yaml:"port" json:"port"`
+	Path    string       `yaml:"path" json:"path"`
+	Service ClusterIPSvc `yaml:"service" json:"service"`
+	Port    uint16       `yaml:"port" json:"port"`
 }
 
 type DNSDetail struct {

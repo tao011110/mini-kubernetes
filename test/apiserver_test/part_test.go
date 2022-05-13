@@ -12,6 +12,7 @@ import (
 	"mini-kubernetes/tools/yaml"
 	"net"
 	"testing"
+	"time"
 )
 
 var node = def.Node{
@@ -172,13 +173,13 @@ func TestPod(t *testing.T) {
 	//
 	//testDeletePod()
 	//
-	testGetAllPod()
+	//testGetAllPod()
 
 	testGetAllPodStatus()
 }
 
 func testCreateCIService(path string) {
-	//需要发送给apiserver的参数为 service_c def.ClusterIP
+	//需要发送给apiserver的参数为 service_c def.ClusterIPSvc
 	serviceC, _ := yaml.ReadServiceClusterIPConfig(path)
 	request2 := *serviceC
 	response2 := ""
@@ -216,6 +217,45 @@ func testDeleteCIService() {
 	}
 }
 
+func testCreateNPService(path string) {
+	//需要发送给apiserver的参数为 serviceN def.NodePortSvc
+	serviceN, _ := yaml.ReadServiceNodeportConfig(path)
+	request2 := *serviceN
+	response2 := ""
+	body2, _ := json.Marshal(request2)
+	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/create/nodePortService").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetString(&response2).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("create_service is %s and response is: %s\n", status, response2)
+}
+
+func testDeleteNPService() {
+	//需要发送给apiserver的参数为 serviceName string
+	serviceName := "test-service2"
+	response4 := ""
+	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/nodePortService/" + serviceName).
+		ContentType("application/json").
+		GetString(&response4).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+
+	fmt.Printf("delete nodePortService status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("delete nodePortService %s successfully and the response is: %v\n", serviceName, response4)
+	} else {
+		fmt.Printf("nodePortService %s doesn't exist\n", serviceName)
+	}
+}
+
 func TestUpdateIptablesRule(t *testing.T) {
 	testRegisterNode()
 
@@ -223,9 +263,16 @@ func TestUpdateIptablesRule(t *testing.T) {
 	testCreatePod(path)
 	//path = "./podForService2.yaml"
 	//testCreatePod(path)
+	//
+	//path = "./clusterIPService_test.yaml"
+	//testCreateCIService(path)
 
-	path = "./clusterIPService_test.yaml"
-	testCreateCIService(path)
+	//time.Sleep(5 * time.Second)
+	//testDeleteCIService()
 
-	testDeleteCIService()
+	path = "./nodePortService_test.yaml"
+	testCreateNPService(path)
+
+	time.Sleep(5 * time.Second)
+	testDeleteNPService()
 }

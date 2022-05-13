@@ -41,7 +41,7 @@ func CreatePauseContainer(cli *client.Client, cons []def.Container, prefix strin
 
 	networkingConfig := GenerateNetworkingConfig(networkID)
 
-	body, err := cli.ContainerCreate(context.Background(), config, hostConfig, networkingConfig, nil, prefix+"pause")
+	body, err := cli.ContainerCreate(context.Background(), config, hostConfig, networkingConfig, nil, prefix+"-pause")
 	if err != nil {
 		log.Fatal(err)
 	}

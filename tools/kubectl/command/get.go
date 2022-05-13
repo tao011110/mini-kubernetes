@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 
+	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/master"
 
@@ -63,7 +64,7 @@ func getFunc(c *cli.Context) {
 		fmt.Printf("get_all_pod status is %s\n", status)
 		if status == "200" {
 			fmt.Println("All pods are as follows")
-			for _, podInstance := range response5 {
+			for _, podInstance := range response {
 				fmt.Printf("%v\n", podInstance)
 			}
 		} else {
