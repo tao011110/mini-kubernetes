@@ -1,4 +1,4 @@
-package scheduler_utils
+package util
 
 import (
 	"fmt"

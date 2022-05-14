@@ -34,21 +34,21 @@ spec:
           cpu: string
           memory: string
 
-  livenessProbe:
-    exec:
-      command: string
-    httpGet:
-      path: string
-      port: number
-      scheme: string
-      HttpHeaders:
-        - name: string
-          value: string
-    initialDelaySeconds:  <integer>
-    timeoutSeconds:       <integer>
-    periodSeconds:        <integer>
-    failureThreshold:     <integer>
-    successThreshold:     <integer>
+#  livenessProbe:
+#    exec:
+#      command: string
+#    httpGet:
+#      path: string
+#      port: number
+#      scheme: string
+#      HttpHeaders:
+#        - name: string
+#          value: string
+#    initialDelaySeconds:  <integer>
+#    timeoutSeconds:       <integer>
+#    periodSeconds:        <integer>
+#    failureThreshold:     <integer>
+#    successThreshold:     <integer>
 
   volumes:
     - name: string

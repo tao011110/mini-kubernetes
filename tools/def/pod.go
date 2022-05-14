@@ -118,23 +118,23 @@ type ContainerStatus struct {
 	Name   string `json:"name"`
 }
 
-type InstanceSpec struct {
-	StartTest            bool `json:"start_test"`
-	LastDetectSuccess    bool `json:"last_detect_success"`
-	ConsecutiveFailures  uint `json:"consecutive_failures"`
-	ConsecutiveSuccesses uint `json:"consecutive_successes"`
-}
+//type InstanceSpec struct {
+//	StartTest            bool `json:"start_test"`
+//	LastDetectSuccess    bool `json:"last_detect_success"`
+//	ConsecutiveFailures  uint `json:"consecutive_failures"`
+//	ConsecutiveSuccesses uint `json:"consecutive_successes"`
+//}
 
 type PodInstance struct {
 	Pod
-	ID                string            `json:"ID"`
-	IP                string            `json:"ip"`
-	NodeID            uint64            `json:"nodeID"`
-	StartTime         time.Time         `json:"startTime"`
-	Status            uint8             `json:"status"`
-	ContainerSpec     []ContainerStatus `json:"containerStatus"`
-	RestartCount      uint64            `json:"restartCount"`
-	PodInstanceStatus InstanceSpec      `json:"podInstanceStatus"`
+	ID            string            `json:"ID"`
+	IP            string            `json:"ip"`
+	NodeID        int               `json:"nodeID"`
+	StartTime     time.Time         `json:"startTime"`
+	Status        uint8             `json:"status"`
+	ContainerSpec []ContainerStatus `json:"containerStatus"`
+	RestartCount  uint64            `json:"restartCount"`
+	//PodInstanceStatus InstanceSpec      `json:"podInstanceStatus"`
 }
 
 type PodInstanceBrief struct {

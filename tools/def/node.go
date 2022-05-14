@@ -1,7 +1,6 @@
 package def
 
 import (
-	"fmt"
 	"github.com/google/cadvisor/client"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/mem"
@@ -29,16 +28,4 @@ type Node struct {
 	EtcdClient               *clientv3.Client
 	CadvisorClient           *client.Client
 	ShouldStop               bool
-}
-
-func PodInstanceListKeyOfNode(node *Node) string {
-	return fmt.Sprintf("node%d_pod_instances", node.NodeID)
-}
-
-func PodInstanceListKeyOfNodeID(nodeID int) string {
-	return fmt.Sprintf("node%d_pod_instances", nodeID)
-}
-
-func KeyNodeResourceUsage(nodeID int) string {
-	return fmt.Sprintf("%d_resource_usage", nodeID)
 }

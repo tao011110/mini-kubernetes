@@ -8,7 +8,7 @@ import (
 	"mini-kubernetes/tools/etcd"
 )
 
-func GetPodInstanceInfo(podInstanceName string, cli *clientv3.Client) def.PodInstance {
+func GetPodInstance(podInstanceName string, cli *clientv3.Client) def.PodInstance {
 	resp := etcd.Get(cli, podInstanceName)
 	podInstance := def.PodInstance{}
 	jsonString := ``
