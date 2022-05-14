@@ -62,6 +62,7 @@ func main() {
 	node.CadvisorClient = cadvisorClient
 
 	go kubelet_routines.EtcdWatcher(&node)
+	go kubelet_routines.NodesWatch(&node)
 	go ResourceMonitoring()
 	go ContainerCheck()
 
@@ -79,7 +80,7 @@ func parseArgs(nodeName *string, masterIPAndPort *string, localPort *int) {
 	flag.IntVar(localPort, "port", 80, "local port to communicate with master")
 	flag.Parse()
 	/*
-		TODO: Check IP format legality
+		TODO: Check ClusterIP format legality
 	*/
 	if *masterIPAndPort == "undefined" {
 		fmt.Println("Master Ip And Port Error!")

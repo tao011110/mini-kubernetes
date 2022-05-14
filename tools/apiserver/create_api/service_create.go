@@ -7,17 +7,19 @@ import (
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 	"strconv"
+	"time"
 )
 
 func CreateClusterIPService(cli *clientv3.Client, service_c def.ClusterIPSvc) def.Service {
 	service := def.Service{
-		Name:     service_c.Metadata.Name,
-		Selector: service_c.Spec.Selector,
-		Type:     service_c.Spec.Type,
-		IP:       service_c.Spec.ClusterIP,
+		Name:      service_c.Metadata.Name,
+		Selector:  service_c.Spec.Selector,
+		Type:      service_c.Spec.Type,
+		ClusterIP: service_c.Spec.ClusterIP,
+		StartTime: time.Now(),
 	}
 	portsBindingsList := make([]def.PortsBindings, 0)
-	fmt.Printf("service.IP is %s", service.IP)
+	fmt.Printf("service.ClusterIP is %s", service.ClusterIP)
 
 	podInstanceKey := "/podInstance/"
 	kvs := etcd.GetWithPrefix(cli, podInstanceKey).Kvs
@@ -42,7 +44,7 @@ func CreateClusterIPService(cli *clientv3.Client, service_c def.ClusterIPSvc) de
 							fmt.Println(containerPort)
 							if ports.TargetPort == containerPort {
 								endpoints = append(endpoints, podInstance.IP+":"+ports.TargetPort)
-								fmt.Printf("podInstance.IP is %v\n", podInstance.IP)
+								fmt.Printf("podInstance.ClusterIP is %v\n", podInstance.IP)
 							}
 						}
 					}
@@ -74,13 +76,13 @@ func CreateClusterIPService(cli *clientv3.Client, service_c def.ClusterIPSvc) de
 
 func CreateNodePortService(cli *clientv3.Client, service_n def.NodePortSvc) def.Service {
 	service := def.Service{
-		Name:     service_n.Metadata.Name,
-		Selector: service_n.Spec.Selector,
-		Type:     service_n.Spec.Type,
-		IP:       service_n.Spec.ClusterIP,
+		Name:      service_n.Metadata.Name,
+		Selector:  service_n.Spec.Selector,
+		Type:      service_n.Spec.Type,
+		ClusterIP: service_n.Spec.ClusterIP,
 	}
 	portsBindingsList := make([]def.PortsBindings, 0)
-	fmt.Printf("service.IP is %s", service.IP)
+	fmt.Printf("service.ClusterIP is %s", service.ClusterIP)
 
 	podInstanceKey := "/podInstance/"
 	kvs := etcd.GetWithPrefix(cli, podInstanceKey).Kvs
@@ -105,7 +107,7 @@ func CreateNodePortService(cli *clientv3.Client, service_n def.NodePortSvc) def.
 							fmt.Println(containerPort)
 							if ports.TargetPort == containerPort {
 								endpoints = append(endpoints, podInstance.IP+":"+ports.TargetPort)
-								fmt.Printf("podInstance.IP is %v\n", podInstance.IP)
+								fmt.Printf("podInstance.ClusterIP is %v\n", podInstance.IP)
 							}
 						}
 					}

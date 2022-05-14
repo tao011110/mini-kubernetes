@@ -22,7 +22,7 @@ func DeleteService(cli *clientv3.Client, serviceName string) (string, bool) {
 	serviceValue := resp.Kvs[0].Value
 	service := def.Service{}
 	err := json.Unmarshal(serviceValue, &service)
-	clusterIP = service.IP
+	clusterIP = service.ClusterIP
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		panic(err)

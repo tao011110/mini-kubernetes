@@ -8,7 +8,7 @@ package pod
 
 //func DetectLiveness(podInstance *def.PodInstance) {
 //	path := fmt.Sprintf("http://%s:%d%s",
-//		podInstance.IP,
+//		podInstance.ClusterIP,
 //		podInstance.Spec.LivenessProbe.HttpGetRequest.Port,
 //		podInstance.Spec.LivenessProbe.HttpGetRequest.Path)
 //	client := httpget.Post(path)

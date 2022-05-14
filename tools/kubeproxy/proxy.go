@@ -116,13 +116,13 @@ func addCIPServiceRule(c echo.Context) error {
 	}
 
 	// Create svc chain
-	svcName := createSvcChain(service.IP)
+	svcName := createSvcChain(service.ClusterIP)
 
 	sepList := make([]string, 0)
 
 	for _, pair := range service.PortsBindings {
 		protocol := pair.Ports.Protocol
-		destinationIP := service.IP
+		destinationIP := service.ClusterIP
 		destinationPort := strconv.Itoa(int(pair.Ports.Port))
 
 		// Create sep chain
@@ -215,13 +215,13 @@ func addNPServiceRule(c echo.Context) error {
 	}
 
 	// Create svc chain
-	svcName := createSvcChain(service.IP)
+	svcName := createSvcChain(service.ClusterIP)
 
 	sepList := make([]string, 0)
 
 	for _, pair := range service.PortsBindings {
 		protocol := pair.Ports.Protocol
-		destinationIP := service.IP
+		destinationIP := service.ClusterIP
 		destinationPort := strconv.Itoa(int(pair.Ports.Port))
 		nodePort := strconv.Itoa(int(pair.Ports.NodePort))
 

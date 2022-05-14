@@ -1,5 +1,7 @@
 package def
 
+import "time"
+
 type Selector struct {
 	Name string `yaml:"name" json:"name"`
 }
@@ -50,6 +52,7 @@ type Service struct {
 	Name          string          `yaml:"name" json:"name"`
 	Selector      Selector        `yaml:"selector" json:"selector"`
 	Type          string          `yaml:"type" json:"type"`
-	IP            string          `yaml:"IP" json:"IP"`
+	ClusterIP     string          `yaml:"ClusterIP" json:"ClusterIP"`
 	PortsBindings []PortsBindings `yaml:"portsBindings" json:"portsBindings"`
+	StartTime     time.Time       `json:"startTime"`
 }

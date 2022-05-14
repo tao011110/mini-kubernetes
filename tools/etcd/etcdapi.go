@@ -84,3 +84,13 @@ func Watch(cli *clientv3.Client, key string) clientv3.WatchChan {
 	watch := cli.Watch(context.Background(), key)
 	return watch
 }
+
+func WatchWithPrefix(cli *clientv3.Client, prefix string) clientv3.WatchChan {
+	if cli == nil {
+		fmt.Printf("nil client\n")
+		return nil
+	}
+
+	watch := cli.Watch(context.Background(), prefix, clientv3.WithPrefix())
+	return watch
+}

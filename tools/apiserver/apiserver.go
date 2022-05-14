@@ -45,6 +45,8 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.GET("/get_pod/:podName", handleGetPod)
 	e.GET("/get/all/pod", handleGetAllPod)
 	e.GET("/get/all/podStatus", handleGetAllPodStatus)
+	e.GET("/get/all/service", handleGetAllService)
+	e.GET("/get/service/:serviceName", handleGetService)
 
 	e.Logger.Fatal(e.Start(":" + port))
 }
@@ -379,4 +381,27 @@ func handleGetAllPodStatus(c echo.Context) error {
 	}
 
 	return c.JSON(200, podInstanceBriefList)
+}
+
+func handleGetService(c echo.Context) error {
+	serviceName := c.Param("serviceName")
+	service, flag := get_api.GetService(cli, serviceName)
+	fmt.Println(service)
+
+	if flag == false {
+		return c.JSON(404, service)
+	}
+
+	return c.JSON(200, service)
+}
+
+func handleGetAllService(c echo.Context) error {
+	fmt.Println("handleGetAllPod")
+	serviceList, flag := get_api.GetAllService(cli)
+
+	if flag == false {
+		return c.JSON(404, serviceList)
+	}
+
+	return c.JSON(200, serviceList)
 }

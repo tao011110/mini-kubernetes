@@ -2,6 +2,7 @@ package net_utils
 
 import (
 	"fmt"
+	"mini-kubernetes/tools/def"
 	"os/exec"
 	"strconv"
 )
@@ -15,6 +16,8 @@ type brBinding struct {
 }
 
 var brBindings = make([]brBinding, 0)
+
+var NodesList = make([]def.Node, 0)
 
 func CreateVxLan(remoteIp string, subnet string) {
 	brName := "br" + strconv.Itoa(brNum)

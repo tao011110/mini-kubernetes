@@ -32,7 +32,7 @@ func CreatePod(cli *clientv3.Client, pod_ def.Pod) int {
 	podInstance.ContainerSpec = make([]def.ContainerStatus, len(pod_.Spec.Containers))
 
 	// NOTICE: 此处的一些设置仅供测试使用
-	//podInstance.IP = "10.24.1.2"
+	//podInstance.ClusterIP = "10.24.1.2"
 	//podInstance.StartTime = time.Now()
 	//podInstance.RestartCount = 0
 	//podInstance.Status = def.RUNNING

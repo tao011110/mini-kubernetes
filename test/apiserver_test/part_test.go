@@ -256,6 +256,47 @@ func testDeleteNPService() {
 	}
 }
 
+func testGetService() {
+	//需要发送给apiserver的参数为 serviceName string
+	serviceName := "test-service"
+	response := def.Service{}
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/service/" + serviceName).
+		ContentType("application/json").
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_service status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("get service %s successfully and the response is: %v\n", serviceName, response)
+	} else {
+		fmt.Printf("service %s doesn't exist\n", serviceName)
+	}
+}
+
+func testGetAllService() {
+	response := make([]def.Service, 0)
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/all/service").
+		ContentType("application/json").
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_all_service status is %s\n", status)
+	if status == "200" {
+		fmt.Println("All services' information is as follows")
+		for _, service := range response {
+			fmt.Printf("%v\n", service)
+		}
+	} else {
+		fmt.Printf("No service exists\n")
+	}
+}
+
 func TestUpdateIptablesRule(t *testing.T) {
 	testRegisterNode()
 
@@ -272,6 +313,10 @@ func TestUpdateIptablesRule(t *testing.T) {
 
 	path = "./nodePortService_test.yaml"
 	testCreateNPService(path)
+
+	testGetService()
+
+	testGetAllService()
 	//
 	//time.Sleep(5 * time.Second)
 	//testDeleteNPService()
