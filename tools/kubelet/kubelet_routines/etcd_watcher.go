@@ -2,15 +2,15 @@ package kubelet_routines
 
 import (
 	"encoding/json"
-	"fmt"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/pod"
+	"mini-kubernetes/tools/util"
 	"sort"
 )
 
 func EtcdWatcher(node *def.Node) {
-	key := fmt.Sprintf("Node%d_podInstances", node.NodeID)
+	key := def.PodInstanceListKeyOfNode(node)
 	watch := etcd.Watch(node.EtcdClient, key)
 	for wc := range watch {
 		for _, w := range wc.Events {
@@ -24,14 +24,7 @@ func EtcdWatcher(node *def.Node) {
 func handlePodInstancesChange(node *def.Node, instances []string) {
 	adds, deletes := comparePodList(node, instances)
 	for _, add := range adds {
-		resp := etcd.Get(node.EtcdClient, add)
-		podInstance := def.PodInstance{}
-		jsonString := ``
-		for _, ev := range resp.Kvs {
-			jsonString += fmt.Sprintf(`"%s":"%s", `, ev.Key, ev.Value)
-		}
-		jsonString = fmt.Sprintf(`{%s}`, jsonString)
-		_ = json.Unmarshal([]byte(jsonString), &podInstance)
+		podInstance := util.GetPodInstanceInfo(add, node.EtcdClient)
 		if podInstance.Status != def.PENDING {
 			continue
 		}

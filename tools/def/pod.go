@@ -32,8 +32,8 @@ type Limit struct {
 }
 
 type Request struct {
-	CPU    string `yaml:"cpu" json:"cpu"`
-	Memory string `yaml:"memory" json:"memory"`
+	CPU    int `yaml:"cpu" json:"cpu"`
+	Memory int `yaml:"memory" json:"memory"`
 }
 
 type Container struct {
@@ -89,12 +89,18 @@ type PodLabels struct {
 	Name string `yaml:"name" json:"name"`
 }
 
+type NodeSelector struct {
+	With    string `yaml:"with" json:"with"`
+	NotWith string `yaml:"notWith" json:"notWith"`
+}
+
 type Pod struct {
 	ApiVersion string  `yaml:"apiVersion" json:"api_version"`
 	Kind       string  `yaml:"kind" json:"kind"`
 	Metadata   PodMeta `yaml:"metadata" json:"metadata"`
 	// NodeID和NodeSelector迭代三再加
-	Spec PodSpec `yaml:"spec" json:"spec"`
+	Spec         PodSpec      `yaml:"spec" json:"spec"`
+	NodeSelector NodeSelector `yaml:"nodeSelector" json:"nodeSelector"`
 }
 
 const (

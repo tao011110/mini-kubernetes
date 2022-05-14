@@ -4,7 +4,10 @@ metadata:
   name: string
   label: string
 nodeName: <string>
-nodeSelector: obeject
+nodeSelector:
+    with: pod-name
+    notwith: pod-name
+
 
 spec:
   containers:
