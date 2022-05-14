@@ -37,7 +37,7 @@ func main() {
 	go EtcdNodeWatcher()
 	go EtcdPodInstanceWatcher()
 	go ReScheduleCannotScheduleInstanceRoutine()
-	e.Logger.Fatal(e.Start(":80"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", def.SchedulerPort)))
 }
 
 func SchedulerMetaInit() {
@@ -66,12 +66,12 @@ func HandleNodeListChange(newNodeList []int) {
 	schedulerMeta.Lock.Lock()
 	defer schedulerMeta.Lock.Unlock()
 
-	news := scheduler_utils.ConvertIntListToStringList(newNodeList)
+	news := util.ConvertIntListToStringList(newNodeList)
 	var olds []string
 	for _, old := range schedulerMeta.Nodes {
 		olds = append(olds, fmt.Sprintf("%d", old.NodeID))
 	}
-	added, deleted := scheduler_utils.DifferTwoStringList(olds, news)
+	added, deleted := util.DifferTwoStringList(olds, news)
 	for _, add := range added {
 		nodeId, _ := strconv.Atoi(add)
 		nodeInfo, replicas := scheduler_utils.GetInfoOfANode(schedulerMeta.EtcdClient, nodeId)
@@ -104,7 +104,7 @@ func HandlePodInstanceChange(news []string) {
 	schedulerMeta.Lock.Lock()
 	defer schedulerMeta.Lock.Unlock()
 
-	addeds, deleteds := scheduler_utils.DifferTwoStringList(schedulerMeta.ScheduledPodInstancesName, news)
+	addeds, deleteds := util.DifferTwoStringList(schedulerMeta.ScheduledPodInstancesName, news)
 	for _, deleted := range deleteds {
 		found := false
 		for _, node := range schedulerMeta.Nodes {
@@ -162,7 +162,7 @@ func AddPodInstanceFromSchedulerCache(nodeID int, instance *def.PodInstance) {
 
 func SchedulePodInstanceToNode(instanceName string) (success bool, nodeId int, podInstance *def.PodInstance) {
 	{
-		podInstanceTmp := util.GetPodInstanceInfo(instanceName, schedulerMeta.EtcdClient)
+		podInstanceTmp := util.GetPodInstance(instanceName, schedulerMeta.EtcdClient)
 		podInstance = &podInstanceTmp
 	}
 	var nodeIndexList []int

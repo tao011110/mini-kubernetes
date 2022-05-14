@@ -11,6 +11,7 @@ require (
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/golang/protobuf v1.5.2
 	github.com/google/cadvisor v0.39.3
+	github.com/jakehl/goid v1.1.0 // indirect
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/robfig/cron v1.2.0 // indirect
