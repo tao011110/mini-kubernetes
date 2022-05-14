@@ -14,6 +14,7 @@ import (
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/kubelet/kubelet_routines"
 	"mini-kubernetes/tools/kubeproxy"
+	net_utils "mini-kubernetes/tools/net-utils"
 	"mini-kubernetes/tools/resource"
 	"mini-kubernetes/tools/util"
 	"net"
@@ -131,6 +132,9 @@ func registerToMaster(node *def.Node) error {
 	node.NodeID = response.NodeID
 	node.NodeName = response.NodeName
 	node.CniIP = response.CniIP
+
+	// 为创建vxlan隧道做准备
+	net_utils.InitOVS()
 	return nil
 }
 

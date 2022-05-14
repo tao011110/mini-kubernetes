@@ -12,7 +12,7 @@ import (
 
 // Dir etcd执行文件所在目录
 //var Dir = "/home/parallels/Downloads/etcd-v3.5.3-linux-arm64"
-var Dir = "/opt/etcd-v3.3.0-rc.0-linux-amd64"
+var Dir = "/home/etcd-v3.2.13-linux-amd64"
 
 // AddToCluster
 // kubelet 向 master 注册时调用

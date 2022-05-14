@@ -49,13 +49,14 @@ const (
 	ProtocolIPv6
 )
 
-type Rule struct {
-	Protocol        string
-	DestinationIP   string
-	DestinationPort string
-	DNAT            string
-	RobinN          int
-}
+//type Rule struct {
+//	Protocol        string
+//	DestinationIP   string
+//	DestinationPort string
+//	DNAT            string
+//	RobinN          int
+//	NodePort        string
+//}
 
 type IPTables struct {
 	path              string

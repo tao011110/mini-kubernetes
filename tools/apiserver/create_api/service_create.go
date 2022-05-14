@@ -104,7 +104,7 @@ func CreateNodePortService(cli *clientv3.Client, service_n def.NodePortSvc) def.
 							fmt.Println(ports.TargetPort)
 							fmt.Println(containerPort)
 							if ports.TargetPort == containerPort {
-								endpoints = append(endpoints, podInstance.IP)
+								endpoints = append(endpoints, podInstance.IP+":"+ports.TargetPort)
 								fmt.Printf("podInstance.IP is %v\n", podInstance.IP)
 							}
 						}

@@ -12,7 +12,6 @@ import (
 	"mini-kubernetes/tools/yaml"
 	"net"
 	"testing"
-	"time"
 )
 
 var node = def.Node{
@@ -24,7 +23,7 @@ var node = def.Node{
 
 func testRegisterNode() {
 	//测试时需修改为本机IP
-	node.NodeIP = net.IPv4(192, 168, 47, 19)
+	node.NodeIP = net.IPv4(192, 168, 1, 7)
 
 	//test register_node
 	response := def.RegisterToMasterResponse{}
@@ -34,6 +33,7 @@ func testRegisterNode() {
 		LocalPort: node.LocalPort,
 		ProxyPort: node.ProxyPort,
 	}
+	fmt.Println("node.MasterIpAndPort is " + node.MasterIpAndPort)
 	body, _ := json.Marshal(request)
 	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/register_node").
 		ContentType("application/json").
@@ -272,7 +272,7 @@ func TestUpdateIptablesRule(t *testing.T) {
 
 	path = "./nodePortService_test.yaml"
 	testCreateNPService(path)
-
-	time.Sleep(5 * time.Second)
-	testDeleteNPService()
+	//
+	//time.Sleep(5 * time.Second)
+	//testDeleteNPService()
 }

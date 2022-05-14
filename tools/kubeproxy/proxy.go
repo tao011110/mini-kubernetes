@@ -12,7 +12,7 @@ import (
 )
 
 var ipt *iptables.IPTables
-var newRules map[string][]iptables.Rule
+var svc2sep map[string][]string
 
 // ProxyPort kube-proxy所监听的端口号，不建议再进行修改，否则apiserver中也需要相应修改！
 var ProxyPort = 3000
@@ -23,7 +23,8 @@ func Proxy() {
 		panic(fmt.Sprintf("New failed: %v", err))
 	}
 	ipt = newIpt
-	newRules = make(map[string][]iptables.Rule)
+
+	svc2sep = make(map[string][]string)
 
 	e := echo.New()
 	e.Use(middleware.Logger())
@@ -39,53 +40,55 @@ func Proxy() {
 }
 
 func initTable() {
-	isExist, err := ipt.ChainExists("nat", "MINI-KUBE-SERVICES")
+	isExist, err := ipt.ChainExists("nat", "mK8S-SERVICES")
 	if err != nil {
 		panic(err)
 	}
 	if isExist == false {
-		fmt.Printf("Do create chain MINI-KUBE-SERVICES")
-		err = ipt.NewChain("nat", "MINI-KUBE-SERVICES")
+		fmt.Printf("Do create chain mK8S-SERVICES")
+		err = ipt.NewChain("nat", "mK8S-SERVICES")
 		if err != nil {
-			fmt.Printf("Create chain MINI-KUBE-SERVICES failed: %v", err)
+			fmt.Printf("Create chain mK8S-SERVICES failed: %v", err)
 			panic(err)
 		}
-		err = ipt.AppendUnique("nat", "PREROUTING", "-j", "MINI-KUBE-SERVICES")
+		err = ipt.AppendUnique("nat", "PREROUTING", "-j", "mK8S-SERVICES")
 		if err != nil {
-			fmt.Printf("Append rule to MINI-KUBE-SERVICES failed: %v", err)
+			fmt.Printf("Append rule to mK8S-SERVICES failed: %v", err)
 			panic(err)
 		}
 	}
 
-	// Create MINI-KUBE-NODEPORTS chain to handle NodePort Service
-	isExist, err = ipt.ChainExists("nat", "MINI-KUBE-NODEPORTS")
+	// Create mK8S-NODEPORTS chain to handle NodePort Service
+	isExist, err = ipt.ChainExists("nat", "mK8S-NODEPORTS")
 	if err != nil {
 		panic(err)
 	}
 	if isExist == false {
-		fmt.Printf("Do create chain MINI-KUBE-NODEPORTS")
-		err = ipt.NewChain("nat", "MINI-KUBE-NODEPORTS")
+		fmt.Printf("Do create chain mK8S-NODEPORTS")
+		err = ipt.NewChain("nat", "mK8S-NODEPORTS")
 		if err != nil {
-			fmt.Printf("Create chain MINI-KUBE-NODEPORTS failed: %v", err)
+			fmt.Printf("Create chain mK8S-NODEPORTS failed: %v", err)
 			panic(err)
 		}
-		err = ipt.AppendUnique("nat", "MINI-KUBE-SERVICES", "-j", "MINI-KUBE-NODEPORTS",
+		err = ipt.AppendUnique("nat", "mK8S-SERVICES", "-j", "mK8S-NODEPORTS",
 			"-m", "addrtype", "--dst-type", "LOCAL")
 		if err != nil {
-			fmt.Printf("Append rule to MINI-KUBE-NODEPORTS failed: %v", err)
+			fmt.Printf("Append rule to mK8S-NODEPORTS failed: %v", err)
 			panic(err)
 		}
 	}
 }
 
 func createSvcChain(clusterIP string) string {
-	chainName := "MINI-KUBE-SVC-" + clusterIP
+	chainName := "mK8S-SVC-" + clusterIP
 	err := ipt.NewChain("nat", chainName)
 	if err != nil {
 		fmt.Printf("Create chain %s failed: %v", chainName, err)
 		panic(err)
 	}
-	err = ipt.Insert("nat", "MINI-KUBE-SERVICES", 1,
+
+	// Add svc chain into mK8S-SERVICES chain, according to its clusterIP
+	err = ipt.Insert("nat", "mK8S-SERVICES", 1,
 		"-j", chainName, "-d", clusterIP)
 	if err != nil {
 		fmt.Printf("Append rule to %s failed: %v", chainName, err)
@@ -112,40 +115,50 @@ func addCIPServiceRule(c echo.Context) error {
 		panic(err)
 	}
 
-	chainName := createSvcChain(service.IP)
+	// Create svc chain
+	svcName := createSvcChain(service.IP)
 
-	rules := make([]iptables.Rule, 0)
+	sepList := make([]string, 0)
+
 	for _, pair := range service.PortsBindings {
+		protocol := pair.Ports.Protocol
+		destinationIP := service.IP
+		destinationPort := strconv.Itoa(int(pair.Ports.Port))
+
+		// Create sep chain
+		sepName := "mK8S-SEP-" + destinationIP + "-" + destinationPort
+		err := ipt.NewChain("nat", sepName)
+		if err != nil {
+			fmt.Printf("Create chain %s failed: %v", sepName, err)
+			panic(err)
+		}
+		sepList = append(sepList, sepName)
+
+		// Add sep chain into svc chain, according to its destinationPort
+		err = ipt.AppendUnique("nat", svcName, "-p", protocol,
+			"--dport", destinationPort, "-j", sepName)
+		if err != nil {
+			fmt.Printf("Add SEP chain %s failed: %v\n", sepName, err)
+			panic(err)
+		}
+
 		num := len(pair.Endpoints)
 		i := 0
+		fmt.Println(pair.Endpoints)
+
 		for _, endpoint := range pair.Endpoints {
-			rule := iptables.Rule{
-				Protocol:        pair.Ports.Protocol,
-				DestinationIP:   service.IP,
-				DestinationPort: strconv.Itoa(int(pair.Ports.Port)),
-				DNAT:            endpoint,
-				RobinN:          num - i,
-			}
-			fmt.Printf("add rule is %v\n", rule)
-			rules = append(rules, rule)
-			err = ipt.AppendUnique("nat", chainName, "-p", rule.Protocol,
-				"--dport", rule.DestinationPort, "-m", "statistic",
-				"--mode", "nth", "--every", strconv.Itoa(rule.RobinN), "--packet", "0",
-				"-j", "DNAT", "--to", rule.DNAT)
-			//err = ipt.AppendUnique("nat", "OUTPUT", "-p", rule.Protocol,
-			//	"-d", rule.DestinationIP, "--dport", rule.DestinationPort, "-j", "DNAT", "--to", rule.DNAT)
-			//err = ipt.AppendUnique("nat", "PREROUTING", "-p", rule.Protocol,
-			//	"-d", rule.DestinationIP, "--dport", rule.DestinationPort, "-m", "statistic",
-			//	"--mode", "nth", "--every", strconv.Itoa(rule.RobinN), "--packet", "0",
-			//	"-j", "DNAT", "--to", rule.DNAT)
+			// Fill in the sep chain with endpoints
+			err = ipt.AppendUnique("nat", sepName, "-p", protocol,
+				"-m", "statistic", "--mode", "nth", "--every", strconv.Itoa(num-i),
+				"--packet", "0", "-j", "DNAT", "--to", endpoint)
 			if err != nil {
-				fmt.Printf("Add clusterIP service failed: %v", err)
+				fmt.Printf("Add NodePort service failed: %v", err)
 				panic(err)
 			}
+			i++
 		}
 	}
-	newRules[service.IP] = rules
-	fmt.Println(newRules[service.IP])
+	svc2sep[svcName] = sepList
 
 	return c.String(200, "Add clusterIP successfully")
 }
@@ -154,31 +167,33 @@ func deleteCIPServiceRule(c echo.Context) error {
 	clusterIP := c.Param("clusterIP")
 	fmt.Println("clusterIP is\n" + clusterIP)
 
-	chainName := "MINI-KUBE-SVC-" + clusterIP
+	svcName := "mK8S-SVC-" + clusterIP
+	// Clear and delete all sep chains
+	sepList := svc2sep[svcName]
+	for _, sepName := range sepList {
+		err := ipt.ClearAndDeleteChain("nat", sepName)
+		if err != nil {
+			fmt.Printf("Delete ClusterIP service failed: %v", err)
+			panic(err)
+		}
+	}
 
-	err := ipt.Delete("nat", "MINI-KUBE-SERVICES",
-		"-j", chainName, "-d", clusterIP)
+	// Delete svc rule in mK8S-SERVICES chain
+	err := ipt.Delete("nat", "mK8S-SERVICES",
+		"-j", svcName, "-d", clusterIP)
 	if err != nil {
 		fmt.Printf("Delete ClusterIP service failed: %v", err)
 		panic(err)
 	}
 
-	err = ipt.ClearAndDeleteChain("nat", chainName)
-
-	//for _, rule := range rules {
-	//	fmt.Printf("delete rule is %v\n", rule)
-	//	err := ipt.Delete("nat", "PREROUTING", "-p", rule.Protocol,
-	//		"-d", rule.DestinationIP, "--dport", rule.DestinationPort, "-m", "statistic",
-	//		"--mode", "nth", "--every", strconv.Itoa(rule.RobinN), "--packet", "0",
-	//		"-j", "DNAT", "--to", rule.DNAT)
-	//
-	//}
+	// Clear and delete svc chain
+	err = ipt.ClearAndDeleteChain("nat", svcName)
 	if err != nil {
 		fmt.Printf("Delete ClusterIP service failed: %v", err)
 		panic(err)
 	}
 
-	return c.String(200, "Add clusterIP successfully")
+	return c.String(200, "Delete clusterIP successfully")
 }
 
 func addNPServiceRule(c echo.Context) error {
@@ -199,42 +214,58 @@ func addNPServiceRule(c echo.Context) error {
 		panic(err)
 	}
 
-	chainName := createSvcChain(service.IP)
+	// Create svc chain
+	svcName := createSvcChain(service.IP)
 
-	rules := make([]iptables.Rule, 0)
+	sepList := make([]string, 0)
+
 	for _, pair := range service.PortsBindings {
+		protocol := pair.Ports.Protocol
+		destinationIP := service.IP
+		destinationPort := strconv.Itoa(int(pair.Ports.Port))
+		nodePort := strconv.Itoa(int(pair.Ports.NodePort))
+
+		// Create sep chain
+		sepName := "mK8S-SEP-" + destinationIP + "-" + destinationPort
+		err := ipt.NewChain("nat", sepName)
+		if err != nil {
+			fmt.Printf("Create chain %s failed: %v", sepName, err)
+			panic(err)
+		}
+		sepList = append(sepList, sepName)
+
+		// Add sep chain into svc chain, according to its destinationPort
+		err = ipt.AppendUnique("nat", svcName, "-p", protocol,
+			"--dport", destinationPort, "-j", sepName)
+		if err != nil {
+			fmt.Printf("Add SEP chain %s failed: %v\n", sepName, err)
+			panic(err)
+		}
+
+		// Add svc chain into mK8S-NODEPORTS chain, according to its nodePort
+		err = ipt.AppendUnique("nat", "mK8S-NODEPORTS", "-p", protocol,
+			"--dport", nodePort, "-j", svcName)
+		if err != nil {
+			fmt.Printf("Add NodePort service failed: %v", err)
+			panic(err)
+		}
+
 		num := len(pair.Endpoints)
 		i := 0
+
 		for _, endpoint := range pair.Endpoints {
-			rule := iptables.Rule{
-				Protocol:        pair.Ports.Protocol,
-				DestinationIP:   service.IP,
-				DestinationPort: strconv.Itoa(int(pair.Ports.Port)),
-				DNAT:            endpoint,
-				RobinN:          num - i,
-			}
-			fmt.Printf("add rule is %v\n", rule)
-			rules = append(rules, rule)
-
-			err = ipt.AppendUnique("nat", "MINI-KUBE-NODEPORTS",
-				"-d", rule.DestinationIP, "-j", chainName)
+			// Fill in the sep chain with endpoints
+			err = ipt.AppendUnique("nat", sepName, "-p", protocol,
+				"-m", "statistic", "--mode", "nth", "--every", strconv.Itoa(num-i),
+				"--packet", "0", "-j", "DNAT", "--to", endpoint)
 			if err != nil {
 				fmt.Printf("Add NodePort service failed: %v", err)
 				panic(err)
 			}
-
-			err = ipt.AppendUnique("nat", chainName, "-p", rule.Protocol,
-				"--dport", rule.DestinationPort, "-m", "statistic",
-				"--mode", "nth", "--every", strconv.Itoa(rule.RobinN), "--packet", "0",
-				"-j", "DNAT", "--to", rule.DNAT)
-			if err != nil {
-				fmt.Printf("Add NodePort service failed: %v", err)
-				panic(err)
-			}
+			i++
 		}
 	}
-	newRules[service.IP] = rules
-	fmt.Println(newRules[service.IP])
+	svc2sep[svcName] = sepList
 
 	return c.String(200, "Add clusterIP successfully")
 }
@@ -243,24 +274,35 @@ func deleteNPServiceRule(c echo.Context) error {
 	clusterIP := c.Param("clusterIP")
 	fmt.Println("clusterIP is\n" + clusterIP)
 
-	chainName := "MINI-KUBE-SVC-" + clusterIP
+	svcName := "mK8S-SVC-" + clusterIP
+	// Clear and delete all sep chains
+	sepList := svc2sep[svcName]
+	for _, sepName := range sepList {
+		err := ipt.ClearAndDeleteChain("nat", sepName)
+		if err != nil {
+			fmt.Printf("Delete NodePort service failed: %v", err)
+			panic(err)
+		}
+	}
 
-	err := ipt.Delete("nat", "MINI-KUBE-SERVICES",
-		"-j", chainName, "-d", clusterIP)
+	// Delete svc rule in mK8S-SERVICES chain
+	err := ipt.Delete("nat", "mK8S-SERVICES",
+		"-j", svcName, "-d", clusterIP)
 	if err != nil {
 		fmt.Printf("Delete NodePort service failed: %v", err)
 		panic(err)
 	}
 
-	err = ipt.Delete("nat", "MINI-KUBE-NODEPORTS",
-		"-d", clusterIP, "-j", chainName)
+	// Delete svc rule in mK8S-NODEPORTS chain
+	err = ipt.Delete("nat", "mK8S-NODEPORTS",
+		"-d", clusterIP, "-j", svcName)
 	if err != nil {
 		fmt.Printf("Delete NodePort service failed: %v", err)
 		panic(err)
 	}
 
-	err = ipt.ClearAndDeleteChain("nat", chainName)
-
+	// Clear and delete svc chain
+	err = ipt.ClearAndDeleteChain("nat", svcName)
 	if err != nil {
 		fmt.Printf("Delete NodePort service failed: %v", err)
 		panic(err)
