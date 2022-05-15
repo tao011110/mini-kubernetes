@@ -24,7 +24,7 @@ func EtcdWatcher(node *def.Node) {
 func handlePodInstancesChange(node *def.Node, instances []string) {
 	adds, deletes := comparePodList(node, instances)
 	for _, add := range adds {
-		podInstance := util.GetPodInstanceInfo(add, node.EtcdClient)
+		podInstance := util.GetPodInstance(add, node.EtcdClient)
 		if podInstance.Status != def.PENDING {
 			continue
 		}

@@ -26,7 +26,7 @@ func CreatePod(cli *clientv3.Client, pod_ def.Pod) int {
 	etcd.Put(cli, podKey, string(podValue))
 
 	//将新创建的podInstance写入到etcd当中
-	podInstance.NodeID = uint64(nodeID)
+	podInstance.NodeID = nodeID
 	podInstanceKey := "/podInstance/" + pod_.Metadata.Name
 	podInstance.ID = podInstanceKey
 	podInstance.ContainerSpec = make([]def.ContainerStatus, len(pod_.Spec.Containers))
