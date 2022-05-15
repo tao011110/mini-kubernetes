@@ -6,9 +6,15 @@ import (
 )
 
 type ControllerMeta struct {
-	EtcdClient         *clientv3.Client
+	EtcdClient *clientv3.Client
+
 	ParsedDeployments  []*ParsedDeployment
 	DeploymentNameList []string
-	Lock               sync.Mutex
-	ShouldStop         bool
+	DeploymentLock     sync.Mutex
+
+	ShouldStop bool
+
+	ParsedHorizontalPodAutoscalers   []*ParsedHorizontalPodAutoscaler
+	HorizontalPodAutoscalersNameList []string
+	HorizontalPodAutoscalersLock     sync.Mutex
 }
