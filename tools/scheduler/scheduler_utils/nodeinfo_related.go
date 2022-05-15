@@ -10,9 +10,11 @@ func GetNodeResourceInfo(etcdClient *clientv3.Client, nodeID int) *def.NodeResou
 		Validate: false,
 	}
 	nodeResource := GetResourceUsageSequenceByNodeID(etcdClient, nodeID)
-	length := len(nodeResource.Sequence)
-	if length != 0 {
-		latestRecode := nodeResource.Sequence[length-1]
+	//length := len(nodeResource.Sequence)
+	//if length != 0 {
+	//	latestRecode := nodeResource.Sequence[length-1]
+	if nodeResource.Valid {
+		latestRecode := nodeResource
 		nodeResourceSchedulerCache = def.NodeResourceSchedulerCache{
 			CPULoad:     float64(latestRecode.CPULoad) / 1000,
 			CPUNum:      latestRecode.CPUNum,

@@ -45,9 +45,10 @@ func GetPodInstanceByName(etcdClient *clientv3.Client, replicaName string) def.P
 	return podInstance
 }
 
-func GetResourceUsageSequenceByNodeID(etcdClient *clientv3.Client, nodeID int) def.ResourceUsageSequence {
+func GetResourceUsageSequenceByNodeID(etcdClient *clientv3.Client, nodeID int) def.ResourceUsage {
+	// TODO: 注册node时添加空ResourceUsage(valid = false)
 	resp := etcd.Get(etcdClient, def.KeyNodeResourceUsage(nodeID))
-	nodeResource := def.ResourceUsageSequence{}
+	nodeResource := def.ResourceUsage{}
 	jsonString := ``
 	for _, ev := range resp.Kvs {
 		jsonString += fmt.Sprintf(`"%s":"%s", `, ev.Key, ev.Value)
@@ -83,7 +84,7 @@ func AddPodInstanceToNode(etcdClient *clientv3.Client, nodeID int, instance *def
 	replicaNameList := GetAllPodInstancesOfANode(nodeID, etcdClient)
 	replicaNameList = append(replicaNameList, instance.ID)
 	PersistPodInstanceListOfNode(etcdClient, replicaNameList, nodeID)
-	instance.NodeID = uint64(nodeID)
+	instance.NodeID = nodeID
 	util.PersistPodInstance(*instance, etcdClient)
 }
 

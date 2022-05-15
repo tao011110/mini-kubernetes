@@ -10,8 +10,9 @@ type ResourceUsage struct {
 	CPUNum      int       `json:"cpu-num"`
 	MemoryUsage uint64    `json:"memoryUsage"`
 	MemoryTotal uint64    `json:"memoryTotal"`
+	Valid       bool      `json:"vailid"`
 }
 
-type ResourceUsageSequence struct {
-	Sequence []ResourceUsage `json:"sequence"`
-}
+//type ResourceUsageSequence struct {
+//	Sequence []ResourceUsage `json:"sequence"`
+//}
