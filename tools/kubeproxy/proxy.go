@@ -165,15 +165,6 @@ func deleteCIPServiceRule(c echo.Context) error {
 	fmt.Println("clusterIP is\n" + clusterIP)
 
 	svcName := "mK8S-SVC-" + clusterIP
-	// Clear and delete all sep chains
-	sepList := svc2sep[svcName]
-	for _, sepName := range sepList {
-		err := ipt.ClearAndDeleteChain("nat", sepName)
-		if err != nil {
-			fmt.Printf("Delete ClusterIP service failed: %v", err)
-			panic(err)
-		}
-	}
 
 	// Delete svc rule in mK8S-SERVICES chain
 	err := ipt.Delete("nat", "mK8S-SERVICES",
@@ -188,6 +179,19 @@ func deleteCIPServiceRule(c echo.Context) error {
 	if err != nil {
 		fmt.Printf("Delete ClusterIP service failed: %v", err)
 		panic(err)
+	}
+	fmt.Printf("Delete chain %s\n", svcName)
+
+	// Clear and delete all sep chains
+	sepList := svc2sep[svcName]
+	fmt.Printf("sepList are %v\n", sepList)
+	for _, sepName := range sepList {
+		err := ipt.ClearAndDeleteChain("nat", sepName)
+		if err != nil {
+			fmt.Printf("Delete ClusterIP service failed: %v", err)
+			panic(err)
+		}
+		fmt.Printf("Delete SEP OK: %v\n", sepName)
 	}
 
 	return c.String(200, "Delete clusterIP successfully")
@@ -239,18 +243,18 @@ func addNPServiceRule(c echo.Context) error {
 			panic(err)
 		}
 
-		// Add svc chain into mK8S-NODEPORTS chain, according to its nodePort
-		err = ipt.AppendUnique("nat", "mK8S-NODEPORTS", "-p", protocol,
-			"--dport", nodePort, "-j", svcName)
-		if err != nil {
-			fmt.Printf("Add NodePort service failed: %v", err)
-			panic(err)
-		}
-
 		num := len(pair.Endpoints)
 		i := 0
 
 		for _, endpoint := range pair.Endpoints {
+			// Add sep chain into mK8S-NODEPORTS chain, according to its nodePort
+			err = ipt.AppendUnique("nat", "mK8S-NODEPORTS", "-p", protocol,
+				"--dport", nodePort, "-j", sepName)
+			if err != nil {
+				fmt.Printf("Add NodePort service failed: %v", err)
+				panic(err)
+			}
+
 			// Fill in the sep chain with endpoints
 			err = ipt.AppendUnique("nat", sepName, "-p", protocol,
 				"-m", "statistic", "--mode", "nth", "--every", strconv.Itoa(num-i),
@@ -272,15 +276,6 @@ func deleteNPServiceRule(c echo.Context) error {
 	fmt.Println("clusterIP is\n" + clusterIP)
 
 	svcName := "mK8S-SVC-" + clusterIP
-	// Clear and delete all sep chains
-	sepList := svc2sep[svcName]
-	for _, sepName := range sepList {
-		err := ipt.ClearAndDeleteChain("nat", sepName)
-		if err != nil {
-			fmt.Printf("Delete NodePort service failed: %v", err)
-			panic(err)
-		}
-	}
 
 	// Delete svc rule in mK8S-SERVICES chain
 	err := ipt.Delete("nat", "mK8S-SERVICES",
@@ -303,6 +298,16 @@ func deleteNPServiceRule(c echo.Context) error {
 	if err != nil {
 		fmt.Printf("Delete NodePort service failed: %v", err)
 		panic(err)
+	}
+
+	// Clear and delete all sep chains
+	sepList := svc2sep[svcName]
+	for _, sepName := range sepList {
+		err := ipt.ClearAndDeleteChain("nat", sepName)
+		if err != nil {
+			fmt.Printf("Delete NodePort service failed: %v", err)
+			panic(err)
+		}
 	}
 
 	return c.String(200, "Add clusterIP successfully")
