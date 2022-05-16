@@ -208,7 +208,6 @@ func recordResource() {
 		key := def.GetKeyOfResourceUsageByPodInstanceID(podInstance.ID)
 		//resp := etcd.Get(node.EtcdClient, key)
 		//resourceSeq := def.ResourceUsageSequence{}
-		//jsonString := ``
 		//for _, ev := range resp.Kvs {
 		//	jsonString += fmt.Sprintf(`"%s":"%s", `, ev.Key, ev.Value)
 		//}
@@ -231,7 +230,6 @@ func recordResource() {
 	key := def.KeyNodeResourceUsage(node.NodeID)
 	//resp := etcd.Get(node.EtcdClient, key)
 	//resourceSeq := def.ResourceUsageSequence{}
-	//jsonString := ``
 	//for _, ev := range resp.Kvs {
 	//	jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
 	//}

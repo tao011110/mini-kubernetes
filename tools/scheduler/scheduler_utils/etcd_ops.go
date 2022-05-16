@@ -2,7 +2,6 @@ package scheduler_utils
 
 import (
 	"encoding/json"
-	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
@@ -10,63 +9,33 @@ import (
 )
 
 func GetAllPodInstancesOfANode(nodeID int, etcdClient *clientv3.Client) []string {
-	resp := etcd.Get(etcdClient, def.PodInstanceListKeyOfNodeID(nodeID))
 	var replicaNameList []string
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &replicaNameList)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, def.PodInstanceListKeyOfNodeID(nodeID)), &replicaNameList)
 	return replicaNameList
 }
 
 func GetAllPodInstancesID(etcdClient *clientv3.Client) []string {
-	resp := etcd.Get(etcdClient, def.PodInstanceListName)
 	var allReplicas []string
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &allReplicas)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, def.PodInstanceListName), &allReplicas)
 	return allReplicas
 }
 
 func GetPodInstanceByName(etcdClient *clientv3.Client, replicaName string) def.PodInstance {
-	resp := etcd.Get(etcdClient, replicaName)
 	podInstance := def.PodInstance{}
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s", `, ev.Key, ev.Value)
-	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &podInstance)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, replicaName), &podInstance)
 	return podInstance
 }
 
 func GetResourceUsageSequenceByNodeID(etcdClient *clientv3.Client, nodeID int) def.ResourceUsage {
 	// TODO: 注册node时添加空ResourceUsage(valid = false)
-	resp := etcd.Get(etcdClient, def.KeyNodeResourceUsage(nodeID))
 	nodeResource := def.ResourceUsage{}
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s", `, ev.Key, ev.Value)
-	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &nodeResource)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, def.KeyNodeResourceUsage(nodeID)), &nodeResource)
 	return nodeResource
 }
 
 func GetAllNodesID(etcdClient *clientv3.Client) []int {
-	resp := etcd.Get(etcdClient, def.NodeListName)
 	var nodeIDList []int
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &nodeIDList)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, def.NodeListName), &nodeIDList)
 	return nodeIDList
 }
 

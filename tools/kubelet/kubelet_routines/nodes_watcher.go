@@ -26,7 +26,9 @@ func NodesWatch(node *def.Node) {
 					fmt.Println(err)
 					panic(err)
 				}
-				added = append(added, change)
+				if change.NodeID != node.NodeID {
+					added = append(added, change)
+				}
 			} else {
 				if w.Type == clientv3.EventTypeDelete {
 					fmt.Printf("w.Type is delete\n")
@@ -39,7 +41,7 @@ func NodesWatch(node *def.Node) {
 					}
 					fmt.Printf("nodeID is %v\n", nodeID)
 					for _, tmp := range net_utils.NodesList {
-						if tmp.NodeID == nodeID {
+						if tmp.NodeID == nodeID && nodeID != node.NodeID {
 							deleted = append(deleted, tmp)
 							break
 						}
