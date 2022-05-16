@@ -14,9 +14,6 @@ import (
 var ipt *iptables.IPTables
 var svc2sep map[string][]string
 
-// ProxyPort kube-proxy所监听的端口号，不建议再进行修改，否则apiserver中也需要相应修改！
-var ProxyPort = 3000
-
 func Proxy() {
 	newIpt, err := iptables.New()
 	if err != nil {
@@ -36,7 +33,7 @@ func Proxy() {
 	e.DELETE("/delete/clusterIPServiceRule/:clusterIP", deleteCIPServiceRule)
 	e.DELETE("/delete/nodePortServiceRule/:clusterIP", deleteNPServiceRule)
 
-	e.Logger.Fatal(e.Start(":" + strconv.Itoa(ProxyPort)))
+	e.Logger.Fatal(e.Start(":" + strconv.Itoa(def.ProxyPort)))
 }
 
 func initTable() {

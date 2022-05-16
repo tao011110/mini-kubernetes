@@ -8,14 +8,13 @@ import (
 	"mini-kubernetes/tools/docker"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/master"
-	"mini-kubernetes/tools/pod"
 	"mini-kubernetes/tools/yaml"
 	"net"
 	"testing"
 )
 
 var node = def.Node{
-	LocalPort:       4000,
+	LocalPort:       80,
 	ProxyPort:       3000,
 	NodeName:        "node1",
 	MasterIpAndPort: master.IP + ":" + master.Port,
@@ -70,14 +69,14 @@ func testCreatePod(path string) {
 	fmt.Printf("create_pod is %s and response is: %s\n", status, response2)
 
 	//TODO:在kubelet正常运行后，这部分测试代码可以删除
-	podInstance := def.PodInstance{}
-	podInstance.Pod = *pod_
-	podInstance.NodeID = uint64(node.NodeID)
-	cniIP := net.IPv4(10, 24, 0, 0)
-	node.CniIP = net.IP(cniIP)
-	podInstance.ID = "/podInstance/" + pod_.Metadata.Name
-	podInstance.ContainerSpec = make([]def.ContainerStatus, len(pod_.Spec.Containers))
-	pod.CreateAndStartPod(&podInstance, &node)
+	//podInstance := def.PodInstance{}
+	//podInstance.Pod = *pod_
+	//podInstance.NodeID = uint64(node.NodeID)
+	//cniIP := net.IPv4(10, 24, 0, 0)
+	//node.CniIP = net.IP(cniIP)
+	//podInstance.ID = "/podInstance/" + pod_.Metadata.Name
+	//podInstance.ContainerSpec = make([]def.ContainerStatus, len(pod_.Spec.Containers))
+	//pod.CreateAndStartPod(&podInstance, &node)
 }
 
 func testGetPod() {
@@ -298,7 +297,7 @@ func testGetAllService() {
 }
 
 func TestUpdateIptablesRule(t *testing.T) {
-	testRegisterNode()
+	//testRegisterNode()
 
 	var path = "./podForService.yaml"
 	testCreatePod(path)
@@ -311,8 +310,8 @@ func TestUpdateIptablesRule(t *testing.T) {
 	//time.Sleep(5 * time.Second)
 	//testDeleteCIService()
 
-	path = "./nodePortService_test.yaml"
-	testCreateNPService(path)
+	//path = "./nodePortService_test.yaml"
+	//testCreateNPService(path)
 
 	testGetService()
 

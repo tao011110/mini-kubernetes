@@ -13,7 +13,6 @@ import (
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/kubelet/kubelet_routines"
-	"mini-kubernetes/tools/kubeproxy"
 	net_utils "mini-kubernetes/tools/net-utils"
 	"mini-kubernetes/tools/resource"
 	"mini-kubernetes/tools/util"
@@ -28,13 +27,13 @@ var node = def.Node{}
 func main() {
 	parseArgs(&node.NodeName, &node.MasterIpAndPort, &node.LocalPort)
 	node.NodeIP = getLocalIP()
-	node.ProxyPort = kubeproxy.ProxyPort
+	node.ProxyPort = def.ProxyPort
 	if node.NodeIP == nil {
 		fmt.Println("get local ip error")
 		os.Exit(0)
 	}
 	err := registerToMaster(&node)
-	if err == nil {
+	if err != nil {
 		fmt.Println("network error, cannot register to master")
 		os.Exit(0)
 	}
@@ -60,6 +59,9 @@ func main() {
 		os.Exit(0)
 	}
 	node.CadvisorClient = cadvisorClient
+
+	//Create initial VxLANs
+	net_utils.InitVxLAN(&node)
 
 	go kubelet_routines.EtcdWatcher(&node)
 	go kubelet_routines.NodesWatch(&node)
@@ -118,6 +120,7 @@ func registerToMaster(node *def.Node) error {
 		NodeName:  node.NodeName,
 		LocalIP:   node.NodeIP,
 		LocalPort: node.LocalPort,
+		ProxyPort: node.ProxyPort,
 	}
 
 	body, _ := json.Marshal(request)

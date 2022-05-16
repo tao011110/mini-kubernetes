@@ -35,6 +35,8 @@ func CreateAndStartPod(podInstance *def.PodInstance, node *def.Node) {
 	pauseContainerID := docker.CreatePauseContainer(cli, containers, podInstance.ID, networkID)
 	pauserDetail, _ := docker.InspectContainer(pauseContainerID)
 	podInstance.IP = pauserDetail.NetworkSettings.Networks["miniK8S-bridge"].IPAddress
+	fmt.Println(pauserDetail.NetworkSettings)
+	fmt.Println(pauserDetail.NetworkSettings.Networks["miniK8S-bridge"])
 	fmt.Printf("podInstance.ClusterIP is %s\n", podInstance.IP)
 
 	for index, con := range containers {

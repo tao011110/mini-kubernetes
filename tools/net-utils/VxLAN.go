@@ -1,8 +1,10 @@
 package net_utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/etcd"
 	"os/exec"
 	"strconv"
 )
@@ -19,7 +21,9 @@ var brBindings = make([]brBinding, 0)
 
 var NodesList = make([]def.Node, 0)
 
-func CreateVxLan(remoteIp string, subnet string) {
+func CreateVxLan(node def.Node) {
+	remoteIp := node.NodeIP.String()
+	subnet := node.CniIP.String()
 	brName := "br" + strconv.Itoa(brNum)
 	binding := brBinding{
 		BrName:   brName,
@@ -71,12 +75,15 @@ func CreateVxLan(remoteIp string, subnet string) {
 		fmt.Println(err)
 		panic(err)
 	}
+	fmt.Printf("CreateVxLan %s to %s\n", binding.BrName, remoteIp)
+	NodesList = append(NodesList, node)
 }
 
 func DeleteVxLan(remoteIp string) {
 	newBrBindings := make([]brBinding, 0)
 	for _, binding := range brBindings {
 		if remoteIp == binding.RemoteIp {
+			fmt.Printf("DeleteVxLan %s to %s\n", binding.BrName, remoteIp)
 			cmd := exec.Command("ovs-vsctl", "del-br", binding.BrName)
 			err := cmd.Start()
 			if err != nil {
@@ -86,6 +93,29 @@ func DeleteVxLan(remoteIp string) {
 			newBrBindings = append(newBrBindings, binding)
 		}
 	}
+}
+
+func InitVxLAN(node *def.Node) {
+	nodeKey := "/node/"
+	kvs := etcd.GetWithPrefix(node.EtcdClient, nodeKey).Kvs
+	nodeValue := make([]byte, 0)
+	nodeList := make([]def.Node, 0)
+	if len(kvs) != 0 {
+		for _, kv := range kvs {
+			tmp := def.Node{}
+			nodeValue = kv.Value
+			err := json.Unmarshal(nodeValue, &tmp)
+			if err != nil {
+				fmt.Printf("%v\n", err)
+				panic(err)
+			}
+			if tmp.NodeIP.String() != node.NodeIP.String() {
+				CreateVxLan(tmp)
+				nodeList = append(nodeList, tmp)
+			}
+		}
+	}
+	NodesList = nodeList
 }
 
 func InitOVS() {

@@ -9,13 +9,17 @@ import (
 )
 
 func GetPodInstance(podInstanceName string, cli *clientv3.Client) def.PodInstance {
-	resp := etcd.Get(cli, podInstanceName)
+	kv := etcd.Get(cli, podInstanceName).Kvs
 	podInstance := def.PodInstance{}
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s", `, ev.Key, ev.Value)
+	podInstanceValue := make([]byte, 0)
+	if len(kv) != 0 {
+		podInstanceValue = kv[0].Value
+		err := json.Unmarshal(podInstanceValue, &podInstance)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			panic(err)
+		}
 	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &podInstance)
+
 	return podInstance
 }

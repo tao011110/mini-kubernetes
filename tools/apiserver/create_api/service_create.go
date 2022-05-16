@@ -44,7 +44,7 @@ func CreateClusterIPService(cli *clientv3.Client, service_c def.ClusterIPSvc) de
 							fmt.Println(containerPort)
 							if ports.TargetPort == containerPort {
 								endpoints = append(endpoints, podInstance.IP+":"+ports.TargetPort)
-								fmt.Printf("podInstance.ClusterIP is %v\n", podInstance.IP)
+								fmt.Printf("podInstance.IP is %v\n", podInstance.IP)
 							}
 						}
 					}
@@ -107,7 +107,7 @@ func CreateNodePortService(cli *clientv3.Client, service_n def.NodePortSvc) def.
 							fmt.Println(containerPort)
 							if ports.TargetPort == containerPort {
 								endpoints = append(endpoints, podInstance.IP+":"+ports.TargetPort)
-								fmt.Printf("podInstance.ClusterIP is %v\n", podInstance.IP)
+								fmt.Printf("podInstance.IP is %v\n", podInstance.IP)
 							}
 						}
 					}
