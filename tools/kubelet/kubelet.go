@@ -160,6 +160,17 @@ func ContainerCheck() {
 
 func checkPodRunning() {
 	infos := resource.GetAllContainersInfo(node.CadvisorClient)
+	fmt.Printf("--- all containers info start ---")
+	for _, info := range infos {
+		id := info.Id
+		name := info.Name
+		cpuInfo := info.Stats[len(info.Stats)-1].Cpu.Usage.Total
+		memInfo := info.Stats[len(info.Stats)-1].Memory.Usage
+		mem := float64(memInfo) / (1024 * 1024)
+		cpuLoad := float64(cpuInfo) / (1000 * 1000 * 1000)
+		fmt.Printf("id: %s,\nname: %s,\nTotal memoryUsage: %f,\ncpuUasge: %fs\n\n", id, name, mem, cpuLoad)
+	}
+
 	var runningContainerIDs []string
 	for _, info := range infos {
 		runningContainerIDs = append(runningContainerIDs, info.Id)
@@ -201,7 +212,9 @@ func recordResource() {
 		memoryUsage := uint64(0)
 		cpuLoadAverage := int32(0)
 		for _, container := range podInstance.ContainerSpec {
-			info := resource.GetContainerInfoByName(node.CadvisorClient, container.Name)
+			fmt.Println("container.ID is " + container.ID)
+			info := resource.GetContainerInfoByID(node.CadvisorClient, container.ID)
+			fmt.Println(info)
 			memoryUsage += info.Stats[len(info.Stats)-1].Memory.Usage
 			cpuLoadAverage += info.Stats[len(info.Stats)-1].Cpu.LoadAverage
 		}

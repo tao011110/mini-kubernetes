@@ -14,6 +14,14 @@ import (
 var ipt *iptables.IPTables
 var svc2sep map[string][]string
 
+type nodePortDetail struct {
+	protocol string
+	nodePort string
+	sepName  string
+}
+
+var nodePortMap = make(map[string][]nodePortDetail)
+
 func Proxy() {
 	newIpt, err := iptables.New()
 	if err != nil {
@@ -246,6 +254,7 @@ func addNPServiceRule(c echo.Context) error {
 		num := len(pair.Endpoints)
 		i := 0
 
+		detailList := make([]nodePortDetail, 0)
 		for _, endpoint := range pair.Endpoints {
 			// Add sep chain into mK8S-NODEPORTS chain, according to its nodePort
 			err = ipt.AppendUnique("nat", "mK8S-NODEPORTS", "-p", protocol,
@@ -254,6 +263,12 @@ func addNPServiceRule(c echo.Context) error {
 				fmt.Printf("Add NodePort service failed: %v", err)
 				panic(err)
 			}
+			detail := nodePortDetail{
+				nodePort: nodePort,
+				protocol: protocol,
+				sepName:  sepName,
+			}
+			detailList = append(detailList, detail)
 
 			// Fill in the sep chain with endpoints
 			err = ipt.AppendUnique("nat", sepName, "-p", protocol,
@@ -265,6 +280,7 @@ func addNPServiceRule(c echo.Context) error {
 			}
 			i++
 		}
+		nodePortMap[service.ClusterIP] = detailList
 	}
 	svc2sep[svcName] = sepList
 
@@ -285,12 +301,14 @@ func deleteNPServiceRule(c echo.Context) error {
 		panic(err)
 	}
 
-	// Delete svc rule in mK8S-NODEPORTS chain
-	err = ipt.Delete("nat", "mK8S-NODEPORTS",
-		"-d", clusterIP, "-j", svcName)
-	if err != nil {
-		fmt.Printf("Delete NodePort service failed: %v", err)
-		panic(err)
+	detailList := nodePortMap[clusterIP]
+	for _, detail := range detailList {
+		err = ipt.Delete("nat", "mK8S-NODEPORTS", "-p", detail.protocol,
+			"--dport", detail.nodePort, "-j", detail.sepName)
+		if err != nil {
+			fmt.Printf("Delete NodePort service failed: %v", err)
+			panic(err)
+		}
 	}
 
 	// Clear and delete svc chain

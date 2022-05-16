@@ -25,6 +25,7 @@ func CreateVxLan(node def.Node) {
 	remoteIp := node.NodeIP.String()
 	subnet := node.CniIP.String()
 	brName := "br" + strconv.Itoa(brNum)
+	vxName := "vx" + strconv.Itoa(brNum)
 	binding := brBinding{
 		BrName:   brName,
 		Subnet:   subnet,
@@ -68,8 +69,8 @@ func CreateVxLan(node def.Node) {
 		panic(err)
 	}
 
-	cmd = exec.Command("ovs-vsctl", "add-port", brName, "vx1", "--", "set",
-		"interface", "vx1", "type=vxlan", "options:remote_ip="+remoteIp)
+	cmd = exec.Command("ovs-vsctl", "add-port", brName, vxName, "--", "set",
+		"interface", vxName, "type=vxlan", "options:remote_ip="+remoteIp)
 	err = cmd.Start()
 	if err != nil {
 		fmt.Println(err)

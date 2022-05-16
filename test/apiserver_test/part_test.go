@@ -300,7 +300,7 @@ func TestUpdateIptablesRule(t *testing.T) {
 	//testRegisterNode()
 
 	var path = "./podForService.yaml"
-	//testCreatePod(path)
+	testCreatePod(path)
 	//time.Sleep(10 * time.Second)
 	//path = "./podForService2.yaml"
 	//testCreatePod(path)
@@ -313,12 +313,12 @@ func TestUpdateIptablesRule(t *testing.T) {
 	//time.Sleep(5 * time.Second)
 	//testDeleteCIService()
 
-	path = "./nodePortService_test.yaml"
-	testCreateNPService(path)
-
-	testGetService()
-
-	testGetAllService()
+	//path = "./nodePortService_test.yaml"
+	//testCreateNPService(path)
+	//
+	//testGetService()
+	//
+	//testGetAllService()
 	//
 	//time.Sleep(5 * time.Second)
 	//testDeleteNPService()
