@@ -24,7 +24,10 @@ func StartCadvisor() (*client.Client, error) {
 
 func GetAllContainersInfo(cAdvisorClient *client.Client) []v1.ContainerInfo {
 	infoRequest := v1.DefaultContainerInfoRequest()
-	containers, _ := cAdvisorClient.AllDockerContainers(&infoRequest)
+	containers, err := cAdvisorClient.AllDockerContainers(&infoRequest)
+	if err != nil {
+		print(err)
+	}
 	return containers
 }
 
