@@ -2,7 +2,6 @@ package controller_utils
 
 import (
 	"encoding/json"
-	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
@@ -10,50 +9,26 @@ import (
 )
 
 func GetDeploymentNameList(etcdClient *clientv3.Client) []string {
-	resp := etcd.Get(etcdClient, def.DeploymentListName)
 	var deploymentNameList []string
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &deploymentNameList)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, def.DeploymentListName), &deploymentNameList)
 	return deploymentNameList
 }
 
 func GetHorizontalPodAutoscalerNameList(etcdClient *clientv3.Client) []string {
-	resp := etcd.Get(etcdClient, def.HorizontalPodAutoscalerListName)
 	var horizontalPodAutoscalerNameList []string
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &horizontalPodAutoscalerNameList)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, def.HorizontalPodAutoscalerListName), &horizontalPodAutoscalerNameList)
 	return horizontalPodAutoscalerNameList
 }
 
 func GetDeploymentByName(etcdClient *clientv3.Client, deploymentName string) *def.ParsedDeployment {
-	resp := etcd.Get(etcdClient, deploymentName)
 	deployment := def.ParsedDeployment{}
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &deployment)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, deploymentName), &deployment)
 	return &deployment
 }
 
 func GetHorizontalPodAutoscalerByName(etcdClient *clientv3.Client, horizontalPodAutoscalerName string) *def.ParsedHorizontalPodAutoscaler {
-	resp := etcd.Get(etcdClient, horizontalPodAutoscalerName)
 	horizontalPodAutoscaler := def.ParsedHorizontalPodAutoscaler{}
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &horizontalPodAutoscaler)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, horizontalPodAutoscalerName), &horizontalPodAutoscaler)
 	return &horizontalPodAutoscaler
 }
 
@@ -61,27 +36,15 @@ func AddPodInstance(etcdClient *clientv3.Client, instance *def.PodInstance) {
 	util.PersistPodInstance(*instance, etcdClient)
 	{
 		key := def.GetKeyOfPodReplicasNameListByPodName(instance.Pod.Metadata.Name)
-		resp := etcd.Get(etcdClient, key) // pod -> replica_list(all replica's id of the pod)
 		var instanceNameList []string
-		jsonString := ``
-		for _, ev := range resp.Kvs {
-			jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-		}
-		jsonString = fmt.Sprintf(`{%s}`, jsonString)
-		_ = json.Unmarshal([]byte(jsonString), &instanceNameList)
+		util.EtcdUnmarshal(etcd.Get(etcdClient, key), &instanceNameList)
 		instanceNameList = append(instanceNameList, instance.ID)
 		newJsonString, _ := json.Marshal(instanceNameList)
 		etcd.Put(etcdClient, key, string(newJsonString))
 	}
 	{
-		resp := etcd.Get(etcdClient, def.PodInstanceListName) // only 1, all podInstance's id podInstance's id : pod'name + uuid
 		var instanceNameList []string
-		jsonString := ``
-		for _, ev := range resp.Kvs {
-			jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-		}
-		jsonString = fmt.Sprintf(`{%s}`, jsonString)
-		_ = json.Unmarshal([]byte(jsonString), &instanceNameList)
+		util.EtcdUnmarshal(etcd.Get(etcdClient, def.PodInstanceListName), &instanceNameList)
 		instanceNameList = append(instanceNameList, instance.ID)
 		newJsonString, _ := json.Marshal(instanceNameList)
 		etcd.Put(etcdClient, def.PodInstanceListName, string(newJsonString))
@@ -97,14 +60,8 @@ func AddPodInstance(etcdClient *clientv3.Client, instance *def.PodInstance) {
 
 func RemovePodInstance(etcdClient *clientv3.Client, instance *def.PodInstance) {
 	{
-		resp := etcd.Get(etcdClient, def.PodInstanceListName)
 		var deploymentNameList []string
-		jsonString := ``
-		for _, ev := range resp.Kvs {
-			jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-		}
-		jsonString = fmt.Sprintf(`{%s}`, jsonString)
-		_ = json.Unmarshal([]byte(jsonString), &deploymentNameList)
+		util.EtcdUnmarshal(etcd.Get(etcdClient, def.PodInstanceListName), &deploymentNameList)
 		for index, name := range deploymentNameList {
 			if name == instance.ID {
 				deploymentNameList = append(deploymentNameList[:index], deploymentNameList[index+1:]...)
@@ -116,14 +73,8 @@ func RemovePodInstance(etcdClient *clientv3.Client, instance *def.PodInstance) {
 	}
 	{
 		key := def.GetKeyOfPodReplicasNameListByPodName(instance.Pod.Metadata.Name)
-		resp := etcd.Get(etcdClient, key)
 		var deploymentNameList []string
-		jsonString := ``
-		for _, ev := range resp.Kvs {
-			jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-		}
-		jsonString = fmt.Sprintf(`{%s}`, jsonString)
-		_ = json.Unmarshal([]byte(jsonString), &deploymentNameList)
+		util.EtcdUnmarshal(etcd.Get(etcdClient, key), &deploymentNameList)
 		for index, name := range deploymentNameList {
 			if name == instance.ID {
 				deploymentNameList = append(deploymentNameList[:index], deploymentNameList[index+1:]...)
@@ -149,14 +100,8 @@ func RemoveAllReplicasOfPod(etcdClient *clientv3.Client, podName string) {
 
 func GetReplicaNameListByPodName(etcdClient *clientv3.Client, podName string) []string {
 	key := def.GetKeyOfPodReplicasNameListByPodName(podName)
-	resp := etcd.Get(etcdClient, key)
 	var deploymentNameList []string
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &deploymentNameList)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, key), &deploymentNameList)
 	return deploymentNameList
 }
 
@@ -169,26 +114,14 @@ func NewReplicaNameListByPodName(etcdClient *clientv3.Client, podName string) {
 }
 
 func GetPodByName(etcdClient *clientv3.Client, podName string) *def.Pod {
-	resp := etcd.Get(etcdClient, podName)
 	pod := def.Pod{}
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &pod)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, podName), &pod)
 	return &pod
 }
 
 func GetPodInstanceResourceUsageByName(etcdClient *clientv3.Client, podInstanceID string) *def.ResourceUsage {
 	key := def.GetKeyOfResourceUsageByPodInstanceID(podInstanceID)
-	resp := etcd.Get(etcdClient, key)
 	resourceUsage := def.ResourceUsage{}
-	jsonString := ``
-	for _, ev := range resp.Kvs {
-		jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-	}
-	jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	_ = json.Unmarshal([]byte(jsonString), &resourceUsage)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, key), &resourceUsage)
 	return &resourceUsage
 }
