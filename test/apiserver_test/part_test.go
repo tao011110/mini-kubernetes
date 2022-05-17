@@ -244,7 +244,7 @@ func testDeleteNPService() {
 	}
 }
 
-//TODO: 用来删除获取特定名称的 service，需要发送给apiserver的参数为 serviceName(string)
+//TODO: 用来获取特定名称的 service，需要发送给apiserver的参数为 serviceName(string)
 func testGetService(serviceName string) {
 	//http调用返回的json需解析转为def.Service类型，
 	//该结构体的字段，满足了与  K8S中的kubectl describe service serviceName操作返回内容中  所有的信息
@@ -265,7 +265,7 @@ func testGetService(serviceName string) {
 	}
 }
 
-//TODO: 用来删除获取所有的 service
+//TODO: 用来获取所有的 service
 func testGetAllService() {
 	//http调用返回的json需解析转为[]def.Service类型，
 	//def.Service 结构体的字段，满足了与  K8S中的kubectl get service操作返回内容中  所有的信息
