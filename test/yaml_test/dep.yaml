@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-hjk
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        name: pod-hjk
+    spec:
+      containers:
+        - name: fileserver
+          image: dplsming/nginx-fileserver:1.0
+          volumeMounts:
+            - name: fileserver-volume
+              mountPath: /usr/share/nginx/html/files
+          ports:
+            - name: fileserver80
+              containerPort: 80
+              protocol: TCP
+
+        - name: downloader
+          image: dplsming/aria2ng-downloader:1.0
+          volumeMounts:
+            - name: downloader-volume
+              mountPath: /data
+          ports:
+            - name: downloader6800
+              containerPort: 6800
+              protocol: TCP
+            - name: downloader6880
+              containerPort: 6880
+              protocol: TCP
+
+      volumes:
+        - name: fileserver-volume
+          hostPath:
+            path: /home/hjk
+
+        - name: downloader-volume
+          hostPath:
+            path: /home/hjk

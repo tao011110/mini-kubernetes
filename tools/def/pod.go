@@ -32,8 +32,8 @@ type Limit struct {
 }
 
 type Request struct {
-	CPU    int `yaml:"cpu" json:"cpu"`
-	Memory int `yaml:"memory" json:"memory"`
+	CPU    string `yaml:"cpu" json:"cpu"`
+	Memory string `yaml:"memory" json:"memory"`
 }
 
 type Container struct {
@@ -81,12 +81,8 @@ type PodSpec struct {
 }
 
 type PodMeta struct {
-	Name   string    `yaml:"name" json:"name"`
-	Labels PodLabels `yaml:"labels" json:"labels"`
-}
-
-type PodLabels struct {
-	Name string `yaml:"name" json:"name"`
+	Name  string `yaml:"name" json:"name"`
+	Label string `yaml:"label" json:"label"`
 }
 
 type NodeSelector struct {

@@ -2,9 +2,10 @@ package yaml
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"mini-kubernetes/tools/def"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 func ReadPodYamlConfig(path string) (*def.Pod, error) {
@@ -92,4 +93,40 @@ func ReadDNSConfig(path string) (*def.DNS, error) {
 	}
 	fmt.Println("dns_: ", dns_)
 	return dns_, nil
+}
+
+func ReadDeploymentConfig(path string) (*def.Deployment, error) {
+	dep_ := &def.Deployment{}
+	if f, err := os.Open(path); err != nil {
+		return nil, err
+	} else {
+		err := yaml.NewDecoder(f).Decode(dep_)
+		if err != nil {
+			return nil, err
+		}
+		if (*dep_).Kind != "Deployment" {
+			fmt.Println("kind should be Deployment!")
+			return nil, err
+		}
+	}
+	fmt.Println("dep_: ", dep_)
+	return dep_, nil
+}
+
+func ReadAutoScalerConfig(path string) (*def.Autoscaler, error) {
+	auto_ := &def.Autoscaler{}
+	if f, err := os.Open(path); err != nil {
+		return nil, err
+	} else {
+		err := yaml.NewDecoder(f).Decode(auto_)
+		if err != nil {
+			return nil, err
+		}
+		if (*auto_).Kind != "HorizontalPodAutoscaler" {
+			fmt.Println("kind should be HorizontalPodAutoscaler!")
+			return nil, err
+		}
+	}
+	fmt.Println("auto_: ", auto_)
+	return auto_, nil
 }

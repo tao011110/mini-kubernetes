@@ -9,3 +9,65 @@ type ParsedDeployment struct {
 	ReplicasNum int    `json:"replicas_num"`
 	PodName     string `json:"pod_name"`
 }
+
+// 以下是deployment解析的直接结果
+type DepMeta struct {
+	Name string `yaml:"name" json:"name"`
+}
+
+type TempLabels struct {
+	Name string `yaml:"name" json:"name"`
+}
+
+type TempMeta struct {
+	Labels TempLabels `yaml:"labels" json:"labels"`
+}
+
+type TempVolumeMount struct {
+	Name      string `yaml:"name" json:"name"`
+	MountPath string `yaml:"mountPath" json:"mount_path"`
+}
+
+type TempPortMapping struct {
+	Name          string `yaml:"name" json:"name"`
+	ContainerPort uint16 `yaml:"containerPort" json:"container_port"`
+	Protocol      string `yaml:"protocol" json:"protocol"`
+}
+
+type TempContainer struct {
+	Name         string            `yaml:"name" json:"name"`
+	Image        string            `yaml:"image" json:"image"`
+	VolumeMounts []TempVolumeMount `yaml:"volumeMounts" json:"volumeMounts"`
+	PortMappings []TempPortMapping `yaml:"ports" json:"portMappings"`
+}
+
+type TempHostPath struct {
+	Path string `yaml:"path" json:"path"`
+}
+
+type TempVolume struct {
+	Name     string       `yaml:"name" json:"name"`
+	HostPath TempHostPath `yaml:"hostPath" json:"host_path"`
+}
+
+type TempSpec struct {
+	Containers []TempContainer `yaml:"containers" json:"containers"`
+	Volumes    []TempVolume    `yaml:"volumes" json:"volumes"`
+}
+
+type DepTemp struct {
+	Metadata TempMeta `yaml:"metadata" json:"metadata"`
+	Spec     TempSpec `yaml:"spec" json:"spec"`
+}
+
+type DepSpec struct {
+	Replicas uint64  `yaml:"replicas" json:"replicas"`
+	Template DepTemp `yaml:"template" json:"template"`
+}
+
+type Deployment struct {
+	ApiVersion string  `yaml:"apiVersion" json:"api_version"`
+	Kind       string  `yaml:"kind" json:"kind"`
+	Metadata   DepMeta `yaml:"metadata" json:"metadata"`
+	Spec       DepSpec `yaml:"spec" json:"spec"`
+}
