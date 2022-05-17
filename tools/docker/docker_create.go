@@ -29,7 +29,7 @@ func GenerateNetworkingConfig(networkID string) *network.NetworkingConfig {
 
 // Create the Pause container, which acts as the parent of all containers in the pod
 func CreatePauseContainer(cli *client.Client, cons []def.Container, prefix string, networkID string) string {
-	fmt.Println(prefix)
+	fmt.Println("prefix is " + prefix)
 	prefix = prefix[1:]
 	prefix = strings.Replace(prefix, "/", "-", -1)
 	ImageEnsure("registry.aliyuncs.com/google_containers/pause")

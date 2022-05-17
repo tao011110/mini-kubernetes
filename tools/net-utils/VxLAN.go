@@ -48,14 +48,14 @@ func CreateVxLan(node def.Node) {
 		panic(err)
 	}
 
-	cmd = exec.Command("ip", "link", "dev", brName, "up")
+	cmd = exec.Command("ip", "link", "set", "dev", brName, "up")
 	err = cmd.Start()
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
 	}
 
-	cmd = exec.Command("ip", "link", "dev", "miniK8S-bridge", "up")
+	cmd = exec.Command("ip", "link", "set", "dev", "miniK8S-bridge", "up")
 	err = cmd.Start()
 	if err != nil {
 		fmt.Println(err)
@@ -76,7 +76,7 @@ func CreateVxLan(node def.Node) {
 		fmt.Println(err)
 		panic(err)
 	}
-	fmt.Printf("CreateVxLan %s to %s\n", binding.BrName, remoteIp)
+	fmt.Printf("CreateVxLan %s to %s, with vx %s\n", binding.BrName, remoteIp, vxName)
 	NodesList = append(NodesList, node)
 }
 

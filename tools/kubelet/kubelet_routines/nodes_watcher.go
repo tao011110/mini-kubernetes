@@ -27,7 +27,18 @@ func NodesWatch(node *def.Node) {
 					panic(err)
 				}
 				if change.NodeID != node.NodeID {
-					added = append(added, change)
+					// 避免修改node相关参数时，重复PUT导致多次建立隧道而出错
+					flag := true
+					for _, tmp := range net_utils.NodesList {
+						if tmp.NodeID == change.NodeID {
+							flag = false
+							break
+						}
+					}
+					if flag == true {
+						added = append(added, change)
+						net_utils.NodesList = append(net_utils.NodesList, change)
+					}
 				}
 			} else {
 				if w.Type == clientv3.EventTypeDelete {
@@ -40,12 +51,15 @@ func NodesWatch(node *def.Node) {
 						panic(err)
 					}
 					fmt.Printf("nodeID is %v\n", nodeID)
+					nodeList := make([]def.Node, 0)
 					for _, tmp := range net_utils.NodesList {
 						if tmp.NodeID == nodeID && nodeID != node.NodeID {
 							deleted = append(deleted, tmp)
-							break
+						} else {
+							nodeList = append(nodeList, tmp)
 						}
 					}
+					net_utils.NodesList = nodeList
 				}
 			}
 		}

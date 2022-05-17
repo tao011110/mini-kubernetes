@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"mini-kubernetes/tools/def"
-	"mini-kubernetes/tools/docker"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/master"
 	"mini-kubernetes/tools/yaml"
 	"net"
 	"testing"
+	"time"
 )
 
 var node = def.Node{
@@ -47,8 +47,6 @@ func testRegisterNode() {
 	node.NodeName = response.NodeName
 	node.CniIP = response.CniIP
 	fmt.Printf("register_node is %s and response is: %v\n", status, response)
-
-	docker.CreateNetBridge("10.24.1.0")
 }
 
 func testCreatePod(path string) {
@@ -67,16 +65,6 @@ func testCreatePod(path string) {
 		fmt.Println(err)
 	}
 	fmt.Printf("create_pod is %s and response is: %s\n", status, response2)
-
-	//TODO:在kubelet正常运行后，这部分测试代码可以删除
-	//podInstance := def.PodInstance{}
-	//podInstance.Pod = *pod_
-	//podInstance.NodeID = uint64(node.NodeID)
-	//cniIP := net.IPv4(10, 24, 0, 0)
-	//node.CniIP = net.IP(cniIP)
-	//podInstance.ID = "/podInstance/" + pod_.Metadata.Name
-	//podInstance.ContainerSpec = make([]def.ContainerStatus, len(pod_.Spec.Containers))
-	//pod.CreateAndStartPod(&podInstance, &node)
 }
 
 func testGetPod() {
@@ -177,8 +165,8 @@ func TestPod(t *testing.T) {
 	testGetAllPodStatus()
 }
 
+//TODO: 用来创建clusterIP service，需要发送给apiserver的参数为 service_c  (def.ClusterIPSvc)
 func testCreateCIService(path string) {
-	//需要发送给apiserver的参数为 service_c def.ClusterIPSvc
 	serviceC, _ := yaml.ReadServiceClusterIPConfig(path)
 	request2 := *serviceC
 	response2 := ""
@@ -195,6 +183,7 @@ func testCreateCIService(path string) {
 	fmt.Printf("create_service is %s and response is: %s\n", status, response2)
 }
 
+//TODO: 用来删除clusterIP service，需要发送给apiserver的参数为 serviceName(string)
 func testDeleteCIService() {
 	//需要发送给apiserver的参数为 serviceName string
 	serviceName := "test-service"
@@ -216,8 +205,8 @@ func testDeleteCIService() {
 	}
 }
 
+//TODO: 用来创建nodeport service，需要发送给apiserver的参数为 serviceN (def.NodePortSvc)
 func testCreateNPService(path string) {
-	//需要发送给apiserver的参数为 serviceN def.NodePortSvc
 	serviceN, _ := yaml.ReadServiceNodeportConfig(path)
 	request2 := *serviceN
 	response2 := ""
@@ -234,8 +223,8 @@ func testCreateNPService(path string) {
 	fmt.Printf("create_service is %s and response is: %s\n", status, response2)
 }
 
+//TODO: 用来删除nodeport service，需要发送给apiserver的参数为 serviceName(string)
 func testDeleteNPService() {
-	//需要发送给apiserver的参数为 serviceName string
 	serviceName := "test-service2"
 	response4 := ""
 	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/nodePortService/" + serviceName).
@@ -255,9 +244,10 @@ func testDeleteNPService() {
 	}
 }
 
-func testGetService() {
-	//需要发送给apiserver的参数为 serviceName string
-	serviceName := "test-service"
+//TODO: 用来删除获取特定名称的 service，需要发送给apiserver的参数为 serviceName(string)
+func testGetService(serviceName string) {
+	//http调用返回的json需解析转为def.Service类型，
+	//该结构体的字段，满足了与  K8S中的kubectl describe service serviceName操作返回内容中  所有的信息
 	response := def.Service{}
 	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/service/" + serviceName).
 		ContentType("application/json").
@@ -275,7 +265,13 @@ func testGetService() {
 	}
 }
 
+//TODO: 用来删除获取所有的 service
 func testGetAllService() {
+	//http调用返回的json需解析转为[]def.Service类型，
+	//def.Service 结构体的字段，满足了与  K8S中的kubectl get service操作返回内容中  所有的信息
+	//但需要注意的是，我这里提供的是StartTime(time.Time), kubectl在获取之后需要使用如下操作计算出AGE：
+	//t := time.Now()  用于获取当前时间
+	//Age := t.Sub(podInstance.StartTime)  进行计算，得到AGE
 	response := make([]def.Service, 0)
 	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/all/service").
 		ContentType("application/json").
@@ -313,13 +309,15 @@ func TestUpdateIptablesRule(t *testing.T) {
 	//time.Sleep(5 * time.Second)
 	//testDeleteCIService()
 
-	//path = "./nodePortService_test.yaml"
-	//testCreateNPService(path)
-	//
-	//testGetService()
-	//
-	//testGetAllService()
-	//
+	time.Sleep(15 * time.Second)
+	path = "./nodePortService_test.yaml"
+	testCreateNPService(path)
+
+	time.Sleep(10 * time.Second)
+	testGetService("test-service2")
+
+	testGetAllService()
+
 	//time.Sleep(5 * time.Second)
 	//testDeleteNPService()
 }
