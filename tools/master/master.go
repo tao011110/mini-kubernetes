@@ -7,7 +7,7 @@ import (
 	"mini-kubernetes/tools/etcd"
 )
 
-var IP = "192.168.47.19"
+var IP = "192.168.1.7"
 var Port = "8000"
 
 func Start() {

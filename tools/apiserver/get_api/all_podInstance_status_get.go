@@ -23,7 +23,6 @@ func GetAllPodInstanceStatus(cli *clientv3.Client) ([]def.PodInstanceBrief, bool
 			if container.Status == def.RUNNING {
 				count++
 			} else {
-				fmt.Println("wadadawdawdwa")
 				fmt.Println(container.Status)
 			}
 		}

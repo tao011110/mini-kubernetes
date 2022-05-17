@@ -1,0 +1,18 @@
+apiVersion: v1                            #API的版本号，版本号可以用 kubectl api-versions 查询到
+kind: Service                             #表明资源对象，例如Pod、RC、Service、Namespace及Node等
+metadata:                                 #资源对象的元数据定义
+  name: test-service2                      #service名称
+spec:                                     #资源对象的详细定义，持久化到etcd中保存
+  type: NodePort                         #Service类型，ClusterIP供kubernates集群内部pod访问
+  clusterIP: 192.168.40.20                #Service的IP地址，当type为ClusterIP时，可手动指定，若不指定，系统将自行分配；当type为LoadBalancer时，则需要指定
+  ports:                                  #暴露的端口列表
+    - port:  300                          #Service监听的端口，对应ClusterIP，即ClusterIP+ServicePort供集群内部pod访问的
+      targetPort:  300                    #对应pod中容器的端口
+      protocol: TCP                       #协议，支持TCP、UDP，默认TCP                                  #暴露的端口列表
+      nodePort: 37997
+    - port: 80                            #Service监听的端口，对应ClusterIP，即ClusterIP+ServicePort供集群内部pod访问的
+      targetPort: 80                      #对应pod中容器的端口
+      protocol: TCP                       #协议，支持TCP、UDP，默认TCP
+      nodePort: 37998
+  selector:                               #label选择器，管理label对应的pod
+    name: test                #pod的label

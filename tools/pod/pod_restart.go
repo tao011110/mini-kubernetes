@@ -12,5 +12,5 @@ func RestartPod(podInstance *def.PodInstance) {
 		podInstance.ContainerSpec[index].Status = def.SUCCEEDED
 	}
 	podInstance.Status = def.SUCCEEDED
-	podInstance.PodInstanceStatus = def.InstanceSpec{}
+	//podInstance.PodInstanceStatus = def.InstanceSpec{}
 }

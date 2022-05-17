@@ -14,7 +14,7 @@ func GetPodInstance(podInstanceName string, cli *clientv3.Client) def.PodInstanc
 	return podInstance
 }
 
-func EtcdUnmarshal(resp *clientv3.GetResponse, v any) {
+func EtcdUnmarshal(resp *clientv3.GetResponse, v interface{}) {
 	kv := resp.Kvs
 	value := make([]byte, 0)
 	if len(kv) != 0 {

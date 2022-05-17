@@ -30,7 +30,7 @@ func generateServicePorts(dns *def.DNSDetail) []def.PortPair {
 	return mappings
 }
 
-func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.ClusterIP) {
+func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.ClusterIPSvc) {
 	injectionRoutesCommand := fmt.Sprintf(
 		"echo %s > %s",
 		GenerateApplicationYaml(dns),
@@ -79,14 +79,14 @@ func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.C
 		},
 	}
 
-	service = def.ClusterIP{
+	service = def.ClusterIPSvc{
 		ApiVersion: `v1`,
 		Kind:       `Service`,
 		Metadata: def.Meta{
 			Name: serviceName,
 		},
 		Spec: def.Spec{
-			Type:  `ClusterIP`,
+			Type:  `ClusterIPSvc`,
 			Ports: generateServicePorts(&dns),
 			Selector: def.Selector{
 				Name: podLabel, /*TODO: maybe wrong*/

@@ -22,14 +22,6 @@ spec:
           hostPort: 320
           protocol: TCP
 
-      resources:
-        limits:
-          cpu: "1"
-          memory: 128M
-        requests:
-          cpu: 500m
-          memory: 1Mi
-
     - name: nginx3
       image: nginx:latest
       command:
@@ -44,14 +36,6 @@ spec:
           containerPort: 100
           hostPort: 100
           protocol: TCP
-
-      resources:
-        limits:
-          cpu: "1"
-          memory: 500M
-        requests:
-          cpu: "1"
-          memory: 10Mi
 
   volumes:
     - name: config

@@ -49,14 +49,14 @@ const (
 	ProtocolIPv6
 )
 
-type Rule struct {
-	Protocol        string
-	DestinationIP   string
-	DestinationPort string
-	DNAT            string
-	Probability     string
-	RobinN          int
-}
+//type Rule struct {
+//	Protocol        string
+//	DestinationIP   string
+//	DestinationPort string
+//	DNAT            string
+//	RobinN          int
+//	NodePort        string
+//}
 
 type IPTables struct {
 	path              string
@@ -308,7 +308,7 @@ func (ipt *IPTables) Stats(table, chain string) ([][]string, error) {
 				ip = net.ParseIP(dest)
 			}
 
-			// If we detected a CIDR or IP, the "opt" field is empty.. insert it.
+			// If we detected a CIDR or ClusterIP, the "opt" field is empty.. insert it.
 			if ip != nil {
 				f := []string{}
 				f = append(f, fields[:4]...)

@@ -29,8 +29,8 @@ func ReadPodYamlConfig(path string) (*def.Pod, error) {
 	return pod_, nil
 }
 
-func ReadServiceClusterIPConfig(path string) (*def.ClusterIP, error) {
-	service_c := &def.ClusterIP{}
+func ReadServiceClusterIPConfig(path string) (*def.ClusterIPSvc, error) {
+	service_c := &def.ClusterIPSvc{}
 	if f, err := os.Open(path); err != nil {
 		return nil, err
 	} else {
@@ -53,8 +53,8 @@ func ReadServiceClusterIPConfig(path string) (*def.ClusterIP, error) {
 	return service_c, nil
 }
 
-func ReadServiceNodeportConfig(path string) (*def.Nodeport, error) {
-	service_n := &def.Nodeport{}
+func ReadServiceNodeportConfig(path string) (*def.NodePortSvc, error) {
+	service_n := &def.NodePortSvc{}
 	if f, err := os.Open(path); err != nil {
 		return nil, err
 	} else {

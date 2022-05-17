@@ -13,7 +13,7 @@ import (
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/kubelet/kubelet_routines"
-	"mini-kubernetes/tools/kubeproxy"
+	net_utils "mini-kubernetes/tools/net-utils"
 	"mini-kubernetes/tools/resource"
 	"mini-kubernetes/tools/util"
 	"net"
@@ -27,13 +27,13 @@ var node = def.Node{}
 func main() {
 	parseArgs(&node.NodeName, &node.MasterIpAndPort, &node.LocalPort)
 	node.NodeIP = getLocalIP()
-	node.ProxyPort = kubeproxy.ProxyPort
+	node.ProxyPort = def.ProxyPort
 	if node.NodeIP == nil {
 		fmt.Println("get local ip error")
 		os.Exit(0)
 	}
 	err := registerToMaster(&node)
-	if err == nil {
+	if err != nil {
 		fmt.Println("network error, cannot register to master")
 		os.Exit(0)
 	}
@@ -60,7 +60,11 @@ func main() {
 	}
 	node.CadvisorClient = cadvisorClient
 
+	//Create initial VxLANs
+	net_utils.InitVxLAN(&node)
+
 	go kubelet_routines.EtcdWatcher(&node)
+	go kubelet_routines.NodesWatch(&node)
 	go ResourceMonitoring()
 	go ContainerCheck()
 
@@ -78,7 +82,7 @@ func parseArgs(nodeName *string, masterIPAndPort *string, localPort *int) {
 	flag.IntVar(localPort, "port", 80, "local port to communicate with master")
 	flag.Parse()
 	/*
-		TODO: Check IP format legality
+		TODO: Check ClusterIP format legality
 	*/
 	if *masterIPAndPort == "undefined" {
 		fmt.Println("Master Ip And Port Error!")
@@ -116,6 +120,7 @@ func registerToMaster(node *def.Node) error {
 		NodeName:  node.NodeName,
 		LocalIP:   node.NodeIP,
 		LocalPort: node.LocalPort,
+		ProxyPort: node.ProxyPort,
 	}
 
 	body, _ := json.Marshal(request)
@@ -131,6 +136,9 @@ func registerToMaster(node *def.Node) error {
 	node.NodeID = response.NodeID
 	node.NodeName = response.NodeName
 	node.CniIP = response.CniIP
+
+	// 为创建vxlan隧道做准备
+	net_utils.InitOVS()
 	return nil
 }
 
@@ -152,6 +160,17 @@ func ContainerCheck() {
 
 func checkPodRunning() {
 	infos := resource.GetAllContainersInfo(node.CadvisorClient)
+	fmt.Printf("--- all containers info start ---")
+	for _, info := range infos {
+		id := info.Id
+		name := info.Name
+		cpuInfo := info.Stats[len(info.Stats)-1].Cpu.Usage.Total
+		memInfo := info.Stats[len(info.Stats)-1].Memory.Usage
+		mem := float64(memInfo) / (1024 * 1024)
+		cpuLoad := float64(cpuInfo) / (1000 * 1000 * 1000)
+		fmt.Printf("id: %s,\nname: %s,\nTotal memoryUsage: %f,\ncpuUasge: %fs\n\n", id, name, mem, cpuLoad)
+	}
+
 	var runningContainerIDs []string
 	for _, info := range infos {
 		runningContainerIDs = append(runningContainerIDs, info.Id)
@@ -193,7 +212,9 @@ func recordResource() {
 		memoryUsage := uint64(0)
 		cpuLoadAverage := int32(0)
 		for _, container := range podInstance.ContainerSpec {
-			info := resource.GetContainerInfoByName(node.CadvisorClient, container.Name)
+			fmt.Println("container.ID is " + container.ID)
+			info := resource.GetContainerInfoByID(node.CadvisorClient, container.ID)
+			fmt.Println(info)
 			memoryUsage += info.Stats[len(info.Stats)-1].Memory.Usage
 			cpuLoadAverage += info.Stats[len(info.Stats)-1].Cpu.LoadAverage
 		}

@@ -13,8 +13,11 @@ func CreatePod(cli *clientv3.Client, pod_ def.Pod) int {
 	podInstance := def.PodInstance{}
 	podInstance.Pod = pod_
 
-	//TODO: This node should be decided by scheduler in the future
+	//TODO:This node should be decided by scheduler in the future
 	nodeID := 1
+	node_test := def.Node{
+		NodeID: nodeID,
+	}
 
 	// 将新创建的pod写入到etcd当中
 	podKey := "/pod/" + pod_.Metadata.Name
@@ -26,13 +29,13 @@ func CreatePod(cli *clientv3.Client, pod_ def.Pod) int {
 	etcd.Put(cli, podKey, string(podValue))
 
 	//将新创建的podInstance写入到etcd当中
-	podInstance.NodeID = uint64(nodeID)
+	podInstance.NodeID = nodeID
 	podInstanceKey := "/podInstance/" + pod_.Metadata.Name
 	podInstance.ID = podInstanceKey
 	podInstance.ContainerSpec = make([]def.ContainerStatus, len(pod_.Spec.Containers))
 
 	// NOTICE: 此处的一些设置仅供测试使用
-	//podInstance.IP = "10.24.0.2"
+	//podInstance.ClusterIP = "10.24.1.2"
 	//podInstance.StartTime = time.Now()
 	//podInstance.RestartCount = 0
 	//podInstance.Status = def.RUNNING
@@ -65,7 +68,7 @@ func CreatePod(cli *clientv3.Client, pod_ def.Pod) int {
 	etcd.Put(cli, nodeKey, string(nodeValue))
 
 	//更新kubelet watch的node-PodInstance table
-	nodePIKey := "/nodePodInstance/" + strconv.Itoa(nodeID)
+	nodePIKey := def.PodInstanceListKeyOfNode(&node_test)
 	nodePIValue := make([]byte, 0)
 	podInstanceList := make([]string, 0)
 	kvs := etcd.Get(cli, nodePIKey).Kvs

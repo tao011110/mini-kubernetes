@@ -1,5 +1,7 @@
 package def
 
+import "time"
+
 type Selector struct {
 	Name string `yaml:"name" json:"name"`
 }
@@ -24,16 +26,17 @@ type PortPair struct {
 	Port       uint16 `yaml:"port" json:"port"`
 	TargetPort string `yaml:"targetPort" json:"targetPort"`
 	Protocol   string `yaml:"protocol" json:"protocol"`
+	NodePort   uint16 `yaml:"nodePort" json:"nodePort"`
 }
 
-type Nodeport struct {
+type NodePortSvc struct {
 	ApiVersion string `yaml:"apiVersion" json:"api_version"`
 	Kind       string `yaml:"kind" json:"kind"`
 	Metadata   Meta   `yaml:"metadata" json:"metadata"`
 	Spec       Spec   `yaml:"spec" json:"spec"`
 }
 
-type ClusterIP struct {
+type ClusterIPSvc struct {
 	ApiVersion string `yaml:"apiVersion" json:"api_version"`
 	Kind       string `yaml:"kind" json:"kind"`
 	Metadata   Meta   `yaml:"metadata" json:"metadata"`
@@ -49,11 +52,7 @@ type Service struct {
 	Name          string          `yaml:"name" json:"name"`
 	Selector      Selector        `yaml:"selector" json:"selector"`
 	Type          string          `yaml:"type" json:"type"`
-	IP            string          `yaml:"IP" json:"IP"`
+	ClusterIP     string          `yaml:"ClusterIP" json:"ClusterIP"`
 	PortsBindings []PortsBindings `yaml:"portsBindings" json:"portsBindings"`
-}
-
-type ClusterIPInstance struct {
-	ClusterIP
-	IP string
+	StartTime     time.Time       `json:"startTime"`
 }
