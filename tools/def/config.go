@@ -17,6 +17,9 @@ const (
 	ControllerPort                  = 8081
 	NodeUndefined                   = -1
 	HorizontalPodAutoscalerListName = `parsed_horizontal_pod_autoscaler_list_name`
+	MasterIP                        = "192.168.1.7"
+	MasterPort                      = "8000"
+	EtcdDir                         = "/home/etcd-v3.2.13-linux-amd64"
 )
 
 func GetKeyOfPodReplicasNameListByPodName(podName string) string {

@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"mini-kubernetes/tools/def"
 
 	"mini-kubernetes/tools/httpget"
-	"mini-kubernetes/tools/master"
 	"mini-kubernetes/tools/yaml"
 
 	"github.com/urfave/cli"
@@ -36,7 +36,7 @@ func createFunc(c *cli.Context) {
 	request := *pod_
 	response := ""
 	body, _ := json.Marshal(request)
-	err, status := httpget.Post("http://" + master.IP + ":" + master.Port + "/create_pod").
+	err, status := httpget.Post("http://" + def.MasterIP + ":" + def.MasterPort + "/create_pod").
 		ContentType("application/json").
 		Body(bytes.NewReader(body)).
 		GetString(&response).

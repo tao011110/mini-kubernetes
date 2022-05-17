@@ -2,11 +2,9 @@ package command
 
 import (
 	"fmt"
+	"github.com/urfave/cli"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
-	"mini-kubernetes/tools/master"
-
-	"github.com/urfave/cli"
 )
 
 func NewDescribeCommand() cli.Command {
@@ -32,7 +30,7 @@ func describeFunc(c *cli.Context) {
 
 	podName := c.Args()[1]
 	response := def.Pod{}
-	err, status := httpget.Get("http://" + master.IP + ":" + master.Port + "/get_pod/" + podName).
+	err, status := httpget.Get("http://" + def.MasterIP + ":" + def.MasterPort + "/get_pod/" + podName).
 		ContentType("application/json").
 		GetJson(&response).
 		Execute()

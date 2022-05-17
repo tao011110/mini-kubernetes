@@ -2,9 +2,9 @@ package command
 
 import (
 	"fmt"
+	"mini-kubernetes/tools/def"
 
 	"mini-kubernetes/tools/httpget"
-	"mini-kubernetes/tools/master"
 	"mini-kubernetes/tools/yaml"
 
 	"github.com/urfave/cli"
@@ -45,7 +45,7 @@ func deleteFunc(c *cli.Context) {
 	// delete_pod
 	// 需要发送给apiserver的参数为 podName string
 	response := ""
-	err, status := httpget.DELETE("http://" + master.IP + ":" + master.Port + "/delete_pod/" + podName).
+	err, status := httpget.DELETE("http://" + def.MasterIP + ":" + def.MasterPort + "/delete_pod/" + podName).
 		ContentType("application/json").
 		GetString(&response).
 		Execute()

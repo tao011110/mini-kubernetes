@@ -12,7 +12,7 @@ import (
 
 // Testing `go test` to run
 func Test(t *testing.T) {
-	cli, err := etcd.Start(etcd.Dir, def.EtcdPort)
+	cli, err := etcd.Start(def.EtcdDir, def.EtcdPort)
 	if err != nil {
 		t.Failed()
 	}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"mini-kubernetes/tools/def"
 	"os/exec"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 
 // Dir etcd执行文件所在目录
 //var Dir = "/home/parallels/Downloads/etcd-v3.5.3-linux-arm64"
-var Dir = "/home/etcd-v3.2.13-linux-amd64"
+//var Dir = "/home/etcd-v3.2.13-linux-amd64"
 
 // AddToCluster
 // kubelet 向 master 注册时调用
@@ -22,7 +23,7 @@ func AddToCluster(nodeName *string, nodeIPAndPort *string) {
 	// 调用 ./etcdctl member add 'name' --peer-urls="" 查看状态
 	cmd := exec.Command("./etcdctl", "member", "add", *nodeName, "--peer-urls=https://"+*nodeIPAndPort)
 	// cmd.Dir 填etcd执行文件所在目录
-	cmd.Dir = Dir
+	cmd.Dir = def.EtcdDir
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout //标准输出内容到out中
 	cmd.Stderr = &stderr //标准输出内容到err中
@@ -46,7 +47,7 @@ func Start(dir string, etcdPort uint) (*clientv3.Client, error) {
 	// 调用 ./etcdctl member list 查看状态
 	cmd := exec.Command("./etcdctl", "member", "list")
 	// cmd.Dir 填etcd执行文件所在目录
-	cmd.Dir = Dir
+	cmd.Dir = def.EtcdDir
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout //标准输出内容到out中
 	cmd.Stderr = &stderr //标准输出内容到err中
@@ -66,7 +67,7 @@ func Start(dir string, etcdPort uint) (*clientv3.Client, error) {
 
 	// etcd 还未启动，尝试启动
 	cmd = exec.Command("./etcd")
-	cmd.Dir = Dir
+	cmd.Dir = def.EtcdDir
 
 	if err := cmd.Start(); err != nil {
 		fmt.Printf("open etcd failed, err:%v\n", err)
