@@ -12,8 +12,9 @@ func MakeFunctionalImage(function *def.Function) {
 	requirementsString := util.ReadFile(function.Requirements)
 	cmdWritePy := fmt.Sprintf("echo %s > %s", pyString, def.PyHandlerPath)
 	cmdWriteRequirements := fmt.Sprintf("echo %s > %s", requirementsString, def.RequirementsPath)
+	cmdPrepare := fmt.Sprintf("./%s", def.PreparePath)
 	imageName := fmt.Sprintf("image_%s_%d", function.Name, function.Version)
-	// 拉取def.TemplateImage image, 启动, 初始命令为cmd_writePy, cmd_writeRequirements和def.StartPath, limit适当(拉取依赖)
+	// 拉取def.TemplateImage image, 启动, 初始命令为cmd_writePy, cmd_writeRequirements和cmdPrepare, limit适当(拉取依赖)
 	// commit & push, image name为repository_name/imageName
 	function.Image = imageName
 }
