@@ -15,12 +15,14 @@ func Test(t *testing.T) {
 	}
 	//info, _ := client_.MachineInfo()
 	//fmt.Printf("%+v\n", info)
-	info := resource.GetAllContainersInfo(client_)[0]
-	id := info.Id
-	name := info.Name
-	cpuInfo := info.Stats[len(info.Stats)-1].Cpu.Usage.Total
-	memInfo := info.Stats[len(info.Stats)-1].Memory.Usage
-	mem := float64(memInfo) / (1024 * 1024)
-	cpuLoad := float64(cpuInfo) / (1000 * 1000 * 1000)
-	fmt.Printf("id: %s,\nname: %s,\nTotal memoryUsage: %f,\ncpuUasge: %fs\n", id, name, mem, cpuLoad)
+	infos := resource.GetAllContainersInfo(client_)
+	for _, info := range infos {
+		id := info.Id
+		name := info.Name
+		cpuInfo := info.Stats[len(info.Stats)-1].Cpu.Usage.Total
+		memInfo := info.Stats[len(info.Stats)-1].Memory.Usage
+		mem := float64(memInfo) / (1024 * 1024)
+		cpuLoad := float64(cpuInfo) / (1000 * 1000 * 1000)
+		fmt.Printf("id: %s,\nname: %s,\nTotal memoryUsage: %f,\ncpuUasge: %fs\n\n", id, name, mem, cpuLoad)
+	}
 }

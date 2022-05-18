@@ -71,15 +71,36 @@ func ChooseNode(etcdClient *clientv3.Client, nodes []int, allNodesInfo []*def.No
 	return chose
 }
 
+// TODO: CPU的单位问题
+
+func MemoryToByte(memString string) int {
+	if memString == `0` || memString == `` {
+		return 0
+	}
+	memByte := 0
+	for _, c := range memString {
+		if c >= '0' && c <= '9' {
+			memByte = memByte*10 + int(c-'0')
+		} else if c == 'K' || c == 'k' {
+			return memByte * 1024
+		} else if c == 'M' || c == 'm' {
+			return memByte * 1024 * 1024
+		} else if c == 'G' || c == 'g' {
+			return memByte * 1024 * 1024 * 1024
+		}
+	}
+	return 0
+}
+
 func PodResourceRequest(podInstance *def.PodInstance) (int, int) {
 	CPU := 0
 	memory := 0
 	for _, container := range podInstance.Pod.Spec.Containers {
-		requestCPU := container.Resources.ResourceRequest.CPU
-		if requestCPU != 0 && requestCPU > CPU {
-			CPU = requestCPU
-		}
-		memory += container.Resources.ResourceRequest.Memory
+		//requestCPU := container.Resources.ResourceRequest.CPU
+		//if requestCPU != 0 && requestCPU > CPU {
+		//	CPU = requestCPU
+		//}
+		memory += MemoryToByte(container.Resources.ResourceRequest.Memory)
 	}
 	return CPU, memory
 }

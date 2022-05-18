@@ -166,7 +166,7 @@ func SchedulePodInstanceToNode(instanceName string) (success bool, nodeId int, p
 		podInstance = &podInstanceTmp
 	}
 	var nodeIndexList []int
-	for index, _ := range schedulerMeta.Nodes {
+	for index := range schedulerMeta.Nodes {
 		nodeIndexList = append(nodeIndexList, index)
 	}
 	notWithFilterResult := scheduler_utils.NotWithFilter(nodeIndexList, podInstance.NodeSelector.NotWith, schedulerMeta.Nodes)
