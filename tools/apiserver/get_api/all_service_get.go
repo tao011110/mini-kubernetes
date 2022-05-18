@@ -10,8 +10,8 @@ import (
 
 func GetAllService(cli *clientv3.Client) ([]def.Service, bool) {
 	flag := false
-	podInstanceKey := "/service/"
-	kvs := etcd.GetWithPrefix(cli, podInstanceKey).Kvs
+	servicePrefix := "/service/"
+	kvs := etcd.GetWithPrefix(cli, servicePrefix).Kvs
 	serviceValue := make([]byte, 0)
 	serviceList := make([]def.Service, 0)
 	if len(kvs) != 0 {

@@ -90,7 +90,7 @@ func HandleNodeListChange(newNodeList []int) {
 }
 
 func EtcdPodInstanceWatcher() {
-	watch := etcd.Watch(schedulerMeta.EtcdClient, def.PodInstanceListName)
+	watch := etcd.Watch(schedulerMeta.EtcdClient, def.PodInstanceListID)
 	for wc := range watch {
 		for _, w := range wc.Events {
 			var instances []string
@@ -160,9 +160,9 @@ func AddPodInstanceFromSchedulerCache(nodeID int, instance *def.PodInstance) {
 	}
 }
 
-func SchedulePodInstanceToNode(instanceName string) (success bool, nodeId int, podInstance *def.PodInstance) {
+func SchedulePodInstanceToNode(instanceID string) (success bool, nodeId int, podInstance *def.PodInstance) {
 	{
-		podInstanceTmp := util.GetPodInstance(instanceName, schedulerMeta.EtcdClient)
+		podInstanceTmp := util.GetPodInstance(instanceID, schedulerMeta.EtcdClient)
 		podInstance = &podInstanceTmp
 	}
 	var nodeIndexList []int

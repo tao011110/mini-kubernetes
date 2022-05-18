@@ -1,6 +1,9 @@
 package def
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/jakehl/goid"
+)
 
 const (
 	CadvisorPort                    = 8080
@@ -10,7 +13,7 @@ const (
 	GatewayRoutesConfigPathInImage  = `/home/zuul/src/main/resources/application.yaml`
 	GatewayPackageAndRunScriptPath  = `/package_and_start.sh`
 	NodeListName                    = `all_nodes_name`
-	PodInstanceListName             = `pod_instance_list_name`
+	PodInstanceListID               = `pod_instance_list_id`
 	DeploymentListName              = `deployment_list_name`
 	PodListName                     = `pod_list_name`
 	SchedulerPort                   = 9200
@@ -20,6 +23,9 @@ const (
 	MasterIP                        = "192.168.1.7"
 	MasterPort                      = "8000"
 	EtcdDir                         = "/home/etcd-v3.2.13-linux-amd64"
+	RgistryAddr                     = "registry.cn-hangzhou.aliyuncs.com/taoyucheng/mink8s:"
+	RgistryUsername                 = "taoyucheng"
+	RgistryPassword                 = "Tyc20010925tyc"
 )
 
 func GetKeyOfPodReplicasNameListByPodName(podName string) string {
@@ -40,4 +46,24 @@ func KeyNodeResourceUsage(nodeID int) string {
 
 func GetKeyOfResourceUsageByPodInstanceID(instanceID string) string {
 	return fmt.Sprintf("%s_resource_usage", instanceID)
+}
+
+func GetKeyOfPod(podName string) string {
+	return fmt.Sprintf("/pod/%s", podName)
+}
+
+func GenerateKeyOfPodInstanceReplicas(podInstanceName string) string {
+	return GetKeyOfPodInstance(podInstanceName) + goid.NewV4UUID().String()
+}
+
+func GetKeyOfPodInstance(podInstanceName string) string {
+	return fmt.Sprintf("/podInstance/%s-", podInstanceName)
+}
+
+func GetKeyOfDeployment(deploymentName string) string {
+	return fmt.Sprintf("/deployment/%s", deploymentName)
+}
+
+func GetKeyOfAutoscaler(autoscalerName string) string {
+	return fmt.Sprintf("/autoscaler/%s", autoscalerName)
 }

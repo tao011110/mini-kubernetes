@@ -80,9 +80,13 @@ type PodSpec struct {
 	Volumes []Volume `yaml:"volumes" json:"volumes"`
 }
 
+type PodLabels struct {
+	Name string `yaml:"label" json:"label"`
+}
+
 type PodMeta struct {
-	Name  string `yaml:"name" json:"name"`
-	Label string `yaml:"label" json:"label"`
+	Name   string    `yaml:"name" json:"name"`
+	Labels PodLabels `yaml:"label" json:"label"`
 }
 
 type NodeSelector struct {

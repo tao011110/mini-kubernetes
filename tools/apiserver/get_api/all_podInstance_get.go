@@ -10,8 +10,8 @@ import (
 
 func GetAllPodInstance(cli *clientv3.Client) ([]def.PodInstance, bool) {
 	flag := false
-	podInstanceKey := "/podInstance/"
-	kvs := etcd.GetWithPrefix(cli, podInstanceKey).Kvs
+	podInstancePrefix := "/podInstance/"
+	kvs := etcd.GetWithPrefix(cli, podInstancePrefix).Kvs
 	podInstanceValue := make([]byte, 0)
 	podInstanceList := make([]def.PodInstance, 0)
 	if len(kvs) != 0 {

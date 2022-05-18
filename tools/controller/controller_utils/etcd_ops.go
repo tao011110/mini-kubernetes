@@ -21,14 +21,16 @@ func GetHorizontalPodAutoscalerNameList(etcdClient *clientv3.Client) []string {
 }
 
 func GetDeploymentByName(etcdClient *clientv3.Client, deploymentName string) *def.ParsedDeployment {
+	key := def.GetKeyOfDeployment(deploymentName)
 	deployment := def.ParsedDeployment{}
-	util.EtcdUnmarshal(etcd.Get(etcdClient, deploymentName), &deployment)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, key), &deployment)
 	return &deployment
 }
 
 func GetHorizontalPodAutoscalerByName(etcdClient *clientv3.Client, horizontalPodAutoscalerName string) *def.ParsedHorizontalPodAutoscaler {
+	key := def.GetKeyOfAutoscaler(horizontalPodAutoscalerName)
 	horizontalPodAutoscaler := def.ParsedHorizontalPodAutoscaler{}
-	util.EtcdUnmarshal(etcd.Get(etcdClient, horizontalPodAutoscalerName), &horizontalPodAutoscaler)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, key), &horizontalPodAutoscaler)
 	return &horizontalPodAutoscaler
 }
 
@@ -36,18 +38,18 @@ func AddPodInstance(etcdClient *clientv3.Client, instance *def.PodInstance) {
 	util.PersistPodInstance(*instance, etcdClient)
 	{
 		key := def.GetKeyOfPodReplicasNameListByPodName(instance.Pod.Metadata.Name)
-		var instanceNameList []string
-		util.EtcdUnmarshal(etcd.Get(etcdClient, key), &instanceNameList)
-		instanceNameList = append(instanceNameList, instance.ID)
-		newJsonString, _ := json.Marshal(instanceNameList)
+		var instanceIDList []string
+		util.EtcdUnmarshal(etcd.Get(etcdClient, key), &instanceIDList)
+		instanceIDList = append(instanceIDList, instance.ID)
+		newJsonString, _ := json.Marshal(instanceIDList)
 		etcd.Put(etcdClient, key, string(newJsonString))
 	}
 	{
-		var instanceNameList []string
-		util.EtcdUnmarshal(etcd.Get(etcdClient, def.PodInstanceListName), &instanceNameList)
-		instanceNameList = append(instanceNameList, instance.ID)
-		newJsonString, _ := json.Marshal(instanceNameList)
-		etcd.Put(etcdClient, def.PodInstanceListName, string(newJsonString))
+		var instanceIDList []string
+		util.EtcdUnmarshal(etcd.Get(etcdClient, def.PodInstanceListID), &instanceIDList)
+		instanceIDList = append(instanceIDList, instance.ID)
+		newJsonString, _ := json.Marshal(instanceIDList)
+		etcd.Put(etcdClient, def.PodInstanceListID, string(newJsonString))
 	}
 	{
 		resourceUsage := def.ResourceUsage{
@@ -60,28 +62,28 @@ func AddPodInstance(etcdClient *clientv3.Client, instance *def.PodInstance) {
 
 func RemovePodInstance(etcdClient *clientv3.Client, instance *def.PodInstance) {
 	{
-		var deploymentNameList []string
-		util.EtcdUnmarshal(etcd.Get(etcdClient, def.PodInstanceListName), &deploymentNameList)
-		for index, name := range deploymentNameList {
-			if name == instance.ID {
-				deploymentNameList = append(deploymentNameList[:index], deploymentNameList[index+1:]...)
+		var podInstanceIDList []string
+		util.EtcdUnmarshal(etcd.Get(etcdClient, def.PodInstanceListID), &podInstanceIDList)
+		for index, id := range podInstanceIDList {
+			if id == instance.ID {
+				podInstanceIDList = append(podInstanceIDList[:index], podInstanceIDList[index+1:]...)
 				break
 			}
 		}
-		newJsonString, _ := json.Marshal(deploymentNameList)
-		etcd.Put(etcdClient, def.PodInstanceListName, string(newJsonString))
+		newJsonString, _ := json.Marshal(podInstanceIDList)
+		etcd.Put(etcdClient, def.PodInstanceListID, string(newJsonString))
 	}
 	{
 		key := def.GetKeyOfPodReplicasNameListByPodName(instance.Pod.Metadata.Name)
-		var deploymentNameList []string
-		util.EtcdUnmarshal(etcd.Get(etcdClient, key), &deploymentNameList)
-		for index, name := range deploymentNameList {
-			if name == instance.ID {
-				deploymentNameList = append(deploymentNameList[:index], deploymentNameList[index+1:]...)
+		var podInstanceNameList []string
+		util.EtcdUnmarshal(etcd.Get(etcdClient, key), &podInstanceNameList)
+		for index, id := range podInstanceNameList {
+			if id == instance.ID {
+				podInstanceNameList = append(podInstanceNameList[:index], podInstanceNameList[index+1:]...)
 				break
 			}
 		}
-		newJsonString, _ := json.Marshal(deploymentNameList)
+		newJsonString, _ := json.Marshal(podInstanceNameList)
 		etcd.Put(etcdClient, key, string(newJsonString))
 	}
 }
@@ -89,9 +91,9 @@ func RemovePodInstance(etcdClient *clientv3.Client, instance *def.PodInstance) {
 func RemoveAllReplicasOfPod(etcdClient *clientv3.Client, podName string) {
 	// remove from instance list, scheduler will remove it from node
 	key := def.GetKeyOfPodReplicasNameListByPodName(podName)
-	deploymentNameList := GetReplicaNameListByPodName(etcdClient, podName)
-	for _, instanceName := range deploymentNameList {
-		instance := util.GetPodInstance(instanceName, etcdClient)
+	podInstanceIDList := GetReplicaNameListByPodName(etcdClient, podName)
+	for _, instanceID := range podInstanceIDList {
+		instance := util.GetPodInstance(instanceID, etcdClient)
 		RemovePodInstance(etcdClient, &instance)
 	}
 	// remove it's pod-replica entry
@@ -115,7 +117,8 @@ func NewReplicaNameListByPodName(etcdClient *clientv3.Client, podName string) {
 
 func GetPodByName(etcdClient *clientv3.Client, podName string) *def.Pod {
 	pod := def.Pod{}
-	util.EtcdUnmarshal(etcd.Get(etcdClient, podName), &pod)
+	key := def.GetKeyOfPod(podName)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, key), &pod)
 	return &pod
 }
 

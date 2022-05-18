@@ -9,20 +9,15 @@ import (
 	"strconv"
 )
 
-func DeletePod(cli *clientv3.Client, podName string) bool {
+func DeletePod(cli *clientv3.Client, podInstanceName string) bool {
 	//在etcd中删除podInstance
-	podInstanceKey := "/podInstance/" + podName
+	podInstanceKey := "/podInstance/" + podInstanceName
 	resp := etcd.Get(cli, podInstanceKey)
 	if len(resp.Kvs) == 0 {
 		return false
 	}
 	podInstanceValue := resp.Kvs[0].Value
 	etcd.Delete(cli, podInstanceKey)
-
-	//在etcd中删除pod
-	//TODO: 暂定删除podInstance时也一并删除pod，将来的实现可以会进行修改
-	podKey := "/pod/" + podName
-	etcd.Delete(cli, podKey)
 
 	//更新相应node中的PodInstances列表
 	podInstance := def.PodInstance{}

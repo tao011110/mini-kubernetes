@@ -13,7 +13,7 @@ func GetAllPodInstanceStatus(cli *clientv3.Client) ([]def.PodInstanceBrief, bool
 	resultList := make([]def.PodInstanceBrief, 0)
 	for _, podInstance := range podInstanceList {
 		brief := def.PodInstanceBrief{
-			Name:     podInstance.Metadata.Name,
+			Name:     podInstance.ID[13:],
 			Status:   podInstance.Status,
 			Restarts: podInstance.RestartCount,
 		}

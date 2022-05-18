@@ -2,6 +2,7 @@ package docker_test
 
 import (
 	//"mini-kubernetes/tools/docker"
+	"mini-kubernetes/tools/docker"
 	"testing"
 )
 
@@ -17,5 +18,9 @@ func Test(t *testing.T) {
 	//	//container.StopContainer(id)
 	//	//container.RemoveContainer(id)
 	//}
+	imageID := docker.CommitContainer("2dbd1987a731")
+	docker.TagImage(imageID, "test1")
+	docker.PushImage("test1")
+
 	t.Log("test finished\n")
 }
