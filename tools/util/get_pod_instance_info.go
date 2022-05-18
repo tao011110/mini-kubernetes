@@ -7,8 +7,8 @@ import (
 	"mini-kubernetes/tools/etcd"
 )
 
-func GetPodInstance(podInstanceName string, cli *clientv3.Client) def.PodInstance {
-	resp := etcd.Get(cli, podInstanceName)
+func GetPodInstance(podInstanceID string, cli *clientv3.Client) def.PodInstance {
+	resp := etcd.Get(cli, podInstanceID)
 	podInstance := def.PodInstance{}
 	EtcdUnmarshal(resp, &podInstance)
 	return podInstance

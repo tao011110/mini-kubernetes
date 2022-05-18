@@ -8,9 +8,9 @@ import (
 	"mini-kubernetes/tools/etcd"
 )
 
-func GetPod(cli *clientv3.Client, podName string) (*def.PodInstance, bool) {
+func GetPodInstance(cli *clientv3.Client, podInstanceName string) (*def.PodInstance, bool) {
 	flag := false
-	podInstanceKey := "/podInstance/" + podName
+	podInstanceKey := "/podInstance/" + podInstanceName
 	kv := etcd.Get(cli, podInstanceKey).Kvs
 	podInstance := def.PodInstance{}
 	podInstanceValue := make([]byte, 0)

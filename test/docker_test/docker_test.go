@@ -2,6 +2,7 @@ package docker_test
 
 import (
 	//"mini-kubernetes/tools/docker"
+	"mini-kubernetes/tools/docker"
 	"testing"
 )
 
@@ -17,5 +18,12 @@ func Test(t *testing.T) {
 	//	//container.StopContainer(id)
 	//	//container.RemoveContainer(id)
 	//}
+
+	//TODO: 用户生成image并 push到仓库中，需要提供函数名 funcName 和用于打包成镜像的容器ID containerID
+	funcName := "test1"
+	containerID := "2dbd1987a731"
+	docker.CommitContainer(containerID, funcName)
+	docker.PushImage(funcName)
+
 	t.Log("test finished\n")
 }

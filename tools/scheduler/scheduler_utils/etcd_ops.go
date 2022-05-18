@@ -16,7 +16,7 @@ func GetAllPodInstancesOfANode(nodeID int, etcdClient *clientv3.Client) []string
 
 func GetAllPodInstancesID(etcdClient *clientv3.Client) []string {
 	var allReplicas []string
-	util.EtcdUnmarshal(etcd.Get(etcdClient, def.PodInstanceListName), &allReplicas)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, def.PodInstanceListID), &allReplicas)
 	return allReplicas
 }
 

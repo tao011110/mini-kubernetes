@@ -34,18 +34,26 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.POST("/create_pod", handleCreatePod)
 	e.POST("/create/clusterIPService", handleCreateClusterIPService)
 	e.POST("/create/nodePortService", handleCreateNodePortService)
+	e.POST("/create/deployment", handleCreateDeployment)
+	e.POST("/create/autoscaler", handleCreateAutoscaler)
 
 	// handle delete-api
-	e.DELETE("/delete_pod/:podName", handleDeletePod)
+	e.DELETE("/delete_pod/:podpodInstanceName", handleDeletePod)
 	e.DELETE("/delete/clusterIPService/:serviceName", handleDeleteClusterIPService)
 	e.DELETE("/delete/nodePortService/:serviceName", handleDeleteNodePortService)
+	e.DELETE("/delete/deployment/:deploymentName", handleDeleteDeployment)
+	e.DELETE("/delete/autoscaler/:autoscalerName", handleDeleteAutoscaler)
 
 	// handle get-api
-	e.GET("/get_pod/:podName", handleGetPod)
+	e.GET("/get_pod/:podInstanceName", handleGetPod)
 	e.GET("/get/all/pod", handleGetAllPod)
 	e.GET("/get/all/podStatus", handleGetAllPodStatus)
 	e.GET("/get/all/service", handleGetAllService)
 	e.GET("/get/service/:serviceName", handleGetService)
+	e.GET("/get/deployment/:deploymentName", handleGetDeployment)
+	e.GET("/get/all/deployment", handleGetAllDeployment)
+	e.GET("/get/autoscaler/:autoscalerName", handleGetAutoscaler)
+	e.GET("/get/all/autoscaler", handleGetAllAutoscaler)
 
 	e.Logger.Fatal(e.Start(":" + port))
 }
@@ -154,6 +162,44 @@ func handleCreateNodePortService(c echo.Context) error {
 	return c.String(200, "Service "+service.Name)
 }
 
+func handleCreateDeployment(c echo.Context) error {
+	deployment := def.Deployment{}
+	requestBody := new(bytes.Buffer)
+	_, err := requestBody.ReadFrom(c.Request().Body)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	err = json.Unmarshal(requestBody.Bytes(), &deployment)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	create_api.CreateDeployment(cli, deployment)
+	fmt.Println("Create deployment ", deployment.Metadata.Name)
+
+	return c.String(200, "deployment "+deployment.Metadata.Name+" has been created")
+}
+
+func handleCreateAutoscaler(c echo.Context) error {
+	autoscaler := def.Autoscaler{}
+	requestBody := new(bytes.Buffer)
+	_, err := requestBody.ReadFrom(c.Request().Body)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	err = json.Unmarshal(requestBody.Bytes(), &autoscaler)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	create_api.CreateAutoscaler(cli, autoscaler)
+	fmt.Println("Create autoscaler ", autoscaler.Metadata.Name)
+
+	return c.String(200, "autoscaler "+autoscaler.Metadata.Name+" has been created")
+}
+
 func letProxyCreateCIRule(service def.Service, node def.Node) {
 	// 更新所有node的kube-proxy
 	target := node.NodeIP.String() + ":" + strconv.Itoa(node.ProxyPort)
@@ -199,14 +245,14 @@ func letProxyCreateNPRule(service def.Service, node def.Node) {
 }
 
 func handleDeletePod(c echo.Context) error {
-	podName := c.Param("podName")
+	podpodInstanceName := c.Param("podpodInstanceName")
 
-	if delete_api.DeletePod(cli, podName) == true {
-		fmt.Println("Pod " + podName + " has been deleted")
-		return c.String(200, "Pod "+podName+" has been deleted")
+	if delete_api.DeletePod(cli, podpodInstanceName) == true {
+		fmt.Println("Pod " + podpodInstanceName + " has been deleted")
+		return c.String(200, "Pod "+podpodInstanceName+" has been deleted")
 	} else {
-		fmt.Println("Pod " + podName + " has been deleted")
-		return c.String(404, "Pod "+podName+" doesn't exist")
+		fmt.Println("Pod " + podpodInstanceName + " has been deleted")
+		return c.String(404, "Pod "+podpodInstanceName+" doesn't exist")
 	}
 }
 
@@ -243,6 +289,30 @@ func handleDeleteNodePortService(c echo.Context) error {
 	} else {
 		fmt.Println("Service " + serviceName + " has been deleted")
 		return c.String(404, "Service "+serviceName+" doesn't exist")
+	}
+}
+
+func handleDeleteDeployment(c echo.Context) error {
+	deploymentName := c.Param("deploymentName")
+
+	if delete_api.DeleteDeployment(cli, deploymentName) == true {
+		fmt.Println("Deployment " + deploymentName + " has been deleted")
+		return c.String(200, "Deployment "+deploymentName+" has been deleted")
+	} else {
+		fmt.Println("Deployment " + deploymentName + " has been deleted")
+		return c.String(404, "Deployment "+deploymentName+" doesn't exist")
+	}
+}
+
+func handleDeleteAutoscaler(c echo.Context) error {
+	autoscalerName := c.Param("autoscalerName")
+
+	if delete_api.DeleteAutoscaler(cli, autoscalerName) == true {
+		fmt.Println("Autoscaler " + autoscalerName + " has been deleted")
+		return c.String(200, "Autoscaler "+autoscalerName+" has been deleted")
+	} else {
+		fmt.Println("Autoscaler " + autoscalerName + " has been deleted")
+		return c.String(404, "Autoscaler "+autoscalerName+" doesn't exist")
 	}
 }
 
@@ -299,8 +369,8 @@ func letProxyDeleteNPRule(clusterIP string, node def.Node) {
 }
 
 func handleGetPod(c echo.Context) error {
-	podName := c.Param("podName")
-	podInstance, flag := get_api.GetPod(cli, podName)
+	podInstanceName := c.Param("podInstanceName")
+	podInstance, flag := get_api.GetPodInstance(cli, podInstanceName)
 	fmt.Println(podInstance)
 
 	if flag == false {
@@ -359,4 +429,48 @@ func handleGetAllService(c echo.Context) error {
 	}
 
 	return c.JSON(200, serviceList)
+}
+
+func handleGetDeployment(c echo.Context) error {
+	deploymentName := c.Param("deploymentName")
+	deployment, flag := get_api.GetDeployment(cli, deploymentName)
+	fmt.Println(deployment)
+
+	if flag == false {
+		return c.JSON(404, deployment)
+	}
+
+	return c.JSON(200, deployment)
+}
+
+func handleGetAllDeployment(c echo.Context) error {
+	deploymentList, flag := get_api.GetAllDeployment(cli)
+
+	if flag == false {
+		return c.JSON(404, deploymentList)
+	}
+
+	return c.JSON(200, deploymentList)
+}
+
+func handleGetAutoscaler(c echo.Context) error {
+	autoscalerName := c.Param("autoscalerName")
+	autoscaler, flag := get_api.GetAutoscaler(cli, autoscalerName)
+	fmt.Println(autoscaler)
+
+	if flag == false {
+		return c.JSON(404, autoscaler)
+	}
+
+	return c.JSON(200, autoscaler)
+}
+
+func handleGetAllAutoscaler(c echo.Context) error {
+	autoscalerList, flag := get_api.GetAllAutoscaler(cli)
+
+	if flag == false {
+		return c.JSON(404, autoscalerList)
+	}
+
+	return c.JSON(200, autoscalerList)
 }

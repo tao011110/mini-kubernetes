@@ -94,3 +94,20 @@ func WatchWithPrefix(cli *clientv3.Client, prefix string) clientv3.WatchChan {
 	watch := cli.Watch(context.Background(), prefix, clientv3.WithPrefix())
 	return watch
 }
+
+func DeleteWithPrefix(cli *clientv3.Client, prefix string) {
+	if cli == nil {
+		fmt.Printf("nil client\n")
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	_, err := cli.Delete(ctx, prefix, clientv3.WithPrefix())
+	cancel()
+
+	if err != nil {
+		fmt.Println("delete key failed")
+	} else {
+		fmt.Println("delete key success")
+	}
+}
