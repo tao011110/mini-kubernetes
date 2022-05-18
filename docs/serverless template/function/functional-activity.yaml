@@ -1,3 +1,5 @@
 kind: activity
+name: <string>
 function: <.py文件路径>
 requirements: <requirements.txt文件路径>
+version: <int>

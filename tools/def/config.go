@@ -26,6 +26,11 @@ const (
 	RgistryAddr                     = "registry.cn-hangzhou.aliyuncs.com/taoyucheng/mink8s:"
 	RgistryUsername                 = "taoyucheng"
 	RgistryPassword                 = "Tyc20010925tyc"
+	TemplateImage                   = `hejingkai/python_serverless_template`
+	PyHandlerPath                   = `/home/functionalTemplate/handler.py`
+	RequirementsPath                = `/requirements.txt`
+	PreparePath                     = `/prepare.sh`
+	StartPath                       = `/start.sh`
 )
 
 func GetKeyOfPodReplicasNameListByPodName(podName string) string {
