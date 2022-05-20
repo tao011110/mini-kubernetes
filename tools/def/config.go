@@ -2,6 +2,7 @@ package def
 
 import (
 	"fmt"
+
 	"github.com/jakehl/goid"
 )
 
@@ -20,9 +21,9 @@ const (
 	ControllerPort                  = 8081
 	NodeUndefined                   = -1
 	HorizontalPodAutoscalerListName = `parsed_horizontal_pod_autoscaler_list_name`
-	MasterIP                        = "192.168.1.7"
+	MasterIP                        = "10.211.55.3"
 	MasterPort                      = "8000"
-	EtcdDir                         = "/home/etcd-v3.2.13-linux-amd64"
+	EtcdDir                         = "/home/parallels/Downloads/etcd-v3.5.3-linux-arm64"
 	RgistryAddr                     = "registry.cn-hangzhou.aliyuncs.com/taoyucheng/mink8s:"
 	RgistryUsername                 = "taoyucheng"
 	RgistryPassword                 = "Tyc20010925tyc"

@@ -3,10 +3,11 @@ package create_api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jakehl/goid"
-	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
+
+	"github.com/jakehl/goid"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 func CreateAutoscaler(cli *clientv3.Client, autoscaler def.Autoscaler) {
@@ -84,8 +85,8 @@ func CreateAutoscaler(cli *clientv3.Client, autoscaler def.Autoscaler) {
 			ApiVersion: autoscaler.ApiVersion,
 			Kind:       "Pod",
 			Metadata: def.PodMeta{
-				Name:   podName,
-				Labels: def.PodLabels(autoscaler.Spec.Template.Metadata.Labels),
+				Name:  podName,
+				Label: autoscaler.Spec.Template.Metadata.Labels.Name,
 			},
 			Spec: def.PodSpec{
 				Containers: containers,

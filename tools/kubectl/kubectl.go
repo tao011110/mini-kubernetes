@@ -12,7 +12,7 @@ import (
 	"mini-kubernetes/tools/kubectl/command"
 )
 
-func Kubectl() {
+func Initial() *cli.App {
 	app := cli.NewApp()
 	app.Name = "kubectl"
 	app.Version = "0.0.0"
@@ -24,6 +24,11 @@ func Kubectl() {
 		command.NewGetCommand(),
 		command.NewDeleteCommand(),
 	}
+	return app
+}
+
+func Kubectl() {
+	app := Initial()
 	for {
 		fmt.Printf(">")
 		cmdReader := bufio.NewReader(os.Stdin)
@@ -32,10 +37,16 @@ func Kubectl() {
 			if cmdStr == "quit" {
 				return
 			} else {
-				if err := app.Run(strings.Split(cmdStr, " ")); err != nil {
-					log.Fatal("[Fault] ", err)
-				}
+				ParseArgs(app, cmdStr)
 			}
 		}
 	}
+}
+
+func ParseArgs(app *cli.App, cmdStr string) error {
+	err := app.Run(strings.Split(cmdStr, " "))
+	if err != nil {
+		log.Fatal("[Fault] ", err)
+	}
+	return err
 }

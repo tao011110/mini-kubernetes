@@ -3,10 +3,11 @@ package create_api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jakehl/goid"
-	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
+
+	"github.com/jakehl/goid"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 func CreateDeployment(cli *clientv3.Client, deployment def.Deployment) {
@@ -89,8 +90,8 @@ func CreateDeployment(cli *clientv3.Client, deployment def.Deployment) {
 			ApiVersion: deployment.ApiVersion,
 			Kind:       "Pod",
 			Metadata: def.PodMeta{
-				Name:   podName,
-				Labels: def.PodLabels(deployment.Spec.Template.Metadata.Labels),
+				Name:  podName,
+				Label: deployment.Spec.Template.Metadata.Labels.Name,
 			},
 			Spec: def.PodSpec{
 				Containers: containers,
