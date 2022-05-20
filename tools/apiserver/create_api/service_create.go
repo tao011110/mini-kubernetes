@@ -3,11 +3,12 @@ package create_api
 import (
 	"encoding/json"
 	"fmt"
-	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 	"strconv"
 	"time"
+
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 func CreateClusterIPService(cli *clientv3.Client, service_c def.ClusterIPSvc) def.Service {
@@ -36,7 +37,7 @@ func CreateClusterIPService(cli *clientv3.Client, service_c def.ClusterIPSvc) de
 					fmt.Printf("%v\n", err)
 					panic(err)
 				}
-				if podInstance.Pod.Metadata.Labels.Name == service.Selector.Name {
+				if podInstance.Pod.Metadata.Label == service.Selector.Name {
 					for _, container := range podInstance.Pod.Spec.Containers {
 						for _, portMapping := range container.PortMappings {
 							containerPort := strconv.Itoa(int(portMapping.ContainerPort))
@@ -99,7 +100,7 @@ func CreateNodePortService(cli *clientv3.Client, service_n def.NodePortSvc) def.
 					fmt.Printf("%v\n", err)
 					panic(err)
 				}
-				if podInstance.Pod.Metadata.Labels.Name == service.Selector.Name {
+				if podInstance.Pod.Metadata.Label == service.Selector.Name {
 					for _, container := range podInstance.Pod.Spec.Containers {
 						for _, portMapping := range container.PortMappings {
 							containerPort := strconv.Itoa(int(portMapping.ContainerPort))
