@@ -112,6 +112,9 @@ github.com/shurcooL/sanitized_anchor_name
 github.com/sirupsen/logrus
 # github.com/stretchr/testify v1.7.1
 ## explicit
+# github.com/thedevsaddam/gojsonq/v2 v2.5.2
+## explicit
+github.com/thedevsaddam/gojsonq/v2
 # github.com/tklauser/go-sysconf v0.3.10
 ## explicit
 github.com/tklauser/go-sysconf

@@ -6,7 +6,7 @@ metadata:
 #    name: servicename
 spec:
   type: NodePort
-  clusterIP: string                       #Service的IP地址，当type为ClusterIP时，可手动指定，若不指定，系统将自行分配；当type为LoadBalancer时，则需要指定
+  clusterIP: string
   ports:
     - port: 8080
       targetPort: 8080

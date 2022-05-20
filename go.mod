@@ -18,6 +18,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/stretchr/testify v1.7.1 // indirect
+	github.com/thedevsaddam/gojsonq/v2 v2.5.2 // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/urfave/cli v1.22.8
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect

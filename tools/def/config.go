@@ -31,6 +31,10 @@ const (
 	RequirementsPath                = `/requirements.txt`
 	PreparePath                     = `/prepare.sh`
 	StartPath                       = `/start.sh`
+	FunctionNameListKey             = `function_name_list`
+	StateMachineNameListKey         = `state_machine_name_list_key`
+	ActiverPort                     = 3306
+	MaxBodySize                     = 2048
 )
 
 func GetKeyOfPodReplicasNameListByPodName(podName string) string {
@@ -57,6 +61,17 @@ func GetKeyOfPod(podName string) string {
 	return fmt.Sprintf("/pod/%s", podName)
 }
 
+func GetKeyOfService(serviceName string) string {
+	return fmt.Sprintf("/service/%s", serviceName)
+}
+
+func GetKeyOfFunction(name string) string {
+	return fmt.Sprintf("/function/%s", name)
+}
+
+func GetKeyOfStateMachine(name string) string {
+	return fmt.Sprintf("/state_machine/%s", name)
+}
 func GenerateKeyOfPodInstanceReplicas(podInstanceName string) string {
 	return GetKeyOfPodInstance(podInstanceName) + goid.NewV4UUID().String()
 }
