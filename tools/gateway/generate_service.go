@@ -7,14 +7,12 @@ import (
 
 func generatePodPortMappings(dns *def.DNSDetail) []def.PortMapping {
 	var mappings []def.PortMapping
-	for _, path := range dns.Paths {
-		mappings = append(mappings, def.PortMapping{
-			Name:          fmt.Sprintf("gateway_port_%d", path.Port),
-			ContainerPort: path.Port,
-			HostPort:      path.Port,
-			Protocol:      "HTTP",
-		})
-	}
+	mappings = append(mappings, def.PortMapping{
+		Name:          fmt.Sprintf("gateway_port_%d", 80),
+		ContainerPort: 80,
+		HostPort:      80,
+		Protocol:      "HTTP",
+	})
 	return mappings
 }
 
@@ -57,14 +55,12 @@ func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.C
 		ApiVersion: `v1`,
 		Kind:       `Pod`,
 		Metadata: def.PodMeta{
-			Name: podName,
-			Labels: def.PodLabels{
-				Name: podLabel,
-			},
+			Name:  podName,
+			Label: podLabel,
 		},
 		Spec: def.PodSpec{
 			Containers: []def.Container{
-				def.Container{
+				{
 					Name:         containerName,
 					Image:        def.GatewayImage,
 					Commands:     []string{injectionRoutesCommand, packageAndRunCommand},
@@ -86,7 +82,7 @@ func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.C
 			Name: serviceName,
 		},
 		Spec: def.Spec{
-			Type:  `ClusterIPSvc`,
+			Type:  `ClusterIP`,
 			Ports: generateServicePorts(&dns),
 			Selector: def.Selector{
 				Name: podLabel, /*TODO: maybe wrong*/

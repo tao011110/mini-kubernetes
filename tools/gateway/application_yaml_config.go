@@ -49,7 +49,7 @@ func GenerateApplicationYaml(dns def.DNSDetail) string {
 	for index, path := range dns.Paths {
 		application.Zuul.Routes[fmt.Sprintf("route%d", index)] = PathAndUrl{
 			Path: fmt.Sprintf("%s/**", path.Path),
-			Url:  fmt.Sprintf("%s:%d", path.Service.Spec.ClusterIP),
+			Url:  fmt.Sprintf("%s:%d", path.Service.Spec.ClusterIP, path.Port),
 		}
 	}
 	bytes, _ := yaml.Marshal(application)
