@@ -28,8 +28,8 @@ def handler(env):
    ````shell
    kubectl apply def.yaml 
    ````
-	- 在提交函数时服务后, kubectl返回一个物理IP:端口(nodeport)并返回给用户, 用户使用此ip:port发起http trigger
-- 收到用户的提交后
+	- 在提交函数时服务后, 用户可以通过masterIP:def.ActiverPort/function/taskName发起http trigger
+
 ### 制作镜像
 - 拉取基础镜像: jingkaihe/python-functional-template
 - (三个启动后运行的指令)启动镜像, 读取.py和requirements.txt内容, 在启动时使用echo指令将其分别写入到`/home/functionalTemplate/handler.py`和`/requirements.txt`, 命令类似于：
@@ -41,12 +41,66 @@ echo $string > /home/functionalTemplate/handler.py
 - 建立预定义的service(单pod, pod单容器), pod的启动后命令为`./start.sh`
 - service不需要立即创建
 ### http trigger
-- 当向对应的端口发送http请求后, 使用iptable转发到Activator处, Activer需要创建service(如果没有正在运行的), 在已经存在的service中做负载均衡, 记录访问频率并根据访问频率对service做空缩容(缩容最低到0, 扩容有上限)
+- 当向对应的端口和路径发送http请求后,Activer需要创建service(如果没有正在运行的), 在已经存在的service中做负载均衡, 记录访问频率并根据访问频率对service中的pod replica做扩缩容(缩容最低到0, 扩容有上限), 目标数目为上个30s收到的trigger数目除以100
 - Activer调用service并向用户返回
 ### state machine(参考aws step functions)
-
 ####定义方式
 - 提供json定义, 见示例(语法规则: https://docs.aws.amazon.com/zh_cn/step-functions/latest/dg/input-output-resultpath.html)
 ####调用方式
-- 由activer新建一个线程与service交互完成执行
- 
+- 由activer与service交互完成执行
+#### 示例
+````json
+{
+    "Name": "test_state_machine1",
+    "StartAt": "Check Stock Price",
+    "States": {
+        "Check Stock Price": {
+            "Type": "Task",
+            "Resource": "$activityName$",
+            "Next": "Generate Buy/Sell recommendation"
+        },
+        "Generate Buy/Sell recommendation": {
+            "Type": "Task",
+            "Resource": "$activityName$",
+            "Next": "Request Human Approval"
+        },
+        "Request Human Approval": {
+            "Type": "Task",
+            "Resource": "$activityName$",
+            "Next": "Buy or Sell?"
+        },
+        "Buy or Sell?": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable": "$.recommended_type",
+                    "StringEquals": "buy",
+                    "Next": "Buy Stock"
+                },
+                {
+                    "Variable": "$.recommended_type",
+                    "StringEquals": "sell",
+                    "Next": "Sell Stock"
+                }
+            ]
+        },
+        "Buy Stock": {
+            "Type": "Task",
+            "Resource": "$activityName$",
+            "Next": "Report Result"
+        },
+        "Sell Stock": {
+            "Type": "Task",
+            "Resource": "$activityName$",
+            "Next": "Report Result"
+        },
+        "Report Result": {
+            "Type": "Task",
+            "Resource": "$activityName$",
+            "End": true
+        }
+    }
+}
+````
+表示的work flow为:
+![](serverless%20template/state%20machine/stepfunctions_graph.png)

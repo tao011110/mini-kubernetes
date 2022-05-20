@@ -40,7 +40,7 @@ func main() {
 	Initialize()
 	go AutoExpanderAndShrinker()
 	go EtcdFunctionsNameListWatcher()
-	e.GET("/func/:funcname", ProcessFunctionHttpTrigger)
+	e.GET("/function/:funcname", ProcessFunctionHttpTrigger)
 	e.GET("/state_machine/:state_machine_name", ProcessStateMachineHttpTrigger)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", def.ActiverPort)))

@@ -10,6 +10,6 @@ func GetPartOfJsonResponce(reg string, response string) string {
 	if reg == "$" {
 		return response
 	}
-	//"$."
+	//"$.level1.level2...."
 	return fmt.Sprintf("%v", gojsonq.New().FromString(response).Find(string(([]byte(response))[2:])))
 }
