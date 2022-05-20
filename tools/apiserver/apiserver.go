@@ -36,6 +36,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.POST("/create/nodePortService", handleCreateNodePortService)
 	e.POST("/create/deployment", handleCreateDeployment)
 	e.POST("/create/autoscaler", handleCreateAutoscaler)
+	e.POST("/create/dns", handleCreateDNS)
 
 	// handle delete-api
 	e.DELETE("/delete_pod/:podpodInstanceName", handleDeletePod)
@@ -198,6 +199,25 @@ func handleCreateAutoscaler(c echo.Context) error {
 	fmt.Println("Create autoscaler ", autoscaler.Metadata.Name)
 
 	return c.String(200, "autoscaler "+autoscaler.Metadata.Name+" has been created")
+}
+
+func handleCreateDNS(c echo.Context) error {
+	dns := def.DNS{}
+	requestBody := new(bytes.Buffer)
+	_, err := requestBody.ReadFrom(c.Request().Body)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	err = json.Unmarshal(requestBody.Bytes(), &dns)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	create_api.CreateGateway(cli, dns)
+	fmt.Println("Create dns ", dns.Name)
+
+	return c.String(200, "DNS "+dns.Name+" has been created")
 }
 
 func letProxyCreateCIRule(service def.Service, node def.Node) {
@@ -421,7 +441,7 @@ func handleGetService(c echo.Context) error {
 }
 
 func handleGetAllService(c echo.Context) error {
-	fmt.Println("handleGetAllPod")
+	fmt.Println("handleGetAllService")
 	serviceList, flag := get_api.GetAllService(cli)
 
 	if flag == false {
@@ -433,44 +453,44 @@ func handleGetAllService(c echo.Context) error {
 
 func handleGetDeployment(c echo.Context) error {
 	deploymentName := c.Param("deploymentName")
-	deployment, flag := get_api.GetDeployment(cli, deploymentName)
-	fmt.Println(deployment)
+	deploymentDetail, flag := get_api.GetDeployment(cli, deploymentName)
+	fmt.Println(deploymentDetail)
 
 	if flag == false {
-		return c.JSON(404, deployment)
+		return c.JSON(404, deploymentDetail)
 	}
 
-	return c.JSON(200, deployment)
+	return c.JSON(200, deploymentDetail)
 }
 
 func handleGetAllDeployment(c echo.Context) error {
-	deploymentList, flag := get_api.GetAllDeployment(cli)
+	deploymentBriefList, flag := get_api.GetAllDeployment(cli)
 
 	if flag == false {
-		return c.JSON(404, deploymentList)
+		return c.JSON(404, deploymentBriefList)
 	}
 
-	return c.JSON(200, deploymentList)
+	return c.JSON(200, deploymentBriefList)
 }
 
 func handleGetAutoscaler(c echo.Context) error {
 	autoscalerName := c.Param("autoscalerName")
-	autoscaler, flag := get_api.GetAutoscaler(cli, autoscalerName)
-	fmt.Println(autoscaler)
+	autoscalerDetail, flag := get_api.GetAutoscaler(cli, autoscalerName)
+	fmt.Println(autoscalerDetail)
 
 	if flag == false {
-		return c.JSON(404, autoscaler)
+		return c.JSON(404, autoscalerDetail)
 	}
 
-	return c.JSON(200, autoscaler)
+	return c.JSON(200, autoscalerDetail)
 }
 
 func handleGetAllAutoscaler(c echo.Context) error {
-	autoscalerList, flag := get_api.GetAllAutoscaler(cli)
+	autoscalerBriefList, flag := get_api.GetAllAutoscaler(cli)
 
 	if flag == false {
-		return c.JSON(404, autoscalerList)
+		return c.JSON(404, autoscalerBriefList)
 	}
 
-	return c.JSON(200, autoscalerList)
+	return c.JSON(200, autoscalerBriefList)
 }

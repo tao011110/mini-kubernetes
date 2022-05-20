@@ -1,12 +1,15 @@
 package def
 
+import "time"
+
 type ParsedHorizontalPodAutoscaler struct {
-	Name           string
-	CPUMinValue    float64
-	CPUMaxValue    float64
-	MemoryMinValue int64
-	MemoryMaxValue int64
-	MinReplicas    int
-	MaxReplicas    int
-	PodName        string
+	Name           string    `json:"name"`
+	CPUMinValue    float64   `json:"CPUMinValue"`
+	CPUMaxValue    float64   `json:"CPUMaxValue"`
+	MemoryMinValue int64     `json:"memoryMinValue"`
+	MemoryMaxValue int64     `json:"memoryMaxValue"`
+	MinReplicas    int       `json:"minReplicas"`
+	MaxReplicas    int       `json:"maxReplicas"`
+	PodName        string    `json:"podName"`
+	StartTime      time.Time `json:"startTime"`
 }

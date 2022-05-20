@@ -291,6 +291,23 @@ func testGetAllService() {
 	}
 }
 
+func testCreateDNS(path string) {
+	dns, _ := yaml.ReadDNSConfig(path)
+	request2 := *dns
+	response2 := ""
+	body2, _ := json.Marshal(request2)
+	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/create/dns").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetString(&response2).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("create_gateway is %s and response is: %s\n", status, response2)
+}
+
 func TestUpdateIptablesRule(t *testing.T) {
 	//testRegisterNode()
 
@@ -319,4 +336,9 @@ func TestUpdateIptablesRule(t *testing.T) {
 
 	//time.Sleep(5 * time.Second)
 	//testDeleteNPService()
+}
+
+func TestDNSAndGateway(t *testing.T) {
+	path := "./dns_test.yaml"
+	testCreateDNS(path)
 }

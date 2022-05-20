@@ -7,6 +7,8 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
+	"strconv"
+	"time"
 )
 
 func CreateAutoscaler(cli *clientv3.Client, autoscaler def.Autoscaler) {
@@ -29,10 +31,26 @@ func CreateAutoscaler(cli *clientv3.Client, autoscaler def.Autoscaler) {
 		etcd.Put(cli, autoscalerListNameKey, string(autoscalerListNameValue))
 	}
 
+	podName := autoscaler.Metadata.Name + "-pod-" + goid.NewV4UUID().String()
 	// Parse autoscaler' meta into ParsedDeployment, and put it into etcd
 	{
+		CPUMaxValue, _ := strconv.ParseFloat(autoscaler.Spec.Metrics.CPU.TargetMaxValue, 64)
+		CPUMinValue, _ := strconv.ParseFloat(autoscaler.Spec.Metrics.CPU.TargetMinValue, 64)
+		memoryMaxValue, _ := strconv.ParseInt(autoscaler.Spec.Metrics.Memory.TargetMaxValue, 10, 64)
+		memoryMinValue, _ := strconv.ParseInt(autoscaler.Spec.Metrics.Memory.TargetMinValue, 10, 64)
+		parsedAutoscaler := def.ParsedHorizontalPodAutoscaler{
+			Name:           autoscaler.Metadata.Name,
+			CPUMaxValue:    CPUMaxValue,
+			CPUMinValue:    CPUMinValue,
+			MemoryMaxValue: memoryMaxValue,
+			MemoryMinValue: memoryMinValue,
+			MaxReplicas:    int(autoscaler.Spec.MaxReplicas),
+			MinReplicas:    int(autoscaler.Spec.MinReplicas),
+			PodName:        podName,
+			StartTime:      time.Now(),
+		}
 		autoscalerKey := def.GetKeyOfAutoscaler(autoscaler.Metadata.Name)
-		autoscalerValue, err := json.Marshal(autoscaler)
+		autoscalerValue, err := json.Marshal(parsedAutoscaler)
 		if err != nil {
 			fmt.Printf("%v\n", err)
 			panic(err)
@@ -42,7 +60,6 @@ func CreateAutoscaler(cli *clientv3.Client, autoscaler def.Autoscaler) {
 
 	// Put autoscaler's pod into etcd
 	{
-		podName := autoscaler.Metadata.Name + "-pod-" + goid.NewV4UUID().String()
 		containers := make([]def.Container, 0)
 		volumes := make([]def.Volume, 0)
 		for _, container := range autoscaler.Spec.Template.Spec.Containers {

@@ -1,13 +1,40 @@
 package def
 
+import "time"
+
 // ParsedDeployment
 //下面不是deployment解析的直接结果
 //为了复用pod相关的接口, 后请把template中的内容转为pod并为此pod分配全局唯一的name
 
 type ParsedDeployment struct {
-	Name        string `json:"name"`
-	ReplicasNum int    `json:"replicas_num"`
-	PodName     string `json:"pod_name"`
+	Name        string    `json:"name"`
+	ReplicasNum int       `json:"replicas_num"`
+	PodName     string    `json:"pod_name"`
+	StartTime   time.Time `json:"time"`
+}
+
+type ReplicasState struct {
+	Desired     int `json:"Desired"`
+	Updated     int `json:"Updated"`
+	Total       int `json:"Total"`
+	Available   int `json:"Available"`
+	Unavailable int `json:"Unavailable"`
+}
+
+type DeploymentDetail struct {
+	Name              string        `json:"name"`
+	PodTemplate       Pod           `json:"podTemplate"`
+	ReplicasState     ReplicasState `json:"replicasState"`
+	CreationTimestamp time.Time     `json:"creationTimestamp"`
+}
+
+// DeploymentBrief 是针对 kubectl get deployment返回的信息
+type DeploymentBrief struct {
+	Name      string        `json:"name"`
+	Ready     string        `json:"ready"`
+	UpToDate  int           `json:"upToDate"`
+	Available int           `json:"available"`
+	Age       time.Duration `json:"age"`
 }
 
 // 以下是deployment解析的直接结果

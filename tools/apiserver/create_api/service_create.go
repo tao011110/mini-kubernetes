@@ -27,7 +27,6 @@ func CreateClusterIPService(cli *clientv3.Client, service_c def.ClusterIPSvc) de
 	podInstanceValue := make([]byte, 0)
 	if len(kvs) != 0 {
 		for _, ports := range service_c.Spec.Ports {
-			fmt.Println(ports)
 			endpoints := make([]string, 0)
 			for _, kv := range kvs {
 				podInstanceValue = kv.Value
@@ -82,13 +81,14 @@ func CreateNodePortService(cli *clientv3.Client, service_n def.NodePortSvc) def.
 		ClusterIP: service_n.Spec.ClusterIP,
 	}
 	portsBindingsList := make([]def.PortsBindings, 0)
-	fmt.Printf("service.ClusterIP is %s", service.ClusterIP)
+	fmt.Printf("service.ClusterIP is %s\n", service.ClusterIP)
 
 	podInstancePrefix := "/podInstance/"
 	kvs := etcd.GetWithPrefix(cli, podInstancePrefix).Kvs
 	podInstance := def.PodInstance{}
 	podInstanceValue := make([]byte, 0)
 	if len(kvs) != 0 {
+		fmt.Printf("service_c.Spec.Ports are %v\n", service_n.Spec.Ports)
 		for _, ports := range service_n.Spec.Ports {
 			fmt.Println(ports)
 			endpoints := make([]string, 0)
@@ -122,6 +122,8 @@ func CreateNodePortService(cli *clientv3.Client, service_n def.NodePortSvc) def.
 				portsBindingsList = append(portsBindingsList, portsBindings)
 			}
 		}
+	} else {
+		fmt.Println("something wrong!")
 	}
 	service.PortsBindings = portsBindingsList
 
