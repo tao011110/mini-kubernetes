@@ -6,7 +6,6 @@ import (
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/pod"
 	"mini-kubernetes/tools/util"
-	"sort"
 )
 
 func EtcdWatcher(node *def.Node) {
@@ -42,17 +41,16 @@ func handlePodInstancesChange(node *def.Node, instances []string) {
 
 func comparePodList(node *def.Node, instancesNew []string) (added []string, deleted []int) {
 	var instancesCurrent []string
-	sort.Strings(instancesNew)
-	for index, instance := range node.PodInstances {
-		if sort.SearchStrings(instancesNew, instance.ID) == len(instancesNew) {
-			deleted = append(deleted, index)
-		}
+	for _, instance := range node.PodInstances {
 		instancesCurrent = append(instancesCurrent, instance.ID)
 	}
-	sort.Strings(instancesCurrent)
-	for _, instance := range instancesNew {
-		if sort.SearchStrings(instancesCurrent, instance) == len(instancesCurrent) {
-			added = append(added, instance)
+	added, deletedIDs := util.DifferTwoStringList(instancesCurrent, instancesNew)
+	for _, delete_ := range deletedIDs {
+		for index, instance := range instancesCurrent {
+			if delete_ == instance {
+				deleted = append(deleted, index)
+				break
+			}
 		}
 	}
 	return

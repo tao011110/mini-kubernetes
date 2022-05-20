@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/ghodss/yaml"
 	"mini-kubernetes/tools/def"
+	"strings"
 )
 
 type Server struct {
@@ -53,5 +54,7 @@ func GenerateApplicationYaml(dns def.DNSDetail) string {
 		}
 	}
 	bytes, _ := yaml.Marshal(application)
-	return string(bytes)
+	str := string(bytes)
+	str = strings.Replace(str, "\n", "\\n", -1)
+	return str
 }

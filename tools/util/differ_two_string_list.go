@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-	"sort"
 )
 
 func ConvertIntListToStringList(intList []int) []string {
@@ -14,15 +13,27 @@ func ConvertIntListToStringList(intList []int) []string {
 }
 
 func DifferTwoStringList(olds []string, news []string) (added []string, deleted []string) {
-	sort.Strings(news)
 	for _, old := range olds {
-		if sort.SearchStrings(news, old) == len(news) {
+		find := false
+		for _, new_ := range news {
+			if old == new_ {
+				find = true
+				break
+			}
+		}
+		if !find {
 			deleted = append(deleted, old)
 		}
 	}
-	sort.Strings(olds)
 	for _, new_ := range news {
-		if sort.SearchStrings(olds, new_) == len(olds) {
+		find := false
+		for _, old := range olds {
+			if old == new_ {
+				find = true
+				break
+			}
+		}
+		if !find {
 			added = append(added, new_)
 		}
 	}
