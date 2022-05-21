@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test(t *testing.T) {
+func TestCreate(t *testing.T) {
 	app := kubectl.Initial()
 	// brief introduction of kubectl
 	err := kubectl.ParseArgs(app, "kubectl")
@@ -23,5 +23,21 @@ func Test(t *testing.T) {
 	err = kubectl.ParseArgs(app, "kubectl create -f pod.yaml")
 	if err != nil {
 		t.Error("test kubectl create fail")
+	}
+
+	// delete
+	err = kubectl.ParseArgs(app, "kubectl delete pod test-pod")
+	if err != nil {
+		t.Error("test kubectl create fail")
+	}
+}
+
+func TestDelete(t *testing.T) {
+	app := kubectl.Initial()
+
+	// delete
+	err := kubectl.ParseArgs(app, "kubectl delete pod test-pod")
+	if err != nil {
+		t.Error("test kubectl delete pod fail")
 	}
 }

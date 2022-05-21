@@ -42,4 +42,19 @@ func Test(t *testing.T) {
 		log.Fatal(err)
 	}
 	fmt.Println("string:", string(byts))
+
+	// judge config type
+	num, err := yaml.ReadConfig("auto.yaml")
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		fmt.Printf("typeid: %d\n", num)
+	}
+
+	num, err = yaml.ReadConfig("cluster.yaml")
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		fmt.Printf("typeid: %d\n", num)
+	}
 }

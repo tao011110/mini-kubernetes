@@ -3,9 +3,10 @@ package command
 import (
 	"fmt"
 
-	"github.com/urfave/cli"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
+
+	"github.com/urfave/cli"
 )
 
 func NewGetCommand() cli.Command {
@@ -49,8 +50,8 @@ func getFunc(c *cli.Context) {
 		} else {
 			fmt.Printf("No pod exists\n")
 		}
-	} else if ty == "pod" && c.String("output") == "wide" {
-		// kubectl get pod -o wide 查看全部Pod的状态
+	} else if ty == "pods" && c.String("output") == "wide" {
+		// kubectl get pods -o wide 查看全部Pod的状态
 		response := make([]string, 0)
 		err, status := httpget.Get("http://" + def.MasterIP + ":" + def.MasterPort + "/get/all/pod").
 			ContentType("application/json").
@@ -67,6 +68,26 @@ func getFunc(c *cli.Context) {
 			}
 		} else {
 			fmt.Printf("No pod exists\n")
+		}
+	} else if ty == "services" {
+		// kubectl get services
+		// 用来获取所有的 service
+		response := make([]def.Service, 0)
+		err, status := httpget.Get("http://" + def.MasterIP + ":" + def.MasterPort + "/get/all/service").
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		fmt.Printf("get_all_service status is %s\n", status)
+		if status == "200" {
+			fmt.Println("All services' information is as follows")
+			for _, service := range response {
+				fmt.Printf("%v\n", service)
+			}
+		} else {
+			fmt.Printf("No service exists\n")
 		}
 	}
 

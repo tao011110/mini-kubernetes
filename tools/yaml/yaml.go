@@ -8,6 +8,80 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const (
+	Pod_t int = iota
+	ClusterIP_t
+	Nodeport_t
+	Dns_t
+	Deployment_t
+	Autoscaler_t
+	Unknown_t
+)
+
+type YmlSpec struct {
+	Type string `yaml:"type" json:"type"`
+}
+
+type YmlMeta struct {
+	Name string `yaml:"name" json:"name"`
+}
+
+type YmlObj struct {
+	Kind     string  `yaml:"kind" json:"kind"`
+	Metadata YmlMeta `yaml:"metadata" json:"metadata"`
+	Spec     YmlSpec `yaml:"spec" json:"spec"`
+}
+
+func ReadType(path string) (int, error) {
+	yml_ := &YmlObj{}
+	if f, err := os.Open(path); err != nil {
+		return -1, err
+	} else {
+		yaml.NewDecoder(f).Decode(yml_)
+		if (*yml_).Kind == "Pod" {
+			return Pod_t, err
+		} else if (*yml_).Kind == "Service" {
+			if (*yml_).Spec.Type == "ClusterIP" {
+				return ClusterIP_t, err
+			} else if (*yml_).Spec.Type == "NodePort" {
+				return Nodeport_t, err
+			}
+		} else if (*yml_).Kind == "DNS" {
+			return Dns_t, err
+		} else if (*yml_).Kind == "Deployment" {
+			return Deployment_t, err
+		} else if (*yml_).Kind == "HorizontalPodAutoscaler" {
+			return Autoscaler_t, err
+		}
+		return -1, err
+	}
+}
+
+func ReadTypeAndName(path string) (int, string, error) {
+	yml_ := &YmlObj{}
+	if f, err := os.Open(path); err != nil {
+		return -1, "", err
+	} else {
+		yaml.NewDecoder(f).Decode(yml_)
+		if (*yml_).Kind == "Pod" {
+			return Pod_t, (*yml_).Metadata.Name, err
+		} else if (*yml_).Kind == "Service" {
+			if (*yml_).Spec.Type == "ClusterIP" {
+				return ClusterIP_t, (*yml_).Metadata.Name, err
+			} else if (*yml_).Spec.Type == "NodePort" {
+				return Nodeport_t, (*yml_).Metadata.Name, err
+			}
+		} else if (*yml_).Kind == "DNS" {
+			return Dns_t, (*yml_).Metadata.Name, err
+		} else if (*yml_).Kind == "Deployment" {
+			return Deployment_t, (*yml_).Metadata.Name, err
+		} else if (*yml_).Kind == "HorizontalPodAutoscaler" {
+			return Autoscaler_t, (*yml_).Metadata.Name, err
+		}
+		return -1, "", err
+	}
+}
+
 func ReadPodYamlConfig(path string) (*def.Pod, error) {
 	pod_ := &def.Pod{}
 	if f, err := os.Open(path); err != nil {

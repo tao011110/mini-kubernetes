@@ -27,26 +27,68 @@ func NewCreateCommand() cli.Command {
 }
 
 func createFunc(c *cli.Context) {
-	// create_pod
-	// 需要发送给apiserver的参数为 pod_ def.Pod
+
 	dir := c.String("file")
 	fmt.Printf("Using dir: %s\n", dir)
-	pod_, err := yaml.ReadPodYamlConfig(dir)
-	if pod_ == nil {
-		fmt.Println("[Fault] " + err.Error())
+	ty, _ := yaml.ReadType(dir)
+	switch ty {
+	case yaml.Pod_t:
+		// create_pod
+		// 需要发送给apiserver的参数为 pod_ def.Pod
+		pod_, err := yaml.ReadPodYamlConfig(dir)
+		if pod_ == nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		request := *pod_
+		response := ""
+		body, _ := json.Marshal(request)
+		err, status := httpget.Post("http://" + def.MasterIP + ":" + def.MasterPort + "/create_pod").
+			ContentType("application/json").
+			Body(bytes.NewReader(body)).
+			GetString(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		} else {
+			fmt.Printf("create_pod is %s and response is: %s\n", status, response)
+		}
+	case yaml.ClusterIP_t:
+		// create_clusterIP_service
+		serviceC_, err := yaml.ReadServiceClusterIPConfig(dir)
+		if serviceC_ == nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		request := *serviceC_
+		response := ""
+		body, _ := json.Marshal(request)
+		err, status := httpget.Post("http://" + def.MasterIP + ":" + def.MasterPort + "/create/clusterIPService").
+			ContentType("application/json").
+			Body(bytes.NewReader(body)).
+			GetString(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		} else {
+			fmt.Printf("create_service is %s and response is: %s\n", status, response)
+		}
+	case yaml.Nodeport_t:
+		// create_nodeport_service
+		serviceN_, err := yaml.ReadServiceNodeportConfig(dir)
+		if serviceN_ == nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		request := *serviceN_
+		response := ""
+		body, _ := json.Marshal(request)
+		err, status := httpget.Post("http://" + def.MasterIP + ":" + def.MasterPort + "/create/nodePortService").
+			ContentType("application/json").
+			Body(bytes.NewReader(body)).
+			GetString(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		fmt.Printf("create_service is %s and response is: %s\n", status, response)
 	}
 
-	request := *pod_
-	response := ""
-	body, _ := json.Marshal(request)
-	err, status := httpget.Post("http://" + def.MasterIP + ":" + def.MasterPort + "/create_pod").
-		ContentType("application/json").
-		Body(bytes.NewReader(body)).
-		GetString(&response).
-		Execute()
-	if err != nil {
-		fmt.Println("[Fault] " + err.Error())
-	} else {
-		fmt.Printf("create_pod is %s and response is: %s\n", status, response)
-	}
 }
