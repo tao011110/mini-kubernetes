@@ -21,7 +21,7 @@ func Test(t *testing.T) {
 
 	//TODO: 用户生成image并 push到仓库中，需要提供函数名 funcName 和用于打包成镜像的容器ID containerID
 	funcName := "test1"
-	containerID := "2dbd1987a731"
+	containerID := "c2d46cf5ce63"
 	docker.CommitContainer(containerID, funcName)
 	docker.PushImage(funcName)
 

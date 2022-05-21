@@ -23,7 +23,7 @@ const (
 	HorizontalPodAutoscalerListName = `parsed_horizontal_pod_autoscaler_list_name`
 	MasterIP                        = "192.168.1.7"
 	MasterPort                      = "8000"
-	EtcdDir                         = "/home/etcd-v3.2.13-linux-amd64"
+	EtcdDir                         = "/home/etcd"
 	RgistryAddr                     = "registry.cn-hangzhou.aliyuncs.com/taoyucheng/mink8s:"
 	RgistryUsername                 = "taoyucheng"
 	RgistryPassword                 = "Tyc20010925tyc"

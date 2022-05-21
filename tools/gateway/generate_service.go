@@ -28,7 +28,8 @@ func generateServicePorts(dns *def.DNSDetail) []def.PortPair {
 	return mappings
 }
 
-func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.ClusterIPSvc) {
+// GenerateGatewayPod TODO: 创建的容器并不能直接start?
+func GenerateGatewayPod(dns def.DNSDetail) (pod def.Pod) {
 	injectionRoutesCommand := fmt.Sprintf(
 		"echo -e \"%s\" > %s",
 		GenerateApplicationYaml(dns),
@@ -53,7 +54,7 @@ func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.C
 	containerName := fmt.Sprintf("gateway_container_%s_name", dns.Name)
 	podName := fmt.Sprintf("gateway_pod_%s_name", dns.Name)
 	podLabel := fmt.Sprintf("gateway_pod_%s_label", dns.Name)
-	serviceName := fmt.Sprintf("gateway_service_%s_name", dns.Name)
+	//serviceName := fmt.Sprintf("gateway_service_%s_name", dns.Name)
 
 	pod = def.Pod{
 		ApiVersion: `v1`,
@@ -80,19 +81,19 @@ func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.C
 		},
 	}
 
-	service = def.ClusterIPSvc{
-		ApiVersion: `v1`,
-		Kind:       `Service`,
-		Metadata: def.Meta{
-			Name: serviceName,
-		},
-		Spec: def.Spec{
-			Type:  `ClusterIP`,
-			Ports: generateServicePorts(&dns),
-			Selector: def.Selector{
-				Name: podLabel, /*TODO: maybe wrong*/
-			},
-		},
-	}
+	//service = def.ClusterIPSvc{
+	//	ApiVersion: `v1`,
+	//	Kind:       `Service`,
+	//	Metadata: def.Meta{
+	//		Name: serviceName,
+	//	},
+	//	Spec: def.Spec{
+	//		Type:  `ClusterIP`,
+	//		Ports: generateServicePorts(&dns),
+	//		Selector: def.Selector{
+	//			Name: podLabel, /*TODO: maybe wrong*/
+	//		},
+	//	},
+	//}
 	return
 }
