@@ -5,17 +5,20 @@ import (
 	"github.com/jakehl/goid"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/util"
+	"strings"
 )
 
 func MakeFunctionalImage(function *def.Function) {
 	pyString := util.ReadFile(function.Function)
 	requirementsString := util.ReadFile(function.Requirements)
-	cmdWritePy := fmt.Sprintf("echo %s > %s", pyString, def.PyHandlerPath)
-	cmdWriteRequirements := fmt.Sprintf("echo %s > %s", requirementsString, def.RequirementsPath)
+	pyString = strings.Replace(pyString, "\n", "\\n", -1)
+	requirementsString = strings.Replace(requirementsString, "\n", "\\n", -1)
+	cmdWritePy := fmt.Sprintf("echo -e \"%s\" > %s", pyString, def.PyHandlerPath)
+	cmdWriteRequirements := fmt.Sprintf("echo -e \"%s\" > %s", requirementsString, def.RequirementsPath)
 	cmdPrepare := fmt.Sprintf("./%s", def.PreparePath)
 	imageName := fmt.Sprintf("image_%s_%d", function.Name, function.Version)
 	// TODO: 拉取def.TemplateImage image, 启动, 初始命令为cmd_writePy, cmd_writeRequirements和cmdPrepare, limit适当(拉取依赖)
-	// TODO: commit & push, image name为repository_name/imageName
+	// TODO: commit & push, image name为repository_name/imageName docker push repository_name/imageName
 	function.Image = imageName
 }
 
@@ -40,10 +43,8 @@ func GenerateFunctionPodAndService(function def.Function) (pod def.Pod, service 
 		ApiVersion: `v1`,
 		Kind:       `Pod`,
 		Metadata: def.PodMeta{
-			Name: podName,
-			Labels: def.PodLabels{
-				Name: podLabel,
-			},
+			Name:  podName,
+			Label: podLabel,
 		},
 		Spec: def.PodSpec{
 			Containers: []def.Container{

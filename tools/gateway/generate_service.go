@@ -30,7 +30,7 @@ func generateServicePorts(dns *def.DNSDetail) []def.PortPair {
 
 func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.ClusterIPSvc) {
 	injectionRoutesCommand := fmt.Sprintf(
-		"echo %s > %s",
+		"echo -e \"%s\" > %s",
 		GenerateApplicationYaml(dns),
 		def.GatewayRoutesConfigPathInImage)
 	packageAndRunCommand := fmt.Sprintf(

@@ -48,8 +48,6 @@ func comparePodList(node *def.Node, instancesNew []string) (added []string, dele
 	for _, instance := range node.PodInstances {
 		instancesCurrent = append(instancesCurrent, instance.ID)
 	}
-	fmt.Println("instancesCurrent  ", instancesCurrent)
-	fmt.Println("instancesNew  ", instancesNew)
 	added, deletedIDs := util.DifferTwoStringList(instancesCurrent, instancesNew)
 	for _, delete_ := range deletedIDs {
 		for index, instance := range instancesCurrent {

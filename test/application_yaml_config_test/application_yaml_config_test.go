@@ -24,6 +24,9 @@ func Test(t *testing.T) {
 			},
 		},
 	}
-	fmt.Println(gateway.GenerateApplicationYaml(detail))
+	fmt.Println(fmt.Sprintf(
+		"echo -e \"%s\" > %s",
+		gateway.GenerateApplicationYaml(detail),
+		def.GatewayRoutesConfigPathInImage))
 	t.Log("test finished\n")
 }

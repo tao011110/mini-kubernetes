@@ -136,8 +136,8 @@ func TriggerFunction(funcName string, parames string, body string) (int, string)
 	podReplicaNameList := activer_utils.GetPodReplicaIDListByPodName(activerMeta.EtcdClient, function.PodName)
 	service := activer_utils.GetServiceByName(activerMeta.EtcdClient, function.ServiceName)
 	if len(podReplicaNameList) == 0 {
-		activer_utils.StartService(function.ServiceName)
 		activer_utils.AddNPodInstance(function.PodName, 1)
+		activer_utils.StartService(function.ServiceName)
 	}
 	uri := fmt.Sprintf("%s:80?%s", service.ClusterIP, parames)
 	response := ""
