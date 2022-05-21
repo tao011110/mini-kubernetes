@@ -36,6 +36,8 @@ const (
 	StateMachineNameListKey         = `state_machine_name_list_key`
 	ActiverPort                     = 3306
 	MaxBodySize                     = 2048
+	GatewayPackageCmd               = `./package.sh`
+	GatewayStartCmd                 = `./start.sh`
 )
 
 func GetKeyOfPodReplicasNameListByPodName(podName string) string {

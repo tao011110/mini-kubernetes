@@ -25,38 +25,72 @@ func NewDeleteCommand() cli.Command {
 }
 
 func deleteFunc(c *cli.Context) {
-
+	/* kubectl delete 通过配置文件名、资源名称来删除资源。 */
 	dir := c.String("file")
-	var podName string
+	var src_type int
+	var src_name string
 	if dir != "" {
-		// 根据yaml文件确定pod名称
+		// 根据yaml文件来删除资源
 		fmt.Printf("Using dir: %s\n", dir)
-		pod_, _ := yaml.ReadPodYamlConfig(dir)
-		podName = pod_.Metadata.Name
+		src_type, src_name, _ = yaml.ReadTypeAndName(dir)
 	} else {
+		// 根据名称来删除资源
 		if len(c.Args()) == 0 {
-			fmt.Println("You need to specify pod name")
+			fmt.Println("You need to specify pod or service")
 			return
 		}
-		podName = c.Args()[0]
-		fmt.Printf("Podname: %s\n", podName)
-	}
-
-	// delete_pod
-	// 需要发送给apiserver的参数为 podName string
-	response := ""
-	err, status := httpget.DELETE("http://" + def.MasterIP + ":" + def.MasterPort + "/delete_pod/" + podName).
-		ContentType("application/json").
-		GetString(&response).
-		Execute()
-	if err != nil {
-		fmt.Println("[Fault] " + err.Error())
-	} else {
-		fmt.Printf("get_pod status is %s\n", status)
-		if status == "200" {
-			fmt.Printf("delete pod_ %s successfully and the response is: %v\n", podName, response)
-		} else {
-			fmt.Printf("pod_ %s doesn't exist\n", podName)
+		if c.Args()[0] == "pod" {
+			src_type = yaml.Pod_t
+			src_name = c.Args()[1]
+			fmt.Printf("Podname: %s\n", src_name)
+		} else if c.Args()[0] == "service" {
+			// 目前还不能确定是哪种service类型
+			src_type = yaml.Unknown_t
+			src_name = c.Args()[1]
+			fmt.Printf("Servicename: %s\n", src_name)
 		}
 	}
+
+	if src_type >= yaml.Pod_t && src_type <= yaml.Unknown_t && src_name != "" {
+		if src_type == yaml.Pod_t {
+			// 格式 kubectl delete pod xxx
+			// 需要发送给apiserver的参数为 podName string
+			response := ""
+			err, status := httpget.DELETE("http://" + def.MasterIP + ":" + def.MasterPort + "/delete_pod/" + src_name).
+				ContentType("application/json").
+				GetString(&response).
+				Execute()
+			if err != nil {
+				fmt.Println("[Fault] " + err.Error())
+			} else {
+				fmt.Printf("get_pod status is %s\n", status)
+				if status == "200" {
+					fmt.Printf("Delete pod %s successfully and the response is: %v\n", src_name, response)
+				} else {
+					fmt.Printf("Pod %s doesn't exist\n", src_name)
+				}
+			}
+		} else if src_type == yaml.ClusterIP_t || src_type == yaml.Nodeport_t || src_type == yaml.Unknown_t {
+			// 格式 kubectl delete service xxx
+			// 需要发送给apiserver的参数为 serviceName string
+			response := ""
+			err, status := httpget.DELETE("http://" + def.MasterIP + ":" + def.MasterPort + "/delete/service/" + src_name).
+				ContentType("application/json").
+				GetString(&response).
+				Execute()
+			if err != nil {
+				fmt.Println("[Fault] " + err.Error())
+			}
+
+			fmt.Printf("delete clusterIPService status is %s\n", status)
+			if status == "200" {
+				fmt.Printf("Delete service %s successfully and the response is: %v\n", src_name, response)
+			} else {
+				fmt.Printf("Service %s doesn't exist\n", src_name)
+			}
+		} else {
+			fmt.Println("Now delete only support pod and service")
+		}
+	}
+
 }
