@@ -33,7 +33,7 @@ func DeleteAutoscaler(cli *clientv3.Client, autoscalerName string) bool {
 		etcd.Put(cli, autoscalerListNameKey, string(autoscalerListNameValue))
 	}
 
-	// 在etcd中删除autoscaler
+	// 在etcd中删除ParsedAutoscaler
 	{
 		autoscalerKey := def.GetKeyOfAutoscaler(autoscalerName)
 		resp := etcd.Get(cli, autoscalerKey)

@@ -74,11 +74,11 @@ func GetKeyOfStateMachine(name string) string {
 	return fmt.Sprintf("/state_machine/%s", name)
 }
 func GenerateKeyOfPodInstanceReplicas(podInstanceName string) string {
-	return GetKeyOfPodInstance(podInstanceName) + goid.NewV4UUID().String()
+	return "-" + GetKeyOfPodInstance(podInstanceName) + goid.NewV4UUID().String()
 }
 
 func GetKeyOfPodInstance(podInstanceName string) string {
-	return fmt.Sprintf("/podInstance/%s-", podInstanceName)
+	return fmt.Sprintf("/podInstance/%s", podInstanceName)
 }
 
 func GetKeyOfDeployment(deploymentName string) string {

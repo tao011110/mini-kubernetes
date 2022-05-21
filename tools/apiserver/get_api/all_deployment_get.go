@@ -4,30 +4,57 @@ import (
 	"encoding/json"
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"mini-kubernetes/tools/controller/controller_utils"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
+	"mini-kubernetes/tools/util"
+	"strconv"
+	"time"
 )
 
-func GetAllDeployment(cli *clientv3.Client) ([]def.Deployment, bool) {
+func GetAllDeployment(cli *clientv3.Client) ([]def.DeploymentBrief, bool) {
 	deploymentKey := "/deployment/"
 	kvs := etcd.GetWithPrefix(cli, deploymentKey).Kvs
-	deploymentValue := make([]byte, 0)
-	deploymentList := make([]def.Deployment, 0)
+	parsedDeploymentValue := make([]byte, 0)
+	deploymentBriefList := make([]def.DeploymentBrief, 0)
 	if len(kvs) != 0 {
 		for _, kv := range kvs {
-			deployment := def.Deployment{}
-			deploymentValue = kv.Value
-			err := json.Unmarshal(deploymentValue, &deployment)
+			parsedDeployment := def.ParsedDeployment{}
+			parsedDeploymentValue = kv.Value
+			err := json.Unmarshal(parsedDeploymentValue, &parsedDeployment)
 			if err != nil {
 				fmt.Printf("%v\n", err)
 				panic(err)
 			}
-			fmt.Println("deployment.Metadata.Name is " + deployment.Metadata.Name)
-			deploymentList = append(deploymentList, deployment)
+			fmt.Println("parsedDeployment.Name is " + parsedDeployment.Name)
+			instancelist := controller_utils.GetReplicaNameListByPodName(cli, parsedDeployment.PodName)
+			health := 0
+			ready := 0
+			for _, instanceID := range instancelist {
+				podInstance := util.GetPodInstance(instanceID, cli)
+				if podInstance.Status != def.FAILED {
+					health++
+					if podInstance.Status == def.RUNNING {
+						ready++
+					}
+				} else {
+					controller_utils.RemovePodInstance(cli, &podInstance)
+				}
+			}
+
+			brief := def.DeploymentBrief{
+				Name:      parsedDeployment.Name,
+				Age:       time.Now().Sub(parsedDeployment.StartTime),
+				Ready:     strconv.Itoa(ready) + "/" + strconv.Itoa(parsedDeployment.ReplicasNum),
+				UpToDate:  health,
+				Available: ready,
+			}
+
+			deploymentBriefList = append(deploymentBriefList, brief)
 		}
 	} else {
-		return deploymentList, false
+		return deploymentBriefList, false
 	}
 
-	return deploymentList, true
+	return deploymentBriefList, true
 }

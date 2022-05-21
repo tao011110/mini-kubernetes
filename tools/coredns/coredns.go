@@ -18,9 +18,14 @@ type Host struct {
 	Host string `json:"host"`
 }
 
+type Port struct {
+	Port string `json:"port"`
+}
+
 type HostAndPort struct {
 	Host string `json:"host"`
 	Port uint16 `json:"port"`
+	Ttl  uint8  `json:"ttl"`
 }
 
 // func test_reverse() {
@@ -59,7 +64,7 @@ func StartCoredns() {
 	}
 }
 
-func AddItem(cli *clientv3.Client, name string, host string) {
+func AddItem(cli *clientv3.Client, name string, host string, port uint16) {
 	/* 基于etcd插件的动态域名增加
 	 * E.g 添加一条新的域名解析  yingjiu.notr.tech -> 192.168.1.2
 	 * ./etcdctl put /skydns/tech/notr/yingjiu/ '{"host":"192.168.1.2"}'
@@ -79,7 +84,11 @@ func AddItem(cli *clientv3.Client, name string, host string) {
 	}
 
 	// set value
-	value, err := json.Marshal(Host{host})
+	value, err := json.Marshal(HostAndPort{
+		Host: host,
+		Port: port,
+		Ttl:  10,
+	})
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		panic(err)

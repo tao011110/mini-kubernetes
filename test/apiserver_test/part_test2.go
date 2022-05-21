@@ -59,8 +59,8 @@ func testDeleteDeployment() {
 
 //TODO: 用来获取特定名称的 deployment，需要发送给apiserver的参数为 deploymentName(string)
 func testGetDeployment(deploymentName string) {
-	//http调用返回的json需解析转为def.ParsedDeployment类型，
-	response := def.ParsedDeployment{}
+	//http调用返回的json需解析转为def.DeploymentDetail类型，
+	response := def.DeploymentDetail{}
 	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/deployment/" + deploymentName).
 		ContentType("application/json").
 		GetJson(&response).
@@ -79,7 +79,8 @@ func testGetDeployment(deploymentName string) {
 
 //TODO: 用来获取所有的 deployment
 func testGetAllDeployment() {
-	response := make([]def.ParsedDeployment, 0)
+	// DeploymentBrief提供了 的 kubelet get deployment 显示的全部信息
+	response := make([]def.DeploymentBrief, 0)
 	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/all/deployment").
 		ContentType("application/json").
 		GetJson(&response).
@@ -140,7 +141,7 @@ func testDeleteAutoscaler() {
 
 //TODO: 用来获取特定名称的 autoscaler，需要发送给apiserver的参数为 autoscalerName(string)
 func testGetAutoscaler(autoscalerName string) {
-	response := def.Autoscaler{}
+	response := def.AutoscalerDetail{}
 	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/autoscaler/" + autoscalerName).
 		ContentType("application/json").
 		GetJson(&response).
@@ -159,7 +160,8 @@ func testGetAutoscaler(autoscalerName string) {
 
 //TODO: 用来获取所有的 autoscaler
 func testGetAllAutoscaler() {
-	response := make([]def.Autoscaler, 0)
+	// AutoscalerBrief提供了 的 kubelet get autoscaler 显示的部分信息（根据我们项目与K8S实现的部分差异，对一些信息予以删除）
+	response := make([]def.AutoscalerBrief, 0)
 	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/all/autoscaler").
 		ContentType("application/json").
 		GetJson(&response).

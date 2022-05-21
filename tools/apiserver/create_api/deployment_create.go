@@ -3,11 +3,11 @@ package create_api
 import (
 	"encoding/json"
 	"fmt"
-	"mini-kubernetes/tools/def"
-	"mini-kubernetes/tools/etcd"
-
 	"github.com/jakehl/goid"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/etcd"
+	"time"
 )
 
 func CreateDeployment(cli *clientv3.Client, deployment def.Deployment) {
@@ -37,6 +37,7 @@ func CreateDeployment(cli *clientv3.Client, deployment def.Deployment) {
 			Name:        deployment.Metadata.Name,
 			ReplicasNum: int(deployment.Spec.Replicas),
 			PodName:     podName,
+			StartTime:   time.Now(),
 		}
 		parsedDeploymentKey := def.GetKeyOfDeployment(parsedDeployment.Name)
 		parsedDeploymentValue, err := json.Marshal(parsedDeployment)
