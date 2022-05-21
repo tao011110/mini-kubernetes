@@ -32,7 +32,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 
 	// handle create-api
 	e.POST("/create_pod", handleCreatePod)
-	e.POST("/create/clusterIPService", handleCreateClusterIPService)
+	e.POST("/create/service", handleCreateClusterIPService)
 	e.POST("/create/nodePortService", handleCreateNodePortService)
 	e.POST("/create/deployment", handleCreateDeployment)
 	e.POST("/create/autoscaler", handleCreateAutoscaler)
@@ -40,8 +40,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 
 	// handle delete-api
 	e.DELETE("/delete_pod/:podpodInstanceName", handleDeletePod)
-	e.DELETE("/delete/clusterIPService/:serviceName", handleDeleteClusterIPService)
-	e.DELETE("/delete/nodePortService/:serviceName", handleDeleteNodePortService)
+	e.DELETE("/delete/service/:serviceName", handleDeleteService)
 	e.DELETE("/delete/deployment/:deploymentName", handleDeleteDeployment)
 	e.DELETE("/delete/autoscaler/:autoscalerName", handleDeleteAutoscaler)
 
@@ -276,33 +275,21 @@ func handleDeletePod(c echo.Context) error {
 	}
 }
 
-func handleDeleteClusterIPService(c echo.Context) error {
+func handleDeleteService(c echo.Context) error {
 	serviceName := c.Param("serviceName")
 
-	clusterIP, flag := delete_api.DeleteService(cli, serviceName)
+	clusterIP, flag, typeName := delete_api.DeleteService(cli, serviceName)
 	if flag == true {
 		// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
 		nodeList := get_api.GetAllNode(cli)
-		for _, node := range nodeList {
-			go letProxyDeleteCIRule(clusterIP, node)
-		}
-		fmt.Println("Service " + serviceName + " has been deleted")
-		return c.String(200, "Service "+serviceName+" has been deleted")
-	} else {
-		fmt.Println("Service " + serviceName + " has been deleted")
-		return c.String(404, "Service "+serviceName+" doesn't exist")
-	}
-}
-
-func handleDeleteNodePortService(c echo.Context) error {
-	serviceName := c.Param("serviceName")
-
-	clusterIP, flag := delete_api.DeleteService(cli, serviceName)
-	if flag == true {
-		// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
-		nodeList := get_api.GetAllNode(cli)
-		for _, node := range nodeList {
-			go letProxyDeleteNPRule(clusterIP, node)
+		if typeName == "ClusterIP" {
+			for _, node := range nodeList {
+				go letProxyDeleteCIRule(clusterIP, node)
+			}
+		} else {
+			for _, node := range nodeList {
+				go letProxyDeleteNPRule(clusterIP, node)
+			}
 		}
 		fmt.Println("Service " + serviceName + " has been deleted")
 		return c.String(200, "Service "+serviceName+" has been deleted")

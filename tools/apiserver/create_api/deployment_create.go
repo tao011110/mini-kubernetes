@@ -91,8 +91,8 @@ func CreateDeployment(cli *clientv3.Client, deployment def.Deployment) {
 			ApiVersion: deployment.ApiVersion,
 			Kind:       "Pod",
 			Metadata: def.PodMeta{
-				Name:   podName,
-				Labels: def.PodLabels(deployment.Spec.Template.Metadata.Labels),
+				Name:  podName,
+				Label: deployment.Spec.Template.Metadata.Labels.Name,
 			},
 			Spec: def.PodSpec{
 				Containers: containers,

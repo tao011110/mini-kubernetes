@@ -2,6 +2,7 @@ package def
 
 import (
 	"fmt"
+
 	"github.com/jakehl/goid"
 )
 
@@ -20,9 +21,9 @@ const (
 	ControllerPort                  = 8081
 	NodeUndefined                   = -1
 	HorizontalPodAutoscalerListName = `parsed_horizontal_pod_autoscaler_list_name`
-	MasterIP                        = "192.168.1.7"
+	MasterIP                        = "10.211.55.3"
 	MasterPort                      = "8000"
-	EtcdDir                         = "/home/etcd-v3.2.13-linux-amd64"
+	EtcdDir                         = "/home/parallels/Downloads/etcd-v3.5.3-linux-arm64"
 	RgistryAddr                     = "registry.cn-hangzhou.aliyuncs.com/taoyucheng/mink8s:"
 	RgistryUsername                 = "taoyucheng"
 	RgistryPassword                 = "Tyc20010925tyc"
@@ -31,6 +32,10 @@ const (
 	RequirementsPath                = `/requirements.txt`
 	PreparePath                     = `/prepare.sh`
 	StartPath                       = `/start.sh`
+	FunctionNameListKey             = `function_name_list`
+	StateMachineNameListKey         = `state_machine_name_list_key`
+	ActiverPort                     = 3306
+	MaxBodySize                     = 2048
 )
 
 func GetKeyOfPodReplicasNameListByPodName(podName string) string {
@@ -57,6 +62,17 @@ func GetKeyOfPod(podName string) string {
 	return fmt.Sprintf("/pod/%s", podName)
 }
 
+func GetKeyOfService(serviceName string) string {
+	return fmt.Sprintf("/service/%s", serviceName)
+}
+
+func GetKeyOfFunction(name string) string {
+	return fmt.Sprintf("/function/%s", name)
+}
+
+func GetKeyOfStateMachine(name string) string {
+	return fmt.Sprintf("/state_machine/%s", name)
+}
 func GenerateKeyOfPodInstanceReplicas(podInstanceName string) string {
 	return "-" + GetKeyOfPodInstance(podInstanceName) + goid.NewV4UUID().String()
 }

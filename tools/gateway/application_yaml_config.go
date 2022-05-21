@@ -47,10 +47,9 @@ func GenerateApplicationYaml(dns def.DNSDetail) string {
 		},
 	}
 	for index, path := range dns.Paths {
-		fmt.Printf("path.Service.Spec.Ports is %v\n", path.Service.Spec.Ports)
 		application.Zuul.Routes[fmt.Sprintf("route%d", index)] = PathAndUrl{
 			Path: fmt.Sprintf("%s/**", path.Path),
-			Url:  fmt.Sprintf("%s:%d", path.Service.Spec.ClusterIP, path.Service.Spec.Ports[0].Port),
+			Url:  fmt.Sprintf("%s:%d", path.Service.Spec.ClusterIP, path.Port),
 		}
 	}
 	bytes, _ := yaml.Marshal(application)

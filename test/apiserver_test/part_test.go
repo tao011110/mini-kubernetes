@@ -182,28 +182,6 @@ func testCreateCIService(path string) {
 	fmt.Printf("create_service is %s and response is: %s\n", status, response2)
 }
 
-//TODO: 用来删除clusterIP service，需要发送给apiserver的参数为 serviceName(string)
-func testDeleteCIService() {
-	//需要发送给apiserver的参数为 serviceName string
-	serviceName := "test-service"
-	response4 := ""
-	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/clusterIPService/" + serviceName).
-		ContentType("application/json").
-		GetString(&response4).
-		Execute()
-	if err != nil {
-		fmt.Println("err")
-		fmt.Println(err)
-	}
-
-	fmt.Printf("delete clusterIPService status is %s\n", status)
-	if status == "200" {
-		fmt.Printf("delete clusterIPService %s successfully and the response is: %v\n", serviceName, response4)
-	} else {
-		fmt.Printf("clusterIPService %s doesn't exist\n", serviceName)
-	}
-}
-
 //TODO: 用来创建nodeport service，需要发送给apiserver的参数为 serviceN (def.NodePortSvc)
 func testCreateNPService(path string) {
 	serviceN, _ := yaml.ReadServiceNodeportConfig(path)
@@ -222,11 +200,12 @@ func testCreateNPService(path string) {
 	fmt.Printf("create_service is %s and response is: %s\n", status, response2)
 }
 
-//TODO: 用来删除nodeport service，需要发送给apiserver的参数为 serviceName(string)
-func testDeleteNPService() {
-	serviceName := "test-service2"
+//TODO: 用来删除service，需要发送给apiserver的参数为 serviceName(string)
+func testDeleteService() {
+	//需要发送给apiserver的参数为 serviceName string
+	serviceName := "test-service"
 	response4 := ""
-	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/nodePortService/" + serviceName).
+	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/service/" + serviceName).
 		ContentType("application/json").
 		GetString(&response4).
 		Execute()
@@ -235,11 +214,11 @@ func testDeleteNPService() {
 		fmt.Println(err)
 	}
 
-	fmt.Printf("delete nodePortService status is %s\n", status)
+	fmt.Printf("delete clusterIPService status is %s\n", status)
 	if status == "200" {
-		fmt.Printf("delete nodePortService %s successfully and the response is: %v\n", serviceName, response4)
+		fmt.Printf("delete clusterIPService %s successfully and the response is: %v\n", serviceName, response4)
 	} else {
-		fmt.Printf("nodePortService %s doesn't exist\n", serviceName)
+		fmt.Printf("clusterIPService %s doesn't exist\n", serviceName)
 	}
 }
 

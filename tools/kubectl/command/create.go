@@ -31,7 +31,10 @@ func createFunc(c *cli.Context) {
 	// 需要发送给apiserver的参数为 pod_ def.Pod
 	dir := c.String("file")
 	fmt.Printf("Using dir: %s\n", dir)
-	pod_, _ := yaml.ReadPodYamlConfig(dir)
+	pod_, err := yaml.ReadPodYamlConfig(dir)
+	if pod_ == nil {
+		fmt.Println("[Fault] " + err.Error())
+	}
 
 	request := *pod_
 	response := ""

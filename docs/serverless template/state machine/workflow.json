@@ -1,4 +1,5 @@
 {
+    "Name": "test_state_machine1",
     "StartAt": "Check Stock Price",
     "States": {
         "Check Stock Price": {
@@ -9,20 +10,11 @@
         "Generate Buy/Sell recommendation": {
             "Type": "Task",
             "Resource": "$activityName$",
-            "ResultPath": "$.recommended_type",
             "Next": "Request Human Approval"
         },
         "Request Human Approval": {
             "Type": "Task",
             "Resource": "$activityName$",
-            "Parameters": {
-                "QueueUrl": "<REQUEST_HUMAN_APPROVAL_SQS_URL>",
-                "MessageBody": {
-                    "Input.$": "$",
-                    "TaskToken.$": "$$.Task.Token"
-                }
-            },
-            "ResultPath": null,
             "Next": "Buy or Sell?"
         },
         "Buy or Sell?": {
@@ -53,12 +45,6 @@
         "Report Result": {
             "Type": "Task",
             "Resource": "$activityName$",
-            "Parameters": {
-                "TopicArn": "<REPORT_RESULT_SNS_TOPIC_ARN>",
-                "Message": {
-                    "Input.$": "$"
-                }
-            },
             "End": true
         }
     }

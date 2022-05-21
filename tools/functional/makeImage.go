@@ -14,12 +14,12 @@ func MakeFunctionalImage(function *def.Function) {
 	cmdWriteRequirements := fmt.Sprintf("echo %s > %s", requirementsString, def.RequirementsPath)
 	cmdPrepare := fmt.Sprintf("./%s", def.PreparePath)
 	imageName := fmt.Sprintf("image_%s_%d", function.Name, function.Version)
-	// 拉取def.TemplateImage image, 启动, 初始命令为cmd_writePy, cmd_writeRequirements和cmdPrepare, limit适当(拉取依赖)
-	// commit & push, image name为repository_name/imageName
+	// TODO: 拉取def.TemplateImage image, 启动, 初始命令为cmd_writePy, cmd_writeRequirements和cmdPrepare, limit适当(拉取依赖)
+	// TODO: commit & push, image name为repository_name/imageName
 	function.Image = imageName
 }
 
-func GenerateFunctionPodAndService(function def.Function) (pod def.Pod, service def.NodePortSvc) {
+func GenerateFunctionPodAndService(function def.Function) (pod def.Pod, service def.ClusterIPSvc) {
 	defaultContainerResource := def.Resource{
 		ResourceLimit: def.Limit{
 			CPU:    `3`,
@@ -69,14 +69,14 @@ func GenerateFunctionPodAndService(function def.Function) (pod def.Pod, service 
 		},
 	}
 
-	service = def.NodePortSvc{
+	service = def.ClusterIPSvc{
 		ApiVersion: `v1`,
 		Kind:       `Service`,
 		Metadata: def.Meta{
 			Name: serviceName,
 		},
 		Spec: def.Spec{
-			Type: `ClusterIPSvc`,
+			Type: `ClusterIP`,
 			Ports: []def.PortPair{{
 				Port:       80,
 				TargetPort: `80`,
