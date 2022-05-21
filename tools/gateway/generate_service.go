@@ -11,7 +11,7 @@ func generatePodPortMappings(dns *def.DNSDetail) []def.PortMapping {
 		Name:          fmt.Sprintf("gateway_port_%d", 80),
 		ContainerPort: 80,
 		HostPort:      80,
-		Protocol:      "HTTP",
+		Protocol:      "TCP",
 	})
 	return mappings
 }
@@ -22,7 +22,7 @@ func generateServicePorts(dns *def.DNSDetail) []def.PortPair {
 		mappings = append(mappings, def.PortPair{
 			Port:       path.Port,
 			TargetPort: fmt.Sprintf(`%d`, path.Port),
-			Protocol:   "HTTP",
+			Protocol:   "TCP",
 		})
 	}
 	return mappings
