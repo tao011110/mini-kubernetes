@@ -19,6 +19,7 @@ import (
 	"net"
 	"os"
 	"sort"
+	"strconv"
 	"time"
 )
 
@@ -68,7 +69,7 @@ func main() {
 	go ResourceMonitoring()
 	go ContainerCheck()
 
-	e.Logger.Fatal(e.Start(":80"))
+	e.Logger.Fatal(e.Start(":" + strconv.Itoa(node.LocalPort)))
 
 }
 
@@ -79,7 +80,7 @@ func main() {
 func parseArgs(nodeName *string, masterIPAndPort *string, localPort *int) {
 	flag.StringVar(nodeName, "name", "undefined", "name of the node, `node+nodeIP` by default")
 	flag.StringVar(masterIPAndPort, "master", "undefined", "name of the node, `node+nodeIP` by default")
-	flag.IntVar(localPort, "port", 80, "local port to communicate with master")
+	flag.IntVar(localPort, "port", 100, "local port to communicate with master")
 	flag.Parse()
 	/*
 		TODO: Check ClusterIP format legality

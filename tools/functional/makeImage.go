@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jakehl/goid"
 	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/docker"
 	"mini-kubernetes/tools/util"
 	"strings"
 )
@@ -20,6 +21,22 @@ func MakeFunctionalImage(function *def.Function) {
 	// TODO: 拉取def.TemplateImage image, 启动, 初始命令为cmd_writePy, cmd_writeRequirements和cmdPrepare, limit适当(拉取依赖)
 	// TODO: commit & push, image name为repository_name/imageName docker push repository_name/imageName
 	function.Image = imageName
+
+	cmdList := make([]string, 0)
+	cmdList = append(cmdList, cmdWritePy)
+	cmdList = append(cmdList, cmdWriteRequirements)
+	cmdList = append(cmdList, cmdPrepare)
+	container := def.Container{
+		Image:    def.TemplateImage,
+		Commands: cmdList,
+	}
+	containerName := imageName
+	containerID := docker.CreateContainer(container, containerName)
+
+	docker.CommitContainer(containerID, imageName)
+	docker.PushImage(imageName)
+	docker.StopContainer(containerID)
+	_, _ = docker.RemoveContainer(containerID)
 }
 
 func GenerateFunctionPodAndService(function def.Function) (pod def.Pod, service def.ClusterIPSvc) {

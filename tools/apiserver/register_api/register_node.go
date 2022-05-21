@@ -13,8 +13,6 @@ import (
 var registeredNodeID = 0
 
 func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpAndPort string) (int, net.IP) {
-	registeredNodeID++
-
 	//将新加入集群的node写入到etcd当中
 	newFollower := def.Node{}
 	newFollower.NodeID = registeredNodeID
@@ -37,6 +35,7 @@ func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpA
 }
 
 func distributeCniIP() net.IP {
+	registeredNodeID++
 	cniIP := net.IPv4(10, 24, byte(registeredNodeID), 0)
 
 	return cniIP

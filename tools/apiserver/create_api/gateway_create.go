@@ -8,9 +8,12 @@ import (
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/gateway"
+	"net"
 )
 
-func CreateGateway(cli *clientv3.Client, dns def.DNS) {
+var DNSID = 1
+
+func CreateGateway(cli *clientv3.Client, dns def.DNS) (service def.Service) {
 	// Generate DNSDetail from DNS
 	// Create pathPairDetails(containing clusterIP service) from DNS's path
 	pathPairDetails := make([]def.PathPairDetail, 0)
@@ -57,6 +60,17 @@ func CreateGateway(cli *clientv3.Client, dns def.DNS) {
 
 	// Create Gateway, then put its pod and service into etcd
 	gatewayPod, gatewayService := gateway.GenerateGatewayPodAndService(dnsDetail)
+	clusterIP := distributeDNSSvsIP().String()
+	gatewayService.Spec.ClusterIP = clusterIP
 	CreatePod(cli, gatewayPod)
-	CreateClusterIPService(cli, gatewayService)
+	service = CreateClusterIPService(cli, gatewayService)
+
+	return service
+}
+
+func distributeDNSSvsIP() net.IP {
+	cniIP := net.IPv4(10, 23, 0, byte(DNSID))
+	DNSID++
+
+	return cniIP
 }

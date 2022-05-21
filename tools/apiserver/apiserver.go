@@ -32,7 +32,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 
 	// handle create-api
 	e.POST("/create_pod", handleCreatePod)
-	e.POST("/create/service", handleCreateClusterIPService)
+	e.POST("/create/clusterIPService", handleCreateClusterIPService)
 	e.POST("/create/nodePortService", handleCreateNodePortService)
 	e.POST("/create/deployment", handleCreateDeployment)
 	e.POST("/create/autoscaler", handleCreateAutoscaler)
@@ -213,8 +213,14 @@ func handleCreateDNS(c echo.Context) error {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	create_api.CreateGateway(cli, dns)
+	service := create_api.CreateGateway(cli, dns)
 	fmt.Println("Create dns ", dns.Name)
+	fmt.Println(service)
+	// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
+	nodeList := get_api.GetAllNode(cli)
+	for _, node := range nodeList {
+		go letProxyCreateCIRule(service, node)
+	}
 
 	return c.String(200, "DNS "+dns.Name+" has been created")
 }

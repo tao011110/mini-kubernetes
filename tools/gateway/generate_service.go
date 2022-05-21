@@ -10,8 +10,8 @@ func generatePodPortMappings(dns *def.DNSDetail) []def.PortMapping {
 	mappings = append(mappings, def.PortMapping{
 		Name:          fmt.Sprintf("gateway_port_%d", 80),
 		ContainerPort: 80,
-		HostPort:      80,
-		Protocol:      "HTTP",
+		//HostPort:      80,
+		Protocol: "TCP",
 	})
 	return mappings
 }
@@ -22,7 +22,7 @@ func generateServicePorts(dns *def.DNSDetail) []def.PortPair {
 		mappings = append(mappings, def.PortPair{
 			Port:       path.Port,
 			TargetPort: fmt.Sprintf(`%d`, path.Port),
-			Protocol:   "HTTP",
+			Protocol:   "TCP",
 		})
 	}
 	return mappings
@@ -33,19 +33,23 @@ func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.C
 		"echo -e \"%s\" > %s",
 		GenerateApplicationYaml(dns),
 		def.GatewayRoutesConfigPathInImage)
+	fmt.Println("injectionRoutesCommand")
+	fmt.Println(injectionRoutesCommand)
 	packageAndRunCommand := fmt.Sprintf(
 		"./%s",
 		def.GatewayPackageAndRunScriptPath)
-	gatewayContainerResource := def.Resource{
-		ResourceLimit: def.Limit{
-			CPU:    `3`,
-			Memory: `3G`,
-		},
-		ResourceRequest: def.Request{
-			CPU:    `2`,
-			Memory: `2.5G`,
-		},
-	}
+	fmt.Println("packageAndRunCommand")
+	fmt.Println(packageAndRunCommand)
+	//gatewayContainerResource := def.Resource{
+	//	ResourceLimit: def.Limit{
+	//		CPU:    `3`,
+	//		Memory: `3G`,
+	//	},
+	//	ResourceRequest: def.Request{
+	//		CPU:    `2`,
+	//		Memory: `2.5G`,
+	//	},
+	//}
 	containerName := fmt.Sprintf("gateway_container_%s_name", dns.Name)
 	podName := fmt.Sprintf("gateway_pod_%s_name", dns.Name)
 	podLabel := fmt.Sprintf("gateway_pod_%s_label", dns.Name)
@@ -61,14 +65,15 @@ func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.C
 		Spec: def.PodSpec{
 			Containers: []def.Container{
 				{
-					Name:         containerName,
-					Image:        def.GatewayImage,
-					Commands:     []string{injectionRoutesCommand, packageAndRunCommand},
-					Args:         []string{},
-					WorkingDir:   "",
-					VolumeMounts: []def.VolumeMount{},
+					Name:  containerName,
+					Image: def.GatewayImage,
+					//Commands:     []string{injectionRoutesCommand, packageAndRunCommand},
+					//Commands:     []string{packageAndRunCommand},
+					//Args:         []string{},
+					//WorkingDir:   "",
+					//VolumeMounts: []def.VolumeMount{},
 					PortMappings: generatePodPortMappings(&dns),
-					Resources:    gatewayContainerResource,
+					//Resources:    gatewayContainerResource,
 				},
 			},
 			Volumes: []def.Volume{},

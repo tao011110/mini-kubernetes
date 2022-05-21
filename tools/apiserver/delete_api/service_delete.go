@@ -8,14 +8,14 @@ import (
 	"mini-kubernetes/tools/etcd"
 )
 
-func DeleteService(cli *clientv3.Client, serviceName string) (string, bool) {
+func DeleteService(cli *clientv3.Client, serviceName string) (string, bool, string) {
 	// 在etcd中删除service
 	serviceKey := "/service/" + serviceName
 	clusterIP := ""
 	resp := etcd.Get(cli, serviceKey)
 	fmt.Println(serviceKey + "  is serviceKey")
 	if len(resp.Kvs) == 0 {
-		return clusterIP, false
+		return clusterIP, false, ""
 	}
 	etcd.Delete(cli, serviceKey)
 
@@ -28,5 +28,5 @@ func DeleteService(cli *clientv3.Client, serviceName string) (string, bool) {
 		panic(err)
 	}
 
-	return clusterIP, true
+	return clusterIP, true, service.Type
 }

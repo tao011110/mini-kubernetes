@@ -297,21 +297,21 @@ func TestUpdateIptablesRule(t *testing.T) {
 	//testCreatePod(path)
 	//time.Sleep(10 * time.Second)
 	//
-	//path = "./clusterIPService_test.yaml"
-	//testCreateCIService(path)
-	//time.Sleep(10 * time.Second)
+	time.Sleep(15 * time.Second)
+	path = "./clusterIPService_test.yaml"
+	testCreateCIService(path)
 
 	//time.Sleep(5 * time.Second)
 	//testDeleteCIService()
 
-	time.Sleep(15 * time.Second)
-	path = "./nodePortService_test.yaml"
-	testCreateNPService(path)
+	//time.Sleep(15 * time.Second)
+	//path = "./nodePortService_test.yaml"
+	//testCreateNPService(path)
 
-	time.Sleep(10 * time.Second)
-	testGetService("test-service2")
-
-	testGetAllService()
+	//time.Sleep(10 * time.Second)
+	//testGetService("test-service2")
+	//
+	//testGetAllService()
 
 	//time.Sleep(5 * time.Second)
 	//testDeleteNPService()
