@@ -22,3 +22,10 @@
    eg：我的一台云主机叫做cloud1，所以这一行就改为  127.0.0.1 localhost cloud1
 
    这是为了避免出现：`sudo: unable to resolve host cloud1: Temporary failure in name resolution`类似的报错
+
+
+
+#### 在其他node上要运行的操作：
+
+*（待补充*
+
