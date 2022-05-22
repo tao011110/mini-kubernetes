@@ -271,7 +271,9 @@ func testGetAllService() {
 	}
 }
 
-func testCreateDNS(path string) {
+//TODO: 用来创建DNS和Gateway
+func testCreateDNSAndGateway(path string) {
+	//需要发送给apiserver的参数为 dns def.DNS
 	dns, _ := yaml.ReadDNSConfig(path)
 	request2 := *dns
 	response2 := ""
@@ -288,19 +290,65 @@ func testCreateDNS(path string) {
 	fmt.Printf("create_gateway is %s and response is: %s\n", status, response2)
 }
 
+//TODO: 用来获取特定名称的 dns，需要发送给apiserver的参数为 dnsName(string)
+func testGetDNS(dnsName string) {
+	//http调用返回的json需解析转为def.DNSDetail类型，
+	response := def.DNSDetail{}
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/dns/" + dnsName).
+		ContentType("application/json").
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_dns status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("get dns %s successfully and the response is: %v\n", dnsName, response)
+	} else {
+		fmt.Printf("dns %s doesn't exist\n", dnsName)
+	}
+}
+
+//TODO: 用来获取所有的 dns
+//我会将所有的DNSDetail都返回，kubectl反馈给用户可以只取每个DNSDetail当中给的一部分信息,
+//就像kubectl get service只展示每个service的部分信息
+func testGetAllDNS() {
+	//http调用返回的json需解析转为[]def.DNSDetail类型
+	response := make([]def.DNSDetail, 0)
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/all/dns").
+		ContentType("application/json").
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_all_dns status is %s\n", status)
+	if status == "200" {
+		fmt.Println("All dns' information is as follows")
+		for _, service := range response {
+			fmt.Printf("%v\n", service)
+		}
+	} else {
+		fmt.Printf("No dns exists\n")
+	}
+}
+
 func TestUpdateIptablesRule(t *testing.T) {
 	//testRegisterNode()
-
-	var path = "./podForService.yaml"
-	testCreatePod(path)
 	//time.Sleep(10 * time.Second)
 	//path = "./podForService2.yaml"
 	//testCreatePod(path)
 	//time.Sleep(10 * time.Second)
 	//
-	time.Sleep(15 * time.Second)
-	path = "./clusterIPService_test.yaml"
+	path := "./clusterIPService_test.yaml"
 	testCreateCIService(path)
+	testGetAllService()
+
+	time.Sleep(5 * time.Second)
+	path = "./podForService.yaml"
+	testCreatePod(path)
 
 	//time.Sleep(5 * time.Second)
 	//testDeleteCIService()
@@ -309,10 +357,10 @@ func TestUpdateIptablesRule(t *testing.T) {
 	//path = "./nodePortService_test.yaml"
 	//testCreateNPService(path)
 
-	//time.Sleep(10 * time.Second)
+	time.Sleep(15 * time.Second)
 	//testGetService("test-service2")
 	//
-	//testGetAllService()
+	testGetAllService()
 
 	//time.Sleep(5 * time.Second)
 	//testDeleteNPService()
@@ -320,5 +368,8 @@ func TestUpdateIptablesRule(t *testing.T) {
 
 func TestDNSAndGateway(t *testing.T) {
 	path := "./dns_test.yaml"
-	testCreateDNS(path)
+	testCreateDNSAndGateway(path)
+
+	testGetDNS("dns-name")
+	testGetAllDNS()
 }

@@ -11,7 +11,7 @@ import (
 	"mini-kubernetes/tools/image_factory"
 )
 
-func CreateGateway(cli *clientv3.Client, dns def.DNS) (def.DNSDetail, string) {
+func CreateDNS(cli *clientv3.Client, dns def.DNS) (def.DNSDetail, string) {
 	// Generate DNSDetail from DNS
 	// Create pathPairDetails(containing clusterIP service) from DNS's path
 	pathPairDetails := make([]def.PathPairDetail, 0)
