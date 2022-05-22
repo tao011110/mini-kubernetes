@@ -8,6 +8,7 @@ import (
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/gateway"
+	"mini-kubernetes/tools/image_factory"
 )
 
 func CreateGateway(cli *clientv3.Client, dns def.DNS) (def.DNSDetail, string) {
@@ -55,8 +56,12 @@ func CreateGateway(cli *clientv3.Client, dns def.DNS) (def.DNSDetail, string) {
 	etcd.Put(cli, dnsDetailKey, string(dnsDetailValue))
 	fmt.Printf("dnsDetail is  %v\n", dnsDetail)
 
+	imageName := "tmpForGateway"
+	image_factory.MakeGatewayImage(&dnsDetail, imageName)
+
 	// Create Gateway, then put its pod and service into etcd
-	gatewayPod := gateway.GenerateGatewayPod(dnsDetail)
+	gatewayPod := gateway.GenerateGatewayPod(dnsDetail, def.RgistryAddr+imageName)
+	gatewayPod.Spec.Containers[0].Image = def.RgistryAddr + imageName
 	CreatePod(cli, gatewayPod)
 
 	return dnsDetail, def.GetKeyOfPodInstance(gatewayPod.Metadata.Name)

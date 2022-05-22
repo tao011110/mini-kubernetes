@@ -29,28 +29,28 @@ func generateServicePorts(dns *def.DNSDetail) []def.PortPair {
 }
 
 // GenerateGatewayPod TODO: 创建的容器并不能直接start?
-func GenerateGatewayPod(dns def.DNSDetail) (pod def.Pod) {
-	injectionRoutesCommand := fmt.Sprintf(
-		"echo -e \"%s\" > %s",
-		GenerateApplicationYaml(dns),
-		def.GatewayRoutesConfigPathInImage)
-	fmt.Println("injectionRoutesCommand")
-	fmt.Println(injectionRoutesCommand)
-	packageAndRunCommand := fmt.Sprintf(
-		"./%s",
-		def.GatewayPackageAndRunScriptPath)
-	fmt.Println("packageAndRunCommand")
-	fmt.Println(packageAndRunCommand)
-	//gatewayContainerResource := def.Resource{
-	//	ResourceLimit: def.Limit{
-	//		CPU:    `3`,
-	//		Memory: `3G`,
-	//	},
-	//	ResourceRequest: def.Request{
-	//		CPU:    `2`,
-	//		Memory: `2.5G`,
-	//	},
-	//}
+func GenerateGatewayPod(dns def.DNSDetail, imageName string) (pod def.Pod) {
+	//injectionRoutesCommand := fmt.Sprintf(
+	//	"echo -e \"%s\" > %s",
+	//	GenerateApplicationYaml(dns),
+	//	def.GatewayRoutesConfigPathInImage)
+	//fmt.Println("injectionRoutesCommand")
+	//fmt.Println(injectionRoutesCommand)
+	//packageAndRunCommand := fmt.Sprintf(
+	//	"./%s",
+	//	def.GatewayPackageAndRunScriptPath)
+	//fmt.Println("packageAndRunCommand")
+	//fmt.Println(packageAndRunCommand)
+	gatewayContainerResource := def.Resource{
+		ResourceLimit: def.Limit{
+			CPU:    `3`,
+			Memory: `3G`,
+		},
+		ResourceRequest: def.Request{
+			CPU:    `2`,
+			Memory: `2.5G`,
+		},
+	}
 	containerName := fmt.Sprintf("gateway_container_%s_name", dns.Name)
 	podName := fmt.Sprintf("gateway_pod_%s_name", dns.Name)
 	podLabel := fmt.Sprintf("gateway_pod_%s_label", dns.Name)
@@ -67,14 +67,14 @@ func GenerateGatewayPod(dns def.DNSDetail) (pod def.Pod) {
 			Containers: []def.Container{
 				{
 					Name:  containerName,
-					Image: def.GatewayImage,
+					Image: imageName,
 					//Commands:     []string{injectionRoutesCommand, packageAndRunCommand},
 					//Commands:     []string{packageAndRunCommand},
 					//Args:         []string{},
 					//WorkingDir:   "",
 					//VolumeMounts: []def.VolumeMount{},
 					PortMappings: generatePodPortMappings(&dns),
-					//Resources:    gatewayContainerResource,
+					Resources:    gatewayContainerResource,
 				},
 			},
 			Volumes: []def.Volume{},

@@ -230,6 +230,8 @@ func handleCreateDNS(c echo.Context) error {
 					}
 					if change.IP != "" {
 						coredns.AddItem(cli, dnsDetail.Host+":80", change.IP, 80)
+						fmt.Println("find add")
+						return
 					}
 				} else {
 					if w.Type == clientv3.EventTypeDelete {
@@ -240,6 +242,8 @@ func handleCreateDNS(c echo.Context) error {
 						}
 						if change.IP != "" {
 							coredns.DeleteItem(cli, dnsDetail.Host+":80")
+							fmt.Println("find delete")
+							return
 						}
 					}
 				}
