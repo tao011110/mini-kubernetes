@@ -2,6 +2,7 @@ package image_factory
 
 import (
 	"fmt"
+	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/docker"
 	"os"
 	"os/exec"
@@ -12,6 +13,23 @@ func EchoFactory(preStr string, target string) string {
 	newStr := strings.Replace(preStr, "\n", "\\n", -1)
 	newStr = strings.Replace(newStr, "\\", "\\\\", -1)
 	return fmt.Sprintf("echo -e \\\"%s\\\" > %s", newStr, target)
+}
+
+func WriteCmdToFile(filePath string, cmd string) {
+	// 需要保证file存在且mode为777
+	err := os.Truncate(filePath, 0)
+	if err != nil {
+		fmt.Println(err)
+	}
+	file, _ := os.OpenFile(filePath, os.O_RDWR, os.ModeAppend)
+	_, err = file.Write([]byte(cmd))
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = file.Close()
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func ImageFactory(baseImageName string, newImageName string, commandInContainer []string) {
@@ -26,22 +44,9 @@ func ImageFactory(baseImageName string, newImageName string, commandInContainer 
 	//}
 	//containerID := docker.CreateContainer(container, newImageName)
 	for _, command := range commandInContainer {
-		err := os.Truncate("/home/docker_test.sh", 0)
-		if err != nil {
-			fmt.Println(err)
-		}
-		file, _ := os.OpenFile("/home/docker_test.sh", os.O_RDWR, os.ModeAppend)
-		cmd := exec.Command("docker", "exec", newImageName, "/bin/bash", "-c", fmt.Sprintf("'%s'", command))
-		fmt.Println(cmd.String())
-		_, err = file.Write([]byte(cmd.String()))
-		if err != nil {
-			fmt.Println(err)
-		}
-		err = file.Close()
-		if err != nil {
-			fmt.Println(err)
-		}
-		command := `/home/docker_test.sh .`
+		cmd := exec.Command("docker", "exec", newImageName, "/bin/bash", "-c", fmt.Sprintf("'%s'", command)).String()
+		WriteCmdToFile(def.TemplateCmdFilePath, cmd)
+		command := fmt.Sprintf(`%s .`, def.TemplateCmdFilePath)
 		err = exec.Command("/bin/bash", "-c", command).Run()
 		if err != nil {
 			fmt.Println(err)

@@ -27,17 +27,18 @@ const (
 	RgistryAddr                     = "registry.cn-hangzhou.aliyuncs.com/taoyucheng/mink8s:"
 	RgistryUsername                 = "taoyucheng"
 	RgistryPassword                 = "Tyc20010925tyc"
-	TemplateImage                   = `hejingkai/python_serverless_template`
+	PyFunctionTemplateImage         = `hejingkai/python_serverless_template`
 	PyHandlerPath                   = `/home/functionalTemplate/handler.py`
 	RequirementsPath                = `/requirements.txt`
-	PreparePath                     = `/prepare.sh`
-	StartPath                       = `/start.sh`
+	PyFunctionPrepareCmd            = `./prepare.sh`
+	PyFunctionStartCmd              = `./start.sh`
 	FunctionNameListKey             = `function_name_list`
 	StateMachineNameListKey         = `state_machine_name_list_key`
 	ActiverPort                     = 3306
 	MaxBodySize                     = 2048
 	GatewayPackageCmd               = `./package.sh`
 	GatewayStartCmd                 = `./start.sh`
+	TemplateCmdFilePath             = "/home/temp_cmd.sh"
 )
 
 func GetKeyOfPodReplicasNameListByPodName(podName string) string {
