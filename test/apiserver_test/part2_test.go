@@ -181,24 +181,24 @@ func testGetAllAutoscaler() {
 	}
 }
 
-func TestReplicas(t *testing.T) {
-	path := "./deployment_test.yaml"
-	testCreateDeployment(path)
-
-	time.Sleep(30 * time.Second)
-	testGetDeployment("test-deployment")
-
-	testGetAllDeployment()
-
-	testDeleteDeployment()
-
-	//path = "./HorizontalPodAutoscaler_test.yaml"
-	//testCreateAutoscaler(path)
+func Test(t *testing.T) {
+	//path := "./deployment_test.yaml"
+	//testCreateDeployment(path)
 	//
 	//time.Sleep(30 * time.Second)
-	//testGetAutoscaler("test-autoscaler")
+	//testGetDeployment("test-deployment")
 	//
-	//testGetAllAutoscaler()
+	//testGetAllDeployment()
 	//
-	//testDeleteAutoscaler()
+	//testDeleteDeployment()
+
+	path := "./HorizontalPodAutoscaler_test.yaml"
+	testCreateAutoscaler(path)
+
+	time.Sleep(30 * time.Second)
+	testGetAutoscaler("test-autoscaler")
+
+	testGetAllAutoscaler()
+
+	testDeleteAutoscaler()
 }
