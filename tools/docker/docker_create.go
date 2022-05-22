@@ -65,6 +65,7 @@ func GenerateConfig(con def.Container) *container.Config {
 	if len(con.Args) != 0 {
 		config.Cmd = con.Args
 	}
+	config.Tty = true
 
 	return config
 }

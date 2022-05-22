@@ -28,32 +28,33 @@ func generateServicePorts(dns *def.DNSDetail) []def.PortPair {
 	return mappings
 }
 
-func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.ClusterIPSvc) {
-	injectionRoutesCommand := fmt.Sprintf(
-		"echo -e \"%s\" > %s",
-		GenerateApplicationYaml(dns),
-		def.GatewayRoutesConfigPathInImage)
-	fmt.Println("injectionRoutesCommand")
-	fmt.Println(injectionRoutesCommand)
-	packageAndRunCommand := fmt.Sprintf(
-		"./%s",
-		def.GatewayPackageAndRunScriptPath)
-	fmt.Println("packageAndRunCommand")
-	fmt.Println(packageAndRunCommand)
-	//gatewayContainerResource := def.Resource{
-	//	ResourceLimit: def.Limit{
-	//		CPU:    `3`,
-	//		Memory: `3G`,
-	//	},
-	//	ResourceRequest: def.Request{
-	//		CPU:    `2`,
-	//		Memory: `2.5G`,
-	//	},
-	//}
+// GenerateGatewayPod TODO: 创建的容器并不能直接start?
+func GenerateGatewayPod(dns def.DNSDetail, imageName string) (pod def.Pod) {
+	//injectionRoutesCommand := fmt.Sprintf(
+	//	"echo -e \"%s\" > %s",
+	//	GenerateApplicationYaml(dns),
+	//	def.GatewayRoutesConfigPathInImage)
+	//fmt.Println("injectionRoutesCommand")
+	//fmt.Println(injectionRoutesCommand)
+	//packageAndRunCommand := fmt.Sprintf(
+	//	"./%s",
+	//	def.GatewayPackageAndRunScriptPath)
+	//fmt.Println("packageAndRunCommand")
+	//fmt.Println(packageAndRunCommand)
+	gatewayContainerResource := def.Resource{
+		ResourceLimit: def.Limit{
+			CPU:    `3`,
+			Memory: `3G`,
+		},
+		ResourceRequest: def.Request{
+			CPU:    `2`,
+			Memory: `2.5G`,
+		},
+	}
 	containerName := fmt.Sprintf("gateway_container_%s_name", dns.Name)
 	podName := fmt.Sprintf("gateway_pod_%s_name", dns.Name)
 	podLabel := fmt.Sprintf("gateway_pod_%s_label", dns.Name)
-	serviceName := fmt.Sprintf("gateway_service_%s_name", dns.Name)
+	//serviceName := fmt.Sprintf("gateway_service_%s_name", dns.Name)
 
 	pod = def.Pod{
 		ApiVersion: `v1`,
@@ -66,33 +67,33 @@ func GenerateGatewayPodAndService(dns def.DNSDetail) (pod def.Pod, service def.C
 			Containers: []def.Container{
 				{
 					Name:  containerName,
-					Image: def.GatewayImage,
+					Image: imageName,
 					//Commands:     []string{injectionRoutesCommand, packageAndRunCommand},
 					//Commands:     []string{packageAndRunCommand},
 					//Args:         []string{},
 					//WorkingDir:   "",
 					//VolumeMounts: []def.VolumeMount{},
 					PortMappings: generatePodPortMappings(&dns),
-					//Resources:    gatewayContainerResource,
+					Resources:    gatewayContainerResource,
 				},
 			},
 			Volumes: []def.Volume{},
 		},
 	}
 
-	service = def.ClusterIPSvc{
-		ApiVersion: `v1`,
-		Kind:       `Service`,
-		Metadata: def.Meta{
-			Name: serviceName,
-		},
-		Spec: def.Spec{
-			Type:  `ClusterIP`,
-			Ports: generateServicePorts(&dns),
-			Selector: def.Selector{
-				Name: podLabel, /*TODO: maybe wrong*/
-			},
-		},
-	}
+	//service = def.ClusterIPSvc{
+	//	ApiVersion: `v1`,
+	//	Kind:       `Service`,
+	//	Metadata: def.Meta{
+	//		Name: serviceName,
+	//	},
+	//	Spec: def.Spec{
+	//		Type:  `ClusterIP`,
+	//		Ports: generateServicePorts(&dns),
+	//		Selector: def.Selector{
+	//			Name: podLabel, /*TODO: maybe wrong*/
+	//		},
+	//	},
+	//}
 	return
 }

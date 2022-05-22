@@ -8,12 +8,10 @@ import (
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/gateway"
-	"net"
+	"mini-kubernetes/tools/image_factory"
 )
 
-var DNSID = 1
-
-func CreateGateway(cli *clientv3.Client, dns def.DNS) (service def.Service) {
+func CreateGateway(cli *clientv3.Client, dns def.DNS) (def.DNSDetail, string) {
 	// Generate DNSDetail from DNS
 	// Create pathPairDetails(containing clusterIP service) from DNS's path
 	pathPairDetails := make([]def.PathPairDetail, 0)
@@ -58,19 +56,13 @@ func CreateGateway(cli *clientv3.Client, dns def.DNS) (service def.Service) {
 	etcd.Put(cli, dnsDetailKey, string(dnsDetailValue))
 	fmt.Printf("dnsDetail is  %v\n", dnsDetail)
 
+	imageName := "tmpForGateway"
+	image_factory.MakeGatewayImage(&dnsDetail, imageName)
+
 	// Create Gateway, then put its pod and service into etcd
-	gatewayPod, gatewayService := gateway.GenerateGatewayPodAndService(dnsDetail)
-	clusterIP := distributeDNSSvsIP().String()
-	gatewayService.Spec.ClusterIP = clusterIP
+	gatewayPod := gateway.GenerateGatewayPod(dnsDetail, def.RgistryAddr+imageName)
+	gatewayPod.Spec.Containers[0].Image = def.RgistryAddr + imageName
 	CreatePod(cli, gatewayPod)
-	service = CreateClusterIPService(cli, gatewayService)
 
-	return service
-}
-
-func distributeDNSSvsIP() net.IP {
-	cniIP := net.IPv4(10, 23, 0, byte(DNSID))
-	DNSID++
-
-	return cniIP
+	return dnsDetail, def.GetKeyOfPodInstance(gatewayPod.Metadata.Name)
 }

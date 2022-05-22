@@ -2,6 +2,7 @@ package master
 
 import (
 	"fmt"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/apiserver"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
@@ -14,7 +15,12 @@ func Start() {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	defer cli.Close()
+	defer func(cli *clientv3.Client) {
+		err := cli.Close()
+		if err != nil {
+
+		}
+	}(cli)
 
 	//启动apiserver, 注意Linux / Unix系统默认规定,低端口号(1-1024),user组是不能访问的,需要root组才行
 	apiserver.Start(def.MasterIP, def.MasterPort, cli)

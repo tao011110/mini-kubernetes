@@ -3,9 +3,9 @@ name: dns-name
 host: example.com
 paths:
   - path: /route1
-    service: test-service2
+    service: test-service
     port: 300
   - path: /route2
-    service: test-service2
+    service: test-service
     port: 80
 

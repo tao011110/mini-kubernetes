@@ -11,7 +11,9 @@ import (
 	"mini-kubernetes/tools/apiserver/delete_api"
 	"mini-kubernetes/tools/apiserver/get_api"
 	"mini-kubernetes/tools/apiserver/register_api"
+	"mini-kubernetes/tools/coredns"
 	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/httpget"
 	"strconv"
 )
@@ -213,14 +215,41 @@ func handleCreateDNS(c echo.Context) error {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	service := create_api.CreateGateway(cli, dns)
-	fmt.Println("Create dns ", dns.Name)
-	fmt.Println(service)
-	// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
-	nodeList := get_api.GetAllNode(cli)
-	for _, node := range nodeList {
-		go letProxyCreateCIRule(service, node)
-	}
+	dnsDetail, gatewayID := create_api.CreateGateway(cli, dns)
+	go func(gatewayID string) {
+		fmt.Println("Start to watch ", gatewayID)
+		watchResult := etcd.Watch(cli, gatewayID)
+		for wc := range watchResult {
+			change := def.PodInstance{}
+			for _, w := range wc.Events {
+				if w.Type == clientv3.EventTypePut {
+					err := json.Unmarshal(w.Kv.Value, &change)
+					if err != nil {
+						fmt.Println(err)
+						panic(err)
+					}
+					if change.IP != "" {
+						coredns.AddItem(cli, dnsDetail.Host+":80", change.IP, 80)
+						fmt.Println("find add")
+						return
+					}
+				} else {
+					if w.Type == clientv3.EventTypeDelete {
+						err := json.Unmarshal(w.Kv.Value, &change)
+						if err != nil {
+							fmt.Println(err)
+							panic(err)
+						}
+						if change.IP != "" {
+							coredns.DeleteItem(cli, dnsDetail.Host+":80")
+							fmt.Println("find delete")
+							return
+						}
+					}
+				}
+			}
+		}
+	}(gatewayID)
 
 	return c.String(200, "DNS "+dns.Name+" has been created")
 }
