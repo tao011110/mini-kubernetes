@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"mini-kubernetes/tools/def"
+	"mini-kubernetes/tools/util"
 
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/yaml"
@@ -56,7 +57,7 @@ func deleteFunc(c *cli.Context) {
 			// 格式 kubectl delete pod xxx
 			// 需要发送给apiserver的参数为 podName string
 			response := ""
-			err, status := httpget.DELETE("http://" + def.MasterIP + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete_pod/" + src_name).
+			err, status := httpget.DELETE("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete_pod/" + src_name).
 				ContentType("application/json").
 				GetString(&response).
 				Execute()
@@ -74,7 +75,7 @@ func deleteFunc(c *cli.Context) {
 			// 格式 kubectl delete service xxx
 			// 需要发送给apiserver的参数为 serviceName string
 			response := ""
-			err, status := httpget.DELETE("http://" + def.MasterIP + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/service/" + src_name).
+			err, status := httpget.DELETE("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/service/" + src_name).
 				ContentType("application/json").
 				GetString(&response).
 				Execute()

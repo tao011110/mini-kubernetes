@@ -16,7 +16,6 @@ import (
 	net_utils "mini-kubernetes/tools/net-utils"
 	"mini-kubernetes/tools/resource"
 	"mini-kubernetes/tools/util"
-	"net"
 	"os"
 	"sort"
 	"strconv"
@@ -27,7 +26,7 @@ var node = def.Node{}
 
 func main() {
 	parseArgs(&node.NodeName, &node.MasterIpAndPort, &node.LocalPort)
-	node.NodeIP = getLocalIP()
+	node.NodeIP = util.GetLocalIP()
 	node.ProxyPort = def.ProxyPort
 	if node.NodeIP == nil {
 		fmt.Println("get local ip error")
@@ -89,27 +88,6 @@ func parseArgs(nodeName *string, masterIPAndPort *string, localPort *int) {
 		fmt.Println("Master Ip And Port Error!")
 		os.Exit(0)
 	}
-}
-
-/*
-	get local Ip
-*/
-func getLocalIP() net.IP {
-	adds, err := net.InterfaceAddrs()
-	if err != nil {
-		fmt.Println(err)
-		fmt.Println("cannot get local ip address, exit")
-		os.Exit(0)
-	}
-	for _, address := range adds {
-		if ip, flag_ := address.(*net.IPNet); flag_ && !ip.IP.IsLoopback() {
-			if ip.IP.To4() != nil {
-				return ip.IP.To4()
-			}
-		}
-	}
-	os.Exit(0)
-	return nil
 }
 
 /*

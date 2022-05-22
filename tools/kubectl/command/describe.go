@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
+	"mini-kubernetes/tools/util"
 
 	"github.com/urfave/cli"
 )
@@ -33,7 +34,7 @@ func describeFunc(c *cli.Context) {
 		// kubectl describe pod podName
 		podName := c.Args()[1]
 		response := def.Pod{}
-		err, status := httpget.Get("http://" + def.MasterIP + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get_pod/" + podName).
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get_pod/" + podName).
 			ContentType("application/json").
 			GetJson(&response).
 			Execute()
@@ -51,7 +52,7 @@ func describeFunc(c *cli.Context) {
 		// 用来获取特定名称的 service，需要发送给apiserver的参数为 serviceName(string)
 		serviceName := c.Args()[1]
 		response := def.Service{}
-		err, status := httpget.Get("http://" + def.MasterIP + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/service/" + serviceName).
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/service/" + serviceName).
 			ContentType("application/json").
 			GetJson(&response).
 			Execute()
