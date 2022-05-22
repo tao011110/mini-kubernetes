@@ -42,7 +42,7 @@ func createFunc(c *cli.Context) {
 		request := *pod_
 		response := ""
 		body, _ := json.Marshal(request)
-		err, status := httpget.Post("http://" + def.MasterIP + ":" + def.MasterPort + "/create_pod").
+		err, status := httpget.Post("http://" + def.MasterIP + ":" + fmt.Sprintf("%d", def.MasterPort) + "/create_pod").
 			ContentType("application/json").
 			Body(bytes.NewReader(body)).
 			GetString(&response).
@@ -61,7 +61,7 @@ func createFunc(c *cli.Context) {
 		request := *serviceC_
 		response := ""
 		body, _ := json.Marshal(request)
-		err, status := httpget.Post("http://" + def.MasterIP + ":" + def.MasterPort + "/create/clusterIPService").
+		err, status := httpget.Post("http://" + def.MasterIP + ":" + fmt.Sprintf("%d", def.MasterPort) + "/create/clusterIPService").
 			ContentType("application/json").
 			Body(bytes.NewReader(body)).
 			GetString(&response).
@@ -80,7 +80,7 @@ func createFunc(c *cli.Context) {
 		request := *serviceN_
 		response := ""
 		body, _ := json.Marshal(request)
-		err, status := httpget.Post("http://" + def.MasterIP + ":" + def.MasterPort + "/create/nodePortService").
+		err, status := httpget.Post("http://" + def.MasterIP + ":" + fmt.Sprintf("%d", def.MasterPort) + "/create/nodePortService").
 			ContentType("application/json").
 			Body(bytes.NewReader(body)).
 			GetString(&response).

@@ -15,7 +15,7 @@ var node = def.Node{
 	LocalPort:       80,
 	ProxyPort:       3000,
 	NodeName:        "node1",
-	MasterIpAndPort: def.MasterIP + ":" + def.MasterPort,
+	MasterIpAndPort: fmt.Sprintf("%s:%d", def.MasterIP, def.MasterPort),
 }
 
 //TODO: 用来创建Deployment，需要发送给apiserver的参数为 deployment (def.Deployment)

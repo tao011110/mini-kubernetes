@@ -34,7 +34,7 @@ func getFunc(c *cli.Context) {
 	if ty == "pods" {
 		// kubectl get pods 查看全部Pod的概要状态
 		response := make([]def.PodInstanceBrief, 0)
-		err, status := httpget.Get("http://" + def.MasterIP + ":" + def.MasterPort + "/get/all/podStatus").
+		err, status := httpget.Get("http://" + def.MasterIP + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/podStatus").
 			ContentType("application/json").
 			GetJson(&response).
 			Execute()
@@ -53,7 +53,7 @@ func getFunc(c *cli.Context) {
 	} else if ty == "pods" && c.String("output") == "wide" {
 		// kubectl get pods -o wide 查看全部Pod的状态
 		response := make([]string, 0)
-		err, status := httpget.Get("http://" + def.MasterIP + ":" + def.MasterPort + "/get/all/pod").
+		err, status := httpget.Get("http://" + def.MasterIP + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/pod").
 			ContentType("application/json").
 			GetJson(&response).
 			Execute()
@@ -73,7 +73,7 @@ func getFunc(c *cli.Context) {
 		// kubectl get services
 		// 用来获取所有的 service
 		response := make([]def.Service, 0)
-		err, status := httpget.Get("http://" + def.MasterIP + ":" + def.MasterPort + "/get/all/service").
+		err, status := httpget.Get("http://" + def.MasterIP + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/service").
 			ContentType("application/json").
 			GetJson(&response).
 			Execute()

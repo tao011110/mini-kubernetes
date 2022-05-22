@@ -16,7 +16,7 @@ var node = def.Node{
 	LocalPort:       80,
 	ProxyPort:       3000,
 	NodeName:        "node1",
-	MasterIpAndPort: def.MasterIP + ":" + def.MasterPort,
+	MasterIpAndPort: def.MasterIP + ":" + fmt.Sprintf("%d", def.MasterPort),
 }
 
 func testRegisterNode() {

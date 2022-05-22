@@ -2,43 +2,56 @@ package def
 
 import (
 	"fmt"
-
 	"github.com/jakehl/goid"
 )
 
 const (
-	CadvisorPort                    = 8080
-	EtcdPort                        = 2379
-	ProxyPort                       = 3000
-	GatewayImage                    = "hejingkai/zuul"
-	GatewayRoutesConfigPathInImage  = `/home/zuul/src/main/resources/application.yaml`
-	GatewayPackageAndRunScriptPath  = `/package_and_start.sh`
+	NodeUndefined = -1
+	MasterIP      = "192.168.1.7"
+	EtcdDir       = "/home/etcd"
+)
+
+/********** HTTP ports **********/
+const (
+	CadvisorPort   = 8080
+	EtcdPort       = 2379
+	ProxyPort      = 3000
+	SchedulerPort  = 9200
+	ControllerPort = 8081
+	ActiverPort    = 3306
+	MasterPort     = 8000
+)
+
+/********** Image(gateway and functional) **********/
+const (
+	RgistryAddr     = "registry.cn-hangzhou.aliyuncs.com/taoyucheng/mink8s:"
+	RgistryUsername = "taoyucheng"
+	RgistryPassword = "Tyc20010925tyc"
+
+	GatewayImage                   = "hejingkai/zuul"
+	GatewayRoutesConfigPathInImage = `/home/zuul/src/main/resources/application.yaml`
+	GatewayPackageCmd              = `./package.sh`
+	GatewayStartCmd                = `./start.sh`
+
+	PyFunctionTemplateImage = `hejingkai/python_serverless_template`
+	PyHandlerPath           = `/home/functionalTemplate/handler.py`
+	RequirementsPath        = `/requirements.txt`
+	PyFunctionPrepareCmd    = `./prepare.sh`
+	PyFunctionStartCmd      = `./start.sh`
+
+	TemplateCmdFilePath = "/home/temp_cmd.sh"
+
+	MaxBodySize = 2048
+)
+
+/********** ETCD key **********/
+const (
 	NodeListName                    = `all_nodes_name`
 	PodInstanceListID               = `pod_instance_list_id`
 	DeploymentListName              = `deployment_list_name`
-	PodListName                     = `pod_list_name`
-	SchedulerPort                   = 9200
-	ControllerPort                  = 8081
-	NodeUndefined                   = -1
-	HorizontalPodAutoscalerListName = `parsed_horizontal_pod_autoscaler_list_name`
-	MasterIP                        = "192.168.1.7"
-	MasterPort                      = "8000"
-	EtcdDir                         = "/home/etcd"
-	RgistryAddr                     = "registry.cn-hangzhou.aliyuncs.com/taoyucheng/mink8s:"
-	RgistryUsername                 = "taoyucheng"
-	RgistryPassword                 = "Tyc20010925tyc"
-	PyFunctionTemplateImage         = `hejingkai/python_serverless_template`
-	PyHandlerPath                   = `/home/functionalTemplate/handler.py`
-	RequirementsPath                = `/requirements.txt`
-	PyFunctionPrepareCmd            = `./prepare.sh`
-	PyFunctionStartCmd              = `./start.sh`
 	FunctionNameListKey             = `function_name_list`
 	StateMachineNameListKey         = `state_machine_name_list_key`
-	ActiverPort                     = 3306
-	MaxBodySize                     = 2048
-	GatewayPackageCmd               = `./package.sh`
-	GatewayStartCmd                 = `./start.sh`
-	TemplateCmdFilePath             = "/home/temp_cmd.sh"
+	HorizontalPodAutoscalerListName = `parsed_horizontal_pod_autoscaler_list_name`
 )
 
 func GetKeyOfPodReplicasNameListByPodName(podName string) string {
@@ -76,6 +89,7 @@ func GetKeyOfFunction(name string) string {
 func GetKeyOfStateMachine(name string) string {
 	return fmt.Sprintf("/state_machine/%s", name)
 }
+
 func GenerateKeyOfPodInstanceReplicas(podInstanceName string) string {
 	return "-" + GetKeyOfPodInstance(podInstanceName) + goid.NewV4UUID().String()
 }
