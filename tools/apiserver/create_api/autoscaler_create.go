@@ -16,15 +16,18 @@ func CreateAutoscaler(cli *clientv3.Client, autoscaler def.Autoscaler) {
 	// Put autoscaler's name into autoscaler_list_name
 	{
 		autoscalerListNameKey := def.HorizontalPodAutoscalerListName
-		autoscalerListNameValue := etcd.Get(cli, autoscalerListNameKey).Kvs[0].Value
+		kvs := etcd.Get(cli, autoscalerListNameKey).Kvs
 		list := make([]string, 0)
-		err := json.Unmarshal(autoscalerListNameValue, &list)
-		if err != nil {
-			fmt.Printf("%v\n", err)
-			panic(err)
+		if len(kvs) != 0 {
+			autoscalerListNameValue := kvs[0].Value
+			err := json.Unmarshal(autoscalerListNameValue, &list)
+			if err != nil {
+				fmt.Printf("%v\n", err)
+				panic(err)
+			}
 		}
 		list = append(list, autoscaler.Metadata.Name)
-		autoscalerListNameValue, err = json.Marshal(list)
+		autoscalerListNameValue, err := json.Marshal(list)
 		if err != nil {
 			fmt.Printf("%v\n", err)
 			panic(err)
