@@ -7,7 +7,6 @@ import (
 
 const (
 	NodeUndefined = -1
-	MasterIP      = "192.168.1.7"
 	EtcdDir       = "/home/etcd"
 )
 

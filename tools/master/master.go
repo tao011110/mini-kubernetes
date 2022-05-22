@@ -6,6 +6,7 @@ import (
 	"mini-kubernetes/tools/apiserver"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
+	"mini-kubernetes/tools/util"
 )
 
 func Start() {
@@ -23,5 +24,5 @@ func Start() {
 	}(cli)
 
 	//启动apiserver, 注意Linux / Unix系统默认规定,低端口号(1-1024),user组是不能访问的,需要root组才行
-	apiserver.Start(def.MasterIP, fmt.Sprintf("%d", def.MasterPort), cli)
+	apiserver.Start(util.GetLocalIP().String(), fmt.Sprintf("%d", def.MasterPort), cli)
 }

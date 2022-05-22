@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
+	"mini-kubernetes/tools/util"
 	"mini-kubernetes/tools/yaml"
 	"testing"
 	"time"
@@ -15,7 +16,7 @@ var node = def.Node{
 	LocalPort:       80,
 	ProxyPort:       3000,
 	NodeName:        "node1",
-	MasterIpAndPort: fmt.Sprintf("%s:%d", def.MasterIP, def.MasterPort),
+	MasterIpAndPort: fmt.Sprintf("%s:%d", util.GetLocalIP().String(), def.MasterPort),
 }
 
 //TODO: 用来创建Deployment，需要发送给apiserver的参数为 deployment (def.Deployment)

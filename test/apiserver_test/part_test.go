@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
+	"mini-kubernetes/tools/util"
 	"mini-kubernetes/tools/yaml"
 	"net"
 	"testing"
@@ -16,7 +17,7 @@ var node = def.Node{
 	LocalPort:       80,
 	ProxyPort:       3000,
 	NodeName:        "node1",
-	MasterIpAndPort: def.MasterIP + ":" + fmt.Sprintf("%d", def.MasterPort),
+	MasterIpAndPort: util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort),
 }
 
 func testRegisterNode() {
