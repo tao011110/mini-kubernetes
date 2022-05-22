@@ -35,7 +35,7 @@ func GetResourceUsageSequenceByNodeID(etcdClient *clientv3.Client, nodeID int) d
 
 func GetAllNodesID(etcdClient *clientv3.Client) []int {
 	var nodeIDList []int
-	util.EtcdUnmarshal(etcd.Get(etcdClient, def.NodeListName), &nodeIDList)
+	util.EtcdUnmarshal(etcd.Get(etcdClient, def.NodeListID), &nodeIDList)
 	return nodeIDList
 }
 

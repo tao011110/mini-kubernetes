@@ -45,7 +45,7 @@ const (
 
 /********** ETCD key **********/
 const (
-	NodeListName                    = `all_nodes_name`
+	NodeListID                      = `all_nodes_id`
 	PodInstanceListID               = `pod_instance_list_id`
 	DeploymentListName              = `deployment_list_name`
 	FunctionNameListKey             = `function_name_list`

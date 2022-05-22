@@ -337,6 +337,9 @@ func testGetAllDNS() {
 
 func TestUpdateIptablesRule(t *testing.T) {
 	//testRegisterNode()
+	//path := "./podForService.yaml"
+	//testCreatePod(path)
+
 	//time.Sleep(10 * time.Second)
 	//path = "./podForService2.yaml"
 	//testCreatePod(path)
@@ -359,7 +362,7 @@ func TestUpdateIptablesRule(t *testing.T) {
 
 	time.Sleep(15 * time.Second)
 	//testGetService("test-service2")
-	//
+
 	testGetAllService()
 
 	//time.Sleep(5 * time.Second)
