@@ -28,19 +28,7 @@ func generateServicePorts(dns *def.DNSDetail) []def.PortPair {
 	return mappings
 }
 
-// GenerateGatewayPod TODO: 创建的容器并不能直接start?
 func GenerateGatewayPod(dns def.DNSDetail, imageName string) (pod def.Pod) {
-	//injectionRoutesCommand := fmt.Sprintf(
-	//	"echo -e \"%s\" > %s",
-	//	GenerateApplicationYaml(dns),
-	//	def.GatewayRoutesConfigPathInImage)
-	//fmt.Println("injectionRoutesCommand")
-	//fmt.Println(injectionRoutesCommand)
-	//packageAndRunCommand := fmt.Sprintf(
-	//	"./%s",
-	//	def.GatewayPackageAndRunScriptPath)
-	//fmt.Println("packageAndRunCommand")
-	//fmt.Println(packageAndRunCommand)
 	gatewayContainerResource := def.Resource{
 		ResourceLimit: def.Limit{
 			CPU:    `3`,
@@ -54,7 +42,6 @@ func GenerateGatewayPod(dns def.DNSDetail, imageName string) (pod def.Pod) {
 	containerName := fmt.Sprintf("gateway_container_%s_name", dns.Name)
 	podName := fmt.Sprintf("gateway_pod_%s_name", dns.Name)
 	podLabel := fmt.Sprintf("gateway_pod_%s_label", dns.Name)
-	//serviceName := fmt.Sprintf("gateway_service_%s_name", dns.Name)
 
 	pod = def.Pod{
 		ApiVersion: `v1`,
@@ -66,13 +53,8 @@ func GenerateGatewayPod(dns def.DNSDetail, imageName string) (pod def.Pod) {
 		Spec: def.PodSpec{
 			Containers: []def.Container{
 				{
-					Name:  containerName,
-					Image: imageName,
-					//Commands:     []string{injectionRoutesCommand, packageAndRunCommand},
-					//Commands:     []string{packageAndRunCommand},
-					//Args:         []string{},
-					//WorkingDir:   "",
-					//VolumeMounts: []def.VolumeMount{},
+					Name:         containerName,
+					Image:        imageName,
 					PortMappings: generatePodPortMappings(&dns),
 					Resources:    gatewayContainerResource,
 				},
@@ -80,20 +62,5 @@ func GenerateGatewayPod(dns def.DNSDetail, imageName string) (pod def.Pod) {
 			Volumes: []def.Volume{},
 		},
 	}
-
-	//service = def.ClusterIPSvc{
-	//	ApiVersion: `v1`,
-	//	Kind:       `Service`,
-	//	Metadata: def.Meta{
-	//		Name: serviceName,
-	//	},
-	//	Spec: def.Spec{
-	//		Type:  `ClusterIP`,
-	//		Ports: generateServicePorts(&dns),
-	//		Selector: def.Selector{
-	//			Name: podLabel, /*TODO: maybe wrong*/
-	//		},
-	//	},
-	//}
 	return
 }
