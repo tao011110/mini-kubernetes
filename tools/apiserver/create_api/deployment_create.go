@@ -14,15 +14,18 @@ func CreateDeployment(cli *clientv3.Client, deployment def.Deployment) {
 	// Put deployment's name into deployment_list_name
 	{
 		deploymentListNameKey := def.DeploymentListName
-		deploymentListNameValue := etcd.Get(cli, deploymentListNameKey).Kvs[0].Value
 		list := make([]string, 0)
-		err := json.Unmarshal(deploymentListNameValue, &list)
-		if err != nil {
-			fmt.Printf("%v\n", err)
-			panic(err)
+		kvs := etcd.Get(cli, deploymentListNameKey).Kvs
+		if len(kvs) != 0 {
+			deploymentListNameValue := kvs[0].Value
+			err := json.Unmarshal(deploymentListNameValue, &list)
+			if err != nil {
+				fmt.Printf("%v\n", err)
+				panic(err)
+			}
 		}
 		list = append(list, deployment.Metadata.Name)
-		deploymentListNameValue, err = json.Marshal(list)
+		deploymentListNameValue, err := json.Marshal(list)
 		if err != nil {
 			fmt.Printf("%v\n", err)
 			panic(err)
