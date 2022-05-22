@@ -58,7 +58,12 @@ func initTable() {
 		}
 		err = ipt.AppendUnique("nat", "PREROUTING", "-j", "mK8S-SERVICES")
 		if err != nil {
-			fmt.Printf("Append rule to mK8S-SERVICES failed: %v", err)
+			fmt.Printf("Append rule from PREROUTING to mK8S-SERVICES failed: %v", err)
+			panic(err)
+		}
+		err = ipt.AppendUnique("nat", "OUTPUT", "-j", "mK8S-SERVICES")
+		if err != nil {
+			fmt.Printf("Append rule from OUTPUT to mK8S-SERVICES failed: %v", err)
 			panic(err)
 		}
 	}

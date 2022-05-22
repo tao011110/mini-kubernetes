@@ -16,6 +16,7 @@ import (
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/httpget"
 	"strconv"
+	"time"
 )
 
 var IpAndPort string
@@ -56,6 +57,8 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.GET("/get/all/deployment", handleGetAllDeployment)
 	e.GET("/get/autoscaler/:autoscalerName", handleGetAutoscaler)
 	e.GET("/get/all/autoscaler", handleGetAllAutoscaler)
+	e.GET("/get/dns/:dnsName", handleGetDNS)
+	e.GET("/get/all/dns", handleGetAllDNS)
 
 	e.Logger.Fatal(e.Start(":" + port))
 }
@@ -104,10 +107,48 @@ func handleCreatePod(c echo.Context) error {
 		panic(err)
 	}
 
-	nodeID := create_api.CreatePod(cli, pod_)
-	fmt.Println("Pod " + pod_.Metadata.Name + " has been created at node " + strconv.Itoa(nodeID))
+	podInstance := create_api.CreatePod(cli, pod_)
+	fmt.Println("Pod " + pod_.Metadata.Name + " has been created at node " + strconv.Itoa(podInstance.NodeID))
 
-	return c.String(200, "Pod "+pod_.Metadata.Name+" has been created at node "+strconv.Itoa(nodeID))
+	go func(podInstanceID string) {
+		fmt.Println("Start to watch ", podInstanceID)
+		watchResult := etcd.Watch(cli, podInstanceID)
+		for wc := range watchResult {
+			change := def.PodInstance{}
+			for _, w := range wc.Events {
+				if w.Type == clientv3.EventTypePut {
+					err := json.Unmarshal(w.Kv.Value, &change)
+					if err != nil {
+						fmt.Println(err)
+						panic(err)
+					}
+					if change.IP != "" {
+						// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
+						serviceList := create_api.CheckAddInService(cli, change)
+						nodeList := get_api.GetAllNode(cli)
+						for _, service := range serviceList {
+							if service.Type == "ClusterIP" {
+								for _, node := range nodeList {
+									go letProxyDeleteCIRule(service.Name, node)
+									time.Sleep(5 * time.Second)
+									go letProxyCreateCIRule(service, node)
+								}
+							} else {
+								for _, node := range nodeList {
+									go letProxyDeleteCIRule(service.Name, node)
+									time.Sleep(5 * time.Second)
+									go letProxyCreateNPRule(service, node)
+								}
+							}
+						}
+						return
+					}
+				}
+			}
+		}
+	}(podInstance.ID)
+
+	return c.String(200, "Pod "+pod_.Metadata.Name+" has been created at node "+strconv.Itoa(podInstance.NodeID))
 }
 
 func handleCreateClusterIPService(c echo.Context) error {
@@ -215,7 +256,7 @@ func handleCreateDNS(c echo.Context) error {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	dnsDetail, gatewayID := create_api.CreateGateway(cli, dns)
+	dnsDetail, gatewayID := create_api.CreateDNS(cli, dns)
 	go func(gatewayID string) {
 		fmt.Println("Start to watch ", gatewayID)
 		watchResult := etcd.Watch(cli, gatewayID)
@@ -515,4 +556,26 @@ func handleGetAllAutoscaler(c echo.Context) error {
 	}
 
 	return c.JSON(200, autoscalerBriefList)
+}
+
+func handleGetDNS(c echo.Context) error {
+	dnsName := c.Param("dnsName")
+	dnsDetail, flag := get_api.GetDNS(cli, dnsName)
+	fmt.Println(dnsDetail)
+
+	if flag == false {
+		return c.JSON(404, dnsDetail)
+	}
+
+	return c.JSON(200, dnsDetail)
+}
+
+func handleGetAllDNS(c echo.Context) error {
+	dnsDetailList, flag := get_api.GetAllDNS(cli)
+
+	if flag == false {
+		return c.JSON(404, dnsDetailList)
+	}
+
+	return c.JSON(200, dnsDetailList)
 }

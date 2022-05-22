@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func CreatePod(cli *clientv3.Client, pod_ def.Pod) int {
+func CreatePod(cli *clientv3.Client, pod_ def.Pod) def.PodInstance {
 	podInstance := def.PodInstance{}
 	podInstance.Pod = pod_
 
@@ -88,5 +88,63 @@ func CreatePod(cli *clientv3.Client, pod_ def.Pod) int {
 	}
 	etcd.Put(cli, nodePIKey, string(nodePIValue))
 
-	return nodeID
+	return podInstance
+}
+
+// CheckAddInService 检查是否需要将新创建的pod纳入到之前创建好的service当中
+func CheckAddInService(cli *clientv3.Client, podInstance def.PodInstance) []def.Service {
+	servicePrefix := "/service/"
+	kvs := etcd.GetWithPrefix(cli, servicePrefix).Kvs
+	service := def.Service{}
+	serviceValue := make([]byte, 0)
+	serviceList := make([]def.Service, 0)
+	for _, kv := range kvs {
+		serviceValue = kv.Value
+		err := json.Unmarshal(serviceValue, &service)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			panic(err)
+		}
+		// 匹配发现该pod应该被纳入到service的监管下
+		fmt.Printf("in pod create podInstance.Pod.Metadata.Label is %s\n", podInstance.Pod.Metadata.Label)
+		fmt.Printf("in pod create service.Selector.Name is %s\n", service.Selector.Name)
+		tmpBindings := make([]def.PortsBindings, 0)
+		if podInstance.Pod.Metadata.Label == service.Selector.Name {
+			for _, binding := range service.PortsBindings {
+				tmpBinding := def.PortsBindings{
+					Ports: binding.Ports,
+				}
+				tmpEndpoints := make([]string, 0)
+				for _, container := range podInstance.Pod.Spec.Containers {
+					for _, portMapping := range container.PortMappings {
+						containerPort := strconv.Itoa(int(portMapping.ContainerPort))
+						fmt.Println(binding.Ports.TargetPort)
+						fmt.Println(containerPort)
+						if binding.Ports.TargetPort == containerPort {
+							tmpEndpoints = append(tmpEndpoints, podInstance.IP+":"+binding.Ports.TargetPort)
+							fmt.Printf("podInstance.IP is %v\n", podInstance.IP)
+						}
+					}
+				}
+				tmpBinding.Endpoints = tmpEndpoints
+				tmpBindings = append(tmpBindings, tmpBinding)
+			}
+			service.PortsBindings = tmpBindings
+			fmt.Printf("now service si %v\n", service)
+			serviceList = append(serviceList, service)
+		}
+	}
+
+	// 若pod被加入到service当中，将service重新写入到etcd中
+	for _, svc := range serviceList {
+		svcKey := "/service/" + svc.Name
+		svcValue, err := json.Marshal(svc)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			panic(err)
+		}
+		etcd.Put(cli, svcKey, string(svcValue))
+	}
+
+	return serviceList
 }
