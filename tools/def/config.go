@@ -23,24 +23,34 @@ const (
 
 /********** Image(gateway and functional) **********/
 const (
+	//for image upload
 	RgistryAddr     = "registry.cn-hangzhou.aliyuncs.com/taoyucheng/mink8s:"
 	RgistryUsername = "taoyucheng"
 	RgistryPassword = "Tyc20010925tyc"
 
+	//for gateway image
 	GatewayImage                   = "hejingkai/zuul"
 	GatewayRoutesConfigPathInImage = `/home/zuul/src/main/resources/application.yaml`
 	GatewayPackageCmd              = `./package.sh`
 	GatewayStartCmd                = `./start.sh`
 
+	//for py functional image
 	PyFunctionTemplateImage = `hejingkai/python_serverless_template`
 	PyHandlerPath           = `/home/functionalTemplate/handler.py`
 	RequirementsPath        = `/requirements.txt`
 	PyFunctionPrepareCmd    = `./prepare.sh`
 	PyFunctionStartCmd      = `./start.sh`
+	MaxBodySize             = 2048
+
+	//for gpu job uploader image
+	GPUJobUploaderImage        = `hejingkai/gpu_job_uploader`
+	GPUJobSourceCodePath       = `/home/gpu/cuda_mat_add.cu`
+	GPUJOBMakefilePath         = `/home/gpu/Makefile`
+	SlurmScriptPath            = `/home/gpu/job.slurm`
+	ApiServerIpAndPortFilePath = `/home/result/apiserver_ip_and_port`
+	GPUJobUploaderRunPath      = `/home/run.sh`
 
 	TemplateCmdFilePath = "/home/temp_cmd.sh"
-
-	MaxBodySize = 2048
 )
 
 /********** ETCD key **********/
