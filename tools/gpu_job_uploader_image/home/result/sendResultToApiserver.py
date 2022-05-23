@@ -35,7 +35,7 @@ def main():
     print(payload)
     s = requests.Session()
     s.mount('http://', SourcePortAdapter(80))
-    r = s.post('http://'+apiserverURL, data=payload)
+    r = s.post('http://'+apiserverURL+'/gpu_job_result', data=payload)
 
 if __name__ == '__main__':
     main()

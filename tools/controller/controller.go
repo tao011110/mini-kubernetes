@@ -12,6 +12,7 @@ import (
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/util"
 	"os"
+	"time"
 )
 
 var controllerMeta = def.ControllerMeta{
@@ -204,10 +205,14 @@ func CheckAllHorizontalPodAutoscalers() {
 		minMemoryUsagePodInstance := def.PodInstance{}
 		minMemoryUsage := int64(math.MaxInt64)
 		activeNum := 0
+		tooShort := false
 		for _, instanceID := range instancelist {
 			podInstance := util.GetPodInstance(instanceID, controllerMeta.EtcdClient)
 			if podInstance.Status == def.FAILED {
 				continue
+			} else if util.TimeToSecond(time.Now())-util.TimeToSecond(podInstance.StartTime) < 30 {
+				tooShort = true
+				break
 			} else {
 				activeNum++
 				podInstanceResourceUsage := controller_utils.GetPodInstanceResourceUsageByName(controllerMeta.EtcdClient, instanceID)
@@ -228,20 +233,21 @@ func CheckAllHorizontalPodAutoscalers() {
 				}
 			}
 		}
-		// TODO: CPU字段含义有点问题
+		if tooShort {
+			continue
+		}
 		// TODO: 优化调度策略
-		// 优先保证最低需求
 		if activeNum < horizontalPodAutoscaler.MinReplicas {
 			controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, horizontalPodAutoscaler.MinReplicas-activeNum)
 		} else if cpu < 0.8*horizontalPodAutoscaler.CPUMinValue || float64(memory) < 0.8*float64(horizontalPodAutoscaler.MemoryMinValue) {
 			if activeNum < horizontalPodAutoscaler.MaxReplicas {
 				controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, 1)
 			}
-		} else if cpu > 1.2*horizontalPodAutoscaler.CPUMinValue {
+		} else if cpu > 1.2*horizontalPodAutoscaler.CPUMaxValue {
 			if activeNum > horizontalPodAutoscaler.MinReplicas {
 				controller_utils.RemovePodInstance(controllerMeta.EtcdClient, &minCPUUsagePodInstance)
 			}
-		} else if float64(memory) > 1.2*float64(horizontalPodAutoscaler.MemoryMinValue) {
+		} else if float64(memory) > 1.2*float64(horizontalPodAutoscaler.MemoryMaxValue) {
 			if activeNum > horizontalPodAutoscaler.MinReplicas {
 				controller_utils.RemovePodInstance(controllerMeta.EtcdClient, &minMemoryUsagePodInstance)
 			}

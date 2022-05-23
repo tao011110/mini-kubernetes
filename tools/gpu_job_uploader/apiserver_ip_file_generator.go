@@ -17,5 +17,5 @@ func apiServerIPFileGenerator() string {
 	//}(fp)
 	//_, _ = fp.WriteString(fmt.Sprintf("%s:%d\n", util.GetLocalIP().String(), def.MasterPort))
 	//return tempFilePath
-	return fmt.Sprintf("%s:%d\n", util.GetLocalIP().String(), def.MasterPort)
+	return fmt.Sprintf("%s:%d", util.GetLocalIP().String(), def.MasterPort)
 }
