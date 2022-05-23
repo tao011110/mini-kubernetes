@@ -70,7 +70,6 @@ const (
 	PodInstanceListID               = `pod_instance_list_id`
 	DeploymentListName              = `deployment_list_name`
 	FunctionNameListKey             = `function_name_list`
-	StateMachineNameListKey         = `state_machine_name_list_key`
 	HorizontalPodAutoscalerListName = `parsed_horizontal_pod_autoscaler_list_name`
 )
 
@@ -132,4 +131,8 @@ func GetPodNameOfDeployment(deploymentName string) string {
 
 func GetPodNameOfAutoscaler(autoscalerName string) string {
 	return fmt.Sprintf("%s-pod", autoscalerName)
+}
+
+func GetGPUJobKeyByName(name string) string {
+	return fmt.Sprintf("/gpu_job/%s", name)
 }

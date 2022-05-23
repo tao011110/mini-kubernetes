@@ -7,7 +7,7 @@ import (
 	"mini-kubernetes/tools/image_factory"
 )
 
-func GenerateFunctionPodAndService(function *def.Function) (pod def.Pod, service def.Service) {
+func GenerateFunctionPodAndService(function *def.Function) (pod def.Pod, service def.ClusterIPSvc) {
 	image_factory.MakeFunctionalImage(function)
 	defaultContainerResource := def.Resource{
 		ResourceLimit: def.Limit{
@@ -55,18 +55,20 @@ func GenerateFunctionPodAndService(function *def.Function) (pod def.Pod, service
 		},
 	}
 
-	service = def.Service{
-		Name:      serviceName,
-		Selector:  def.Selector{Name: podLabel},
-		Type:      "ClusterIP",
-		ClusterIP: "", //TODO: 分配IP
-		PortsBindings: []def.PortsBindings{{
-			Ports: def.PortPair{
+	service = def.ClusterIPSvc{
+		ApiVersion: "v1",
+		Kind:       "Service",
+		Metadata:   def.Meta{Name: serviceName},
+		Spec: def.Spec{
+			Type:      "ClusterIP",
+			ClusterIP: "",
+			Ports: []def.PortPair{{
 				Port:       80,
 				TargetPort: `80`,
 				Protocol:   "HTTP",
-			},
-		}},
+			}},
+			Selector: def.Selector{Name: podLabel},
+		},
 	}
 	function.PodName = podName
 	function.ServiceName = serviceName
