@@ -196,8 +196,18 @@ func recordResource() {
 			fmt.Println("container.ID is " + container.ID)
 			info := resource.GetContainerInfoByID(node.CadvisorClient, container.ID)
 			fmt.Println(info)
+			if len(info.Stats) < 2 {
+				continue
+			}
 			memoryUsage += info.Stats[len(info.Stats)-1].Memory.Usage
-			cpuLoadAverage += info.Stats[len(info.Stats)-1].Cpu.LoadAverage
+			time1 := info.Stats[len(info.Stats)-1].Timestamp
+			time2 := info.Stats[len(info.Stats)-2].Timestamp
+			timeLenth := time1.Unix() - time2.Unix()
+			cpuTime1 := info.Stats[len(info.Stats)-1].Cpu.Usage.Total
+			cpuTime2 := info.Stats[len(info.Stats)-2].Cpu.Usage.Total
+			cpuusageLenth := cpuTime1 - cpuTime2
+			cpuNum := (cpuusageLenth * 1000) / uint64(timeLenth)
+			cpuLoadAverage += int32(cpuNum)
 		}
 		key := def.GetKeyOfResourceUsageByPodInstanceID(podInstance.ID)
 		resourceUsage := def.ResourceUsage{
