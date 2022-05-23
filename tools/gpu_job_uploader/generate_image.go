@@ -22,6 +22,7 @@ func generateImage(job *def.GPUJob) {
 	docker.CopyToContainer(containerID, def.GPUApiServerIpAndPortFileParentDirPath, def.GPUApiServerIpAndPortFileFileName, apiServerIPFileContent)
 	docker.CopyToContainer(containerID, def.GPUJOBMakefileParentDirPath, def.GPUJOBMakefileFileName, makefilePath)
 	docker.CopyToContainer(containerID, def.GPUJobSourceCodeParentDirPath, def.GPUJobSourceCodeFileName, sourceCodeContent)
+	docker.CopyToContainer(containerID, def.GPUJobNameParentDirName, def.GPUJobNameFileName, job.Name)
 
 	docker.CommitContainer(containerID, newImageName)
 	docker.PushImage(newImageName)

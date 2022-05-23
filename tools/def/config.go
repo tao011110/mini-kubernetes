@@ -54,6 +54,8 @@ const (
 	GPUSlurmScriptFileName                 = `job.slurm`
 	GPUApiServerIpAndPortFileParentDirPath = `/home/result/`
 	GPUApiServerIpAndPortFileFileName      = `apiserver_ip_and_port`
+	GPUJobNameParentDirName                = `/home/`
+	GPUJobNameFileName                     = `job_name`
 	GPUJobUploaderRunCmd                   = `./home/run.sh`
 
 	TemplateCmdFilePath = "/home/temp_cmd.sh"
