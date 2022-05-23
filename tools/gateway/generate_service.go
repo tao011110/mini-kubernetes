@@ -16,18 +16,6 @@ func generatePodPortMappings(dns *def.DNSDetail) []def.PortMapping {
 	return mappings
 }
 
-func generateServicePorts(dns *def.DNSDetail) []def.PortPair {
-	var mappings []def.PortPair
-	for _, path := range dns.Paths {
-		mappings = append(mappings, def.PortPair{
-			Port:       path.Port,
-			TargetPort: fmt.Sprintf(`%d`, path.Port),
-			Protocol:   "TCP",
-		})
-	}
-	return mappings
-}
-
 func GenerateGatewayPod(dns def.DNSDetail, imageName string) (pod def.Pod) {
 	gatewayContainerResource := def.Resource{
 		ResourceLimit: def.Limit{
@@ -57,7 +45,7 @@ func GenerateGatewayPod(dns def.DNSDetail, imageName string) (pod def.Pod) {
 					Image:        imageName,
 					PortMappings: generatePodPortMappings(&dns),
 					Resources:    gatewayContainerResource,
-					//Commands:     []string{def.GatewayStartCmd},
+					Commands:     []string{def.GatewayStartCmd},
 				},
 			},
 			Volumes: []def.Volume{},
