@@ -1,7 +1,6 @@
 package docker_test
 
 import (
-	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/docker"
 	"testing"
 )
@@ -25,10 +24,14 @@ func Test(t *testing.T) {
 	//docker.CommitContainer(containerID, funcName)
 	//docker.PushImage(funcName)
 
-	container := def.Container{
-		Image: "registry.cn-hangzhou.aliyuncs.com/taoyucheng/mink8s:tmpForGateway",
-	}
-	docker.CreateContainer(container, "test")
+	//container := def.Container{
+	//	Image: "registry.cn-hangzhou.aliyuncs.com/taoyucheng/mink8s:tmpForGateway",
+	//}
+	//docker.CreateContainer(container, "test")
+
+	content := "server:\n  port: 80\nspring:\n  application:\n    name: zuul\nzuul:\n  routes:\n    route0:\n      path: /route1/**\n      url: http://192.168.40.10:300\n    route1:\n      path: /route2/**\n      url: http://192.168.40.10:80\n"
+	docker.CopyToContainer("0d29cc77b9f857d3dfb4363d4cb7ca5545bda7f9b5572397940cf4d7394ca5ff",
+		"/home/zuul/src/main/resources", "application.yaml", content)
 
 	t.Log("test finished\n")
 }

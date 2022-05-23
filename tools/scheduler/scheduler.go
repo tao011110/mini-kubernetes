@@ -104,7 +104,11 @@ func HandlePodInstanceChange(news []string) {
 	schedulerMeta.Lock.Lock()
 	defer schedulerMeta.Lock.Unlock()
 
+	fmt.Println(schedulerMeta.ScheduledPodInstancesName)
+	fmt.Println(news)
 	addeds, deleteds := util.DifferTwoStringList(schedulerMeta.ScheduledPodInstancesName, news)
+	fmt.Println("addeds:  ", addeds)
+	fmt.Println("deleteds:  ", deleteds)
 	for _, deleted := range deleteds {
 		found := false
 		for _, node := range schedulerMeta.Nodes {

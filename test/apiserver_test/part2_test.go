@@ -190,6 +190,7 @@ func Test(t *testing.T) {
 	testGetDeployment("test-deployment")
 
 	testGetAllDeployment()
+	time.Sleep(10 * time.Second)
 
 	testDeleteDeployment()
 

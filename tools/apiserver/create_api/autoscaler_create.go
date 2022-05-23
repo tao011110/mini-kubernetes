@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/jakehl/goid"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
@@ -35,7 +34,7 @@ func CreateAutoscaler(cli *clientv3.Client, autoscaler def.Autoscaler) {
 		etcd.Put(cli, autoscalerListNameKey, string(autoscalerListNameValue))
 	}
 
-	podName := autoscaler.Metadata.Name + "-pod-" + goid.NewV4UUID().String()
+	podName := def.GetPodNameOfAutoscaler(autoscaler.Metadata.Name)
 	// Parse autoscaler' meta into ParsedDeployment, and put it into etcd
 	{
 		CPUMaxValue, _ := strconv.ParseFloat(autoscaler.Spec.Metrics.CPU.TargetMaxValue, 64)

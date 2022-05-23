@@ -17,7 +17,6 @@ import (
 	"mini-kubernetes/tools/resource"
 	"mini-kubernetes/tools/util"
 	"os"
-	"sort"
 	"strconv"
 	"time"
 )
@@ -137,28 +136,29 @@ func ContainerCheck() {
 	}
 }
 
+func IsStrInList(str string, list []string) bool {
+	for _, str_in := range list {
+		if str_in == str {
+			return true
+		}
+	}
+	return false
+}
+
 func checkPodRunning() {
 	infos := resource.GetAllContainersInfo(node.CadvisorClient)
-	fmt.Printf("--- all containers info start ---")
-	for _, info := range infos {
-		id := info.Id
-		name := info.Name
-		cpuInfo := info.Stats[len(info.Stats)-1].Cpu.Usage.Total
-		memInfo := info.Stats[len(info.Stats)-1].Memory.Usage
-		mem := float64(memInfo) / (1024 * 1024)
-		cpuLoad := float64(cpuInfo) / (1000 * 1000 * 1000)
-		fmt.Printf("id: %s,\nname: %s,\nTotal memoryUsage: %f,\ncpuUasge: %fs\n\n", id, name, mem, cpuLoad)
-	}
 
 	var runningContainerIDs []string
+	fmt.Println("infos:  ", infos)
 	for _, info := range infos {
 		runningContainerIDs = append(runningContainerIDs, info.Id)
 	}
-	sort.Strings(runningContainerIDs)
+	fmt.Println("running container ids: ", runningContainerIDs)
 	for _, instance := range node.PodInstances {
 		for _, container := range instance.ContainerSpec {
-			if sort.SearchStrings(runningContainerIDs, container.ID) == len(runningContainerIDs) {
+			if !IsStrInList(container.ID, runningContainerIDs) {
 				instance.Status = def.FAILED
+				fmt.Println(container.ID, "fail")
 				util.PersistPodInstance(*instance, node.EtcdClient)
 				continue
 			}
