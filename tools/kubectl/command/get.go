@@ -13,7 +13,7 @@ import (
 func NewGetCommand() cli.Command {
 	return cli.Command{
 		Name:  "get",
-		Usage: "Get Pod state",
+		Usage: "Get resources state",
 		Flags: []cli.Flag{
 			cli.StringFlag{Name: "output, o", Value: "", Usage: "Output format"},
 		},
@@ -109,6 +109,26 @@ func getFunc(c *cli.Context) {
 			}
 		} else {
 			fmt.Printf("No dns exists\n")
+		}
+	} else if ty == "deployment" {
+		// kubectl get deployment 用来获取所有的 deployment
+		// DeploymentBrief提供了显示需要的全部信息
+		response := make([]def.DeploymentBrief, 0)
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/deployment").
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		fmt.Printf("get_all_deployment status is %s\n", status)
+		if status == "200" {
+			fmt.Println("All deployments' information is as follows")
+			for _, deployment := range response {
+				fmt.Printf("%v\n", deployment)
+			}
+		} else {
+			fmt.Printf("No deployment exists\n")
 		}
 	}
 
