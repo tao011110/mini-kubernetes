@@ -59,8 +59,6 @@ func HandleDeploymentListChange(deploymentList []string) {
 	controllerMeta.DeploymentLock.Lock()
 	defer controllerMeta.DeploymentLock.Unlock()
 
-	fmt.Println(controllerMeta.DeploymentNameList)
-	fmt.Println(deploymentList)
 	added, deleted := util.DifferTwoStringList(controllerMeta.DeploymentNameList, deploymentList)
 	fmt.Println("added:   ", added)
 	fmt.Println("deleted:   ", deleted)
@@ -81,7 +79,9 @@ func HandleHorizontalPodAutoscalerListChange(horizontalPodAutoscalerList []strin
 	controllerMeta.HorizontalPodAutoscalersLock.Lock()
 	defer controllerMeta.HorizontalPodAutoscalersLock.Unlock()
 
-	added, deleted := util.DifferTwoStringList(controllerMeta.DeploymentNameList, horizontalPodAutoscalerList)
+	added, deleted := util.DifferTwoStringList(controllerMeta.HorizontalPodAutoscalersNameList, horizontalPodAutoscalerList)
+	fmt.Println("added:  ", added)
+	fmt.Println("deleted:  ", deleted)
 	for _, name := range added {
 		horizontalPodAutoscaler := controller_utils.GetHorizontalPodAutoscalerByName(controllerMeta.EtcdClient, name)
 		controllerMeta.ParsedHorizontalPodAutoscalers = append(controllerMeta.ParsedHorizontalPodAutoscalers, horizontalPodAutoscaler)

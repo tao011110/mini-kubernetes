@@ -201,6 +201,6 @@ func Test(t *testing.T) {
 	testGetAutoscaler("test-autoscaler")
 
 	testGetAllAutoscaler()
-
+	//
 	testDeleteAutoscaler()
 }
