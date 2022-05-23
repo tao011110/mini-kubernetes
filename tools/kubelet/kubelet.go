@@ -14,7 +14,7 @@ import (
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/kubelet/kubelet_routines"
 	net_utils "mini-kubernetes/tools/net-utils"
-	"mini-kubernetes/tools/pod"
+	//"mini-kubernetes/tools/pod"
 	"mini-kubernetes/tools/resource"
 	"mini-kubernetes/tools/util"
 	"os"
@@ -159,7 +159,7 @@ func checkPodRunning() {
 		for _, container := range instance.ContainerSpec {
 			if !IsStrInList(container.ID, runningContainerIDs) {
 				instance.Status = def.FAILED
-				pod.StopAndRemovePod(instance, &node)
+				//pod.StopAndRemovePod(instance, &node)
 				fmt.Println(container.ID, "fail")
 				util.PersistPodInstance(*instance, node.EtcdClient)
 				continue
@@ -200,35 +200,15 @@ func recordResource() {
 			cpuLoadAverage += info.Stats[len(info.Stats)-1].Cpu.LoadAverage
 		}
 		key := def.GetKeyOfResourceUsageByPodInstanceID(podInstance.ID)
-		//resp := etcd.Get(node.EtcdClient, key)
-		//resourceSeq := def.ResourceUsageSequence{}
-		//for _, ev := range resp.Kvs {
-		//	jsonString += fmt.Sprintf(`"%s":"%s", `, ev.Key, ev.Value)
-		//}
-		//jsonString = fmt.Sprintf(`{%s}`, jsonString)
-		//_ = json.Unmarshal([]byte(jsonString), &resourceSeq)
 		resourceUsage := def.ResourceUsage{
 			CPULoad:     cpuLoadAverage,
 			MemoryUsage: memoryUsage,
 			Time:        time.Now(),
 		}
-		//if len(resourceSeq.Sequence) < 30 {
-		//	resourceSeq.Sequence = append(resourceSeq.Sequence, resourceUsage)
-		//} else {
-		//	resourceSeq.Sequence = append(resourceSeq.Sequence[1:], resourceUsage)
-		//}
-		//byts, _ := json.Marshal(resourceSeq)
 		byts, _ := json.Marshal(resourceUsage)
 		etcd.Put(node.EtcdClient, key, string(byts))
 	}
 	key := def.KeyNodeResourceUsage(node.NodeID)
-	//resp := etcd.Get(node.EtcdClient, key)
-	//resourceSeq := def.ResourceUsageSequence{}
-	//for _, ev := range resp.Kvs {
-	//	jsonString += fmt.Sprintf(`"%s":"%s"`, ev.Key, ev.Value)
-	//}
-	//jsonString = fmt.Sprintf(`{%s}`, jsonString)
-	//_ = json.Unmarshal([]byte(jsonString), &resourceSeq)
 	nodeResource := resource.GetNodeResourceInfo()
 	resourceUsage := def.ResourceUsage{
 		CPULoad:     int32(nodeResource.TotalCPUPercent * 1000),
@@ -237,12 +217,6 @@ func recordResource() {
 		Time:        time.Now(),
 		CPUNum:      len(nodeResource.PerCPUPercent),
 	}
-	//if len(resourceSeq.Sequence) < 30 {
-	//	resourceSeq.Sequence = append(resourceSeq.Sequence, resourceUsage)
-	//} else {
-	//	resourceSeq.Sequence = append(resourceSeq.Sequence[1:], resourceUsage)
-	//}
-	//byts, _ := json.Marshal(resourceSeq)
 	byts, _ := json.Marshal(resourceUsage)
 	etcd.Put(node.EtcdClient, key, string(byts))
 }
