@@ -30,7 +30,6 @@ func Proxy() {
 	ipt = newIpt
 
 	svc2sep = make(map[string][]string)
-
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())

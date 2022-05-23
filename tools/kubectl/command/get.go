@@ -90,6 +90,26 @@ func getFunc(c *cli.Context) {
 		} else {
 			fmt.Printf("No service exists\n")
 		}
+	} else if ty == "dns" {
+		// kubectl get dns
+		// 用来获取所有的 dns
+		response := make([]def.DNSDetail, 0)
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/dns").
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		fmt.Printf("get_all_dns status is %s\n", status)
+		if status == "200" {
+			fmt.Println("All dns' information is as follows")
+			for _, service := range response {
+				fmt.Printf("%v\n", service)
+			}
+		} else {
+			fmt.Printf("No dns exists\n")
+		}
 	}
 
 }

@@ -228,10 +228,12 @@ func CheckAllHorizontalPodAutoscalers() {
 				}
 			}
 		}
-		// TODO: 字段含义有点问题
+		// TODO: CPU字段含义有点问题
 		// TODO: 优化调度策略
 		// 优先保证最低需求
-		if cpu < 0.8*horizontalPodAutoscaler.CPUMinValue || float64(memory) < 0.8*float64(horizontalPodAutoscaler.MemoryMinValue) {
+		if activeNum < horizontalPodAutoscaler.MinReplicas {
+			controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, horizontalPodAutoscaler.MinReplicas-activeNum)
+		} else if cpu < 0.8*horizontalPodAutoscaler.CPUMinValue || float64(memory) < 0.8*float64(horizontalPodAutoscaler.MemoryMinValue) {
 			if activeNum < horizontalPodAutoscaler.MaxReplicas {
 				controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, 1)
 			}

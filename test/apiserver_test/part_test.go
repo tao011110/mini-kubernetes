@@ -182,7 +182,7 @@ func testCreateCIService(path string) {
 	fmt.Printf("create_service is %s and response is: %s\n", status, response2)
 }
 
-//TODO: 用来创建nodeport service，需要发送给apiserver的参数为 serviceN (def.NodePortSvc)
+// 用来创建nodeport service，需要发送给apiserver的参数为 serviceN (def.NodePortSvc)
 func testCreateNPService(path string) {
 	serviceN, _ := yaml.ReadServiceNodeportConfig(path)
 	request2 := *serviceN
@@ -200,7 +200,7 @@ func testCreateNPService(path string) {
 	fmt.Printf("create_service is %s and response is: %s\n", status, response2)
 }
 
-//TODO: 用来删除service，需要发送给apiserver的参数为 serviceName(string)
+// 用来删除service，需要发送给apiserver的参数为 serviceName(string)
 func testDeleteService() {
 	//需要发送给apiserver的参数为 serviceName string
 	serviceName := "test-service"
@@ -222,7 +222,7 @@ func testDeleteService() {
 	}
 }
 
-//TODO: 用来获取特定名称的 service，需要发送给apiserver的参数为 serviceName(string)
+// 用来获取特定名称的 service，需要发送给apiserver的参数为 serviceName(string)
 func testGetService(serviceName string) {
 	//http调用返回的json需解析转为def.Service类型，
 	//该结构体的字段，满足了与  K8S中的kubectl describe service serviceName操作返回内容中  所有的信息
@@ -243,7 +243,7 @@ func testGetService(serviceName string) {
 	}
 }
 
-//TODO: 用来获取所有的 service
+// 用来获取所有的 service
 func testGetAllService() {
 	//http调用返回的json需解析转为[]def.Service类型，
 	//def.Service 结构体的字段，满足了与  K8S中的kubectl get service操作返回内容中  所有的信息
@@ -270,7 +270,7 @@ func testGetAllService() {
 	}
 }
 
-//TODO: 用来创建DNS和Gateway
+// TODO: 用来创建DNS和Gateway
 func testCreateDNSAndGateway(path string) {
 	//需要发送给apiserver的参数为 dns def.DNS
 	dns, _ := yaml.ReadDNSConfig(path)

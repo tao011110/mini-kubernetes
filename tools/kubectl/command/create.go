@@ -90,6 +90,21 @@ func createFunc(c *cli.Context) {
 			fmt.Println("[Fault] " + err.Error())
 		}
 		fmt.Printf("create_service is %s and response is: %s\n", status, response)
+	case yaml.Dns_t:
+		// 用来创建DNS和Gateway, 需要发送给apiserver的参数为 dns def.DNS
+		dns, _ := yaml.ReadDNSConfig(dir)
+		request := *dns
+		response := ""
+		body, _ := json.Marshal(request)
+		err, status := httpget.Post("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/create/dns").
+			ContentType("application/json").
+			Body(bytes.NewReader(body)).
+			GetString(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		fmt.Printf("create_gateway is %s and response is: %s\n", status, response)
 	}
 
 }

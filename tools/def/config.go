@@ -35,22 +35,33 @@ const (
 	GatewayStartCmd                = `./start.sh`
 
 	//for py functional image
-	PyFunctionTemplateImage = `hejingkai/python_serverless_template`
-	PyHandlerPath           = `/home/functionalTemplate/handler.py`
-	RequirementsPath        = `/requirements.txt`
-	PyFunctionPrepareCmd    = `./prepare.sh`
-	PyFunctionStartCmd      = `./start.sh`
-	MaxBodySize             = 2048
+	PyFunctionTemplateImage   = `hejingkai/python_serverless_template`
+	PyHandlerParentDirPath    = `/home/functionalTemplate/`
+	PyHandlerFileName         = `handler.py`
+	RequirementsParentDirPath = `/`
+	RequirementsFileName      = `requirements.txt`
+	PyFunctionPrepareCmd      = `./prepare.sh`
+	PyFunctionStartCmd        = `./start.sh`
+	MaxBodySize               = 2048
 
 	//for gpu job uploader image
-	GPUJobUploaderImage        = `hejingkai/gpu_job_uploader`
-	GPUJobSourceCodePath       = `/home/gpu/cuda_mat_add.cu`
-	GPUJOBMakefilePath         = `/home/gpu/Makefile`
-	SlurmScriptPath            = `/home/gpu/job.slurm`
-	ApiServerIpAndPortFilePath = `/home/result/apiserver_ip_and_port`
-	GPUJobUploaderRunPath      = `/home/run.sh`
+	GPUJobUploaderImage                    = `hejingkai/gpu_job_uploader`
+	GPUJobSourceCodeParentDirPath          = `/home/gpu/`
+	GPUJobSourceCodeFileName               = `cuda_mat_add.cu`
+	GPUJOBMakefileParentDirPath            = `/home/gpu/`
+	GPUJOBMakefileFileName                 = `Makefile`
+	GPUSlurmScriptParentDirPath            = `/home/gpu/`
+	GPUSlurmScriptFileName                 = `job.slurm`
+	GPUApiServerIpAndPortFileParentDirPath = `/home/result/`
+	GPUApiServerIpAndPortFileFileName      = `apiserver_ip_and_port`
+	GPUJobNameParentDirName                = `/home/`
+	GPUJobNameFileName                     = `job_name`
+	GPUJobUploaderRunCmd                   = `./home/run.sh`
 
 	TemplateCmdFilePath = "/home/temp_cmd.sh"
+	//TemplateFileDir     = `/home/temp/`
+	//ONLY FOR TEST !!!
+	TemplateFileDir = `/home/hjk/Desktop/Go/mini-kubernetes/test/slurmGenrator_test/`
 )
 
 /********** ETCD key **********/

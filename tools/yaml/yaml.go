@@ -123,7 +123,6 @@ func ReadServiceClusterIPConfig(path string) (*def.ClusterIPSvc, error) {
 			return nil, err
 		}
 	}
-	fmt.Println("service_c: ", service_c)
 	return service_c, nil
 }
 
@@ -147,7 +146,6 @@ func ReadServiceNodeportConfig(path string) (*def.NodePortSvc, error) {
 			return nil, err
 		}
 	}
-	fmt.Println("service_n: ", service_n)
 	return service_n, nil
 }
 
@@ -165,7 +163,6 @@ func ReadDNSConfig(path string) (*def.DNS, error) {
 			return nil, err
 		}
 	}
-	fmt.Println("dns_: ", dns_)
 	return dns_, nil
 }
 
@@ -183,7 +180,6 @@ func ReadDeploymentConfig(path string) (*def.Deployment, error) {
 			return nil, err
 		}
 	}
-	fmt.Println("dep_: ", dep_)
 	return dep_, nil
 }
 
@@ -201,6 +197,5 @@ func ReadAutoScalerConfig(path string) (*def.Autoscaler, error) {
 			return nil, err
 		}
 	}
-	fmt.Println("auto_: ", auto_)
 	return auto_, nil
 }

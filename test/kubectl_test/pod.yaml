@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: metadata
+  name: test-pod
   label: test_label
 nodeName: <string>
 nodeSelector:
