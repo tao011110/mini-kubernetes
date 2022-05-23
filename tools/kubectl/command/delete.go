@@ -14,7 +14,7 @@ import (
 func NewDeleteCommand() cli.Command {
 	return cli.Command{
 		Name:  "delete",
-		Usage: "Delete Pod according to xxx.yaml or name",
+		Usage: "Delete resources according to xxx.yaml or name",
 		Flags: []cli.Flag{
 			cli.StringFlag{Name: "file, f", Value: "", Usage: "File path to the config"},
 		},
@@ -49,6 +49,10 @@ func deleteFunc(c *cli.Context) {
 			src_type = yaml.Unknown_t
 			src_name = c.Args()[1]
 			fmt.Printf("Delete service whose name is : %s\n", src_name)
+		} else if c.Args()[0] == "deployment" {
+			src_type = yaml.Deployment_t
+			src_name = c.Args()[1]
+			fmt.Printf("Delete deployment whose name is : %s\n", src_name)
 		}
 	}
 
@@ -82,15 +86,31 @@ func deleteFunc(c *cli.Context) {
 			if err != nil {
 				fmt.Println("[Fault] " + err.Error())
 			}
-
 			fmt.Printf("delete clusterIPService status is %s\n", status)
 			if status == "200" {
 				fmt.Printf("Delete service %s successfully and the response is: %v\n", src_name, response)
 			} else {
 				fmt.Printf("Service %s doesn't exist\n", src_name)
 			}
+		} else if src_type == yaml.Deployment_t {
+			// 格式 kubectl delete deployment xxx
+			// 用来删除deployment，需要发送给apiserver的参数为 deploymentName(string)
+			response := ""
+			err, status := httpget.DELETE("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/deployment/" + src_name).
+				ContentType("application/json").
+				GetString(&response).
+				Execute()
+			if err != nil {
+				fmt.Println("[Fault] " + err.Error())
+			}
+			fmt.Printf("delete deployment status is %s\n", status)
+			if status == "200" {
+				fmt.Printf("delete deployment %s successfully and the response is: %v\n", src_name, response)
+			} else {
+				fmt.Printf("deployment %s doesn't exist\n", src_name)
+			}
 		} else {
-			fmt.Println("Now delete only support pod and service")
+			fmt.Println("Now delete only support pod/service/deployment")
 		}
 	}
 

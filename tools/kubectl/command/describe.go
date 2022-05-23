@@ -25,8 +25,8 @@ func describeFunc(c *cli.Context) {
 	if len(c.Args()) == 0 {
 		fmt.Println("You need to specify pod name")
 		return
-	} else if (c.Args()[0] != "pod" && c.Args()[0] != "service") && c.Args()[0] != "dns" || len(c.Args()) < 2 {
-		fmt.Println("Available command is 'kubectl describe pod/service.pod xxx'")
+	} else if len(c.Args()) < 2 {
+		fmt.Println("Available command is 'kubectl describe pod/service/dns/deployment xxx'")
 		return
 	}
 
@@ -68,7 +68,7 @@ func describeFunc(c *cli.Context) {
 	} else if c.Args()[0] == "dns" {
 		// kubectl describe dns dnsName
 		// 用来获取特定名称的 dns，需要发送给apiserver的参数为 dnsName(string)
-		//http调用返回的json需解析转为def.DNSDetail类型，
+		// http调用返回的json需解析转为def.DNSDetail类型，
 		dnsName := c.Args()[1]
 		response := def.DNSDetail{}
 		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/dns/" + dnsName).
@@ -84,6 +84,26 @@ func describeFunc(c *cli.Context) {
 		} else {
 			fmt.Printf("dns %s doesn't exist\n", dnsName)
 		}
+	} else if c.Args()[0] == "deployment" {
+		// kubectl describe deployment deploymentName
+		// 用来获取特定名称的 deployment，需要发送给apiserver的参数为 deploymentName(string)
+		// http调用返回的json需解析转为def.DeploymentDetail类型
+		deploymentName := c.Args()[1]
+		response := def.DeploymentDetail{}
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/deployment/" + deploymentName).
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		fmt.Printf("get_deployment status is %s\n", status)
+		if status == "200" {
+			fmt.Printf("get deployment %s successfully and the response is: %v\n", deploymentName, response)
+		} else {
+			fmt.Printf("deployment %s doesn't exist\n", deploymentName)
+		}
+
 	}
 
 }

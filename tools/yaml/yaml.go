@@ -99,7 +99,6 @@ func ReadPodYamlConfig(path string) (*def.Pod, error) {
 			return nil, err
 		}
 	}
-	fmt.Println("pod_: ", pod_)
 	return pod_, nil
 }
 

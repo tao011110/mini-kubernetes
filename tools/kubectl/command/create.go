@@ -16,7 +16,7 @@ import (
 func NewCreateCommand() cli.Command {
 	return cli.Command{
 		Name:  "create",
-		Usage: "Create Pod according to xxx.yaml",
+		Usage: "Create resources according to xxx.yaml",
 		Flags: []cli.Flag{
 			cli.StringFlag{Name: "file, f", Value: "", Usage: "File path to the config"},
 		},
@@ -105,6 +105,21 @@ func createFunc(c *cli.Context) {
 			fmt.Println("[Fault] " + err.Error())
 		}
 		fmt.Printf("create_gateway is %s and response is: %s\n", status, response)
+	case yaml.Deployment_t:
+		// 用来创建Deployment，需要发送给apiserver的参数为 deployment (def.Deployment)
+		deployment, _ := yaml.ReadDeploymentConfig(dir)
+		request := *deployment
+		response := ""
+		body, _ := json.Marshal(request)
+		err, status := httpget.Post("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/create/deployment").
+			ContentType("application/json").
+			Body(bytes.NewReader(body)).
+			GetString(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		fmt.Printf("create_deployment is %s and response is: %s\n", status, response)
 	}
 
 }
