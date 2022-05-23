@@ -11,8 +11,8 @@ import (
 
 func NewDescribeCommand() cli.Command {
 	return cli.Command{
-		Name:  "create",
-		Usage: "Create Pod according to xxx.yaml",
+		Name:  "describe",
+		Usage: "Describe resources according name",
 		Flags: []cli.Flag{},
 		Action: func(c *cli.Context) error {
 			describeFunc(c)

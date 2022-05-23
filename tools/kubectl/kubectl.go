@@ -23,6 +23,7 @@ func Initial() *cli.App {
 		command.NewCreateCommand(),
 		command.NewGetCommand(),
 		command.NewDeleteCommand(),
+		command.NewDescribeCommand(),
 	}
 	return app
 }

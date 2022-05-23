@@ -43,12 +43,12 @@ func deleteFunc(c *cli.Context) {
 		if c.Args()[0] == "pod" {
 			src_type = yaml.Pod_t
 			src_name = c.Args()[1]
-			fmt.Printf("Podname: %s\n", src_name)
+			fmt.Printf("Delete pod whose name is : %s\n", src_name)
 		} else if c.Args()[0] == "service" {
 			// 目前还不能确定是哪种service类型
 			src_type = yaml.Unknown_t
 			src_name = c.Args()[1]
-			fmt.Printf("Servicename: %s\n", src_name)
+			fmt.Printf("Delete service whose name is : %s\n", src_name)
 		}
 	}
 
