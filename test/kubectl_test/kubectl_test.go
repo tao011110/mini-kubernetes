@@ -32,11 +32,21 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-func TestDelete(t *testing.T) {
+func TestDeletePod(t *testing.T) {
 	app := kubectl.Initial()
 
 	// delete
 	err := kubectl.ParseArgs(app, "kubectl delete pod test-pod")
+	if err != nil {
+		t.Error("test kubectl delete pod fail")
+	}
+}
+
+func TestCreateDNS(t *testing.T) {
+	app := kubectl.Initial()
+
+	// create
+	err := kubectl.ParseArgs(app, "kubectl create -f dns.yaml")
 	if err != nil {
 		t.Error("test kubectl delete pod fail")
 	}

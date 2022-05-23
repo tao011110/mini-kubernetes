@@ -44,14 +44,14 @@ func Test(t *testing.T) {
 	fmt.Println("string:", string(byts))
 
 	// judge config type
-	num, err := yaml.ReadConfig("auto.yaml")
+	num, err := yaml.ReadType("auto.yaml")
 	if err != nil {
 		log.Fatal(err)
 	} else {
 		fmt.Printf("typeid: %d\n", num)
 	}
 
-	num, err = yaml.ReadConfig("cluster.yaml")
+	num, err = yaml.ReadType("cluster.yaml")
 	if err != nil {
 		log.Fatal(err)
 	} else {
