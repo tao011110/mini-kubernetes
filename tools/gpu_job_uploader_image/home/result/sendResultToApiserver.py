@@ -29,7 +29,9 @@ def main():
     print(error)
     apiserverURL = open('/home/result/apiserver_ip_and_port', 'r').read()
     print(apiserverURL)
-    payload = {'result': result, 'error': error}
+    jobName = open('/home/job_name', 'r').read()
+    print(jobName)
+    payload = {'jobName': jobName, 'result': result, 'error': error}
     print(payload)
     s = requests.Session()
     s.mount('http://', SourcePortAdapter(80))
