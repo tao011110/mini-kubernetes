@@ -14,7 +14,6 @@ import (
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/kubelet/kubelet_routines"
 	net_utils "mini-kubernetes/tools/net-utils"
-	"mini-kubernetes/tools/pod"
 	"mini-kubernetes/tools/resource"
 	"mini-kubernetes/tools/util"
 	"os"
@@ -159,7 +158,7 @@ func checkPodRunning() {
 		for _, container := range instance.ContainerSpec {
 			if !IsStrInList(container.ID, runningContainerIDs) {
 				instance.Status = def.FAILED
-				pod.StopAndRemovePod(instance, &node)
+				//pod.StopAndRemovePod(instance, &node)
 				fmt.Println(container.ID, "fail")
 				util.PersistPodInstance(*instance, node.EtcdClient)
 				continue
