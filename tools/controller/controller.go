@@ -59,9 +59,14 @@ func HandleDeploymentListChange(deploymentList []string) {
 	controllerMeta.DeploymentLock.Lock()
 	defer controllerMeta.DeploymentLock.Unlock()
 
+	fmt.Println(controllerMeta.DeploymentNameList)
+	fmt.Println(deploymentList)
 	added, deleted := util.DifferTwoStringList(controllerMeta.DeploymentNameList, deploymentList)
+	fmt.Println("added:   ", added)
+	fmt.Println("deleted:   ", deleted)
 	for _, name := range added {
 		deployment := controller_utils.GetDeploymentByName(controllerMeta.EtcdClient, name)
+		fmt.Println(deployment)
 		controllerMeta.ParsedDeployments = append(controllerMeta.ParsedDeployments, deployment)
 		controller_utils.NewReplicaNameListByPodName(controllerMeta.EtcdClient, deployment.PodName)
 		controller_utils.NewNPodInstance(controllerMeta.EtcdClient, deployment.PodName, deployment.ReplicasNum)
@@ -90,7 +95,7 @@ func HandleHorizontalPodAutoscalerListChange(horizontalPodAutoscalerList []strin
 }
 
 func DeleteAHorizontalPodAutoscaler(name string) {
-	controller_utils.RemoveAllReplicasOfPod(controllerMeta.EtcdClient, name)
+	controller_utils.RemoveAllReplicasOfPod(controllerMeta.EtcdClient, def.GetPodNameOfAutoscaler(name))
 	// sync cache
 	for index, horizontalPodAutoscaler := range controllerMeta.ParsedHorizontalPodAutoscalers {
 		if horizontalPodAutoscaler.Name == name {
@@ -101,7 +106,7 @@ func DeleteAHorizontalPodAutoscaler(name string) {
 }
 
 func DeleteADeployment(name string) {
-	controller_utils.RemoveAllReplicasOfPod(controllerMeta.EtcdClient, name)
+	controller_utils.RemoveAllReplicasOfPod(controllerMeta.EtcdClient, def.GetPodNameOfDeployment(name))
 	// sync cache
 	for index, deployment := range controllerMeta.ParsedDeployments {
 		if deployment.Name == name {

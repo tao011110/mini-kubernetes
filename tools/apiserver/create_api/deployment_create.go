@@ -3,7 +3,6 @@ package create_api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jakehl/goid"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
@@ -33,7 +32,7 @@ func CreateDeployment(cli *clientv3.Client, deployment def.Deployment) {
 		etcd.Put(cli, deploymentListNameKey, string(deploymentListNameValue))
 	}
 
-	podName := deployment.Metadata.Name + "-pod-" + goid.NewV4UUID().String()
+	podName := def.GetPodNameOfDeployment(deployment.Metadata.Name)
 	// Parse Deployment' meta into ParsedDeployment, and put it into etcd
 	{
 		parsedDeployment := def.ParsedDeployment{

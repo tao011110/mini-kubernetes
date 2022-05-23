@@ -57,6 +57,7 @@ func GenerateGatewayPod(dns def.DNSDetail, imageName string) (pod def.Pod) {
 					Image:        imageName,
 					PortMappings: generatePodPortMappings(&dns),
 					Resources:    gatewayContainerResource,
+					//Commands:     []string{def.GatewayStartCmd},
 				},
 			},
 			Volumes: []def.Volume{},

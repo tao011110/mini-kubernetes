@@ -43,10 +43,12 @@ func DeleteDeployment(cli *clientv3.Client, deploymentName string) bool {
 		etcd.Delete(cli, deploymentKey)
 	}
 
-	// 在etcd中删除ParsedDeployment的pod
+	// 在etcd中删除ParsedDeployment的pod和podInstance
 	{
-		prefix := deploymentName + "-pod-"
-		etcd.DeleteWithPrefix(cli, prefix)
+		podPrefix := "/pod/" + deploymentName
+		etcd.DeleteWithPrefix(cli, podPrefix)
+		//podInstancePrefix := "/podInstance/" + deploymentName
+		//etcd.DeleteWithPrefix(cli, podInstancePrefix)
 	}
 
 	return true

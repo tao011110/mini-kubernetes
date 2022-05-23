@@ -55,7 +55,7 @@ const (
 
 /********** ETCD key **********/
 const (
-	NodeListName                    = `all_nodes_name`
+	NodeListID                      = `all_nodes_id`
 	PodInstanceListID               = `pod_instance_list_id`
 	DeploymentListName              = `deployment_list_name`
 	FunctionNameListKey             = `function_name_list`
@@ -100,7 +100,7 @@ func GetKeyOfStateMachine(name string) string {
 }
 
 func GenerateKeyOfPodInstanceReplicas(podInstanceName string) string {
-	return "-" + GetKeyOfPodInstance(podInstanceName) + goid.NewV4UUID().String()
+	return GetKeyOfPodInstance(podInstanceName) + "-" + goid.NewV4UUID().String()
 }
 
 func GetKeyOfPodInstance(podInstanceName string) string {
@@ -113,4 +113,12 @@ func GetKeyOfDeployment(deploymentName string) string {
 
 func GetKeyOfAutoscaler(autoscalerName string) string {
 	return fmt.Sprintf("/autoscaler/%s", autoscalerName)
+}
+
+func GetPodNameOfDeployment(deploymentName string) string {
+	return fmt.Sprintf("%s-pod", deploymentName)
+}
+
+func GetPodNameOfAutoscaler(autoscalerName string) string {
+	return fmt.Sprintf("%s-pod", autoscalerName)
 }

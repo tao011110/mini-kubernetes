@@ -10,7 +10,6 @@ import (
 	"mini-kubernetes/tools/yaml"
 	"net"
 	"testing"
-	"time"
 )
 
 var node = def.Node{
@@ -337,18 +336,21 @@ func testGetAllDNS() {
 
 func TestUpdateIptablesRule(t *testing.T) {
 	//testRegisterNode()
+	path := "./podForService.yaml"
+	testCreatePod(path)
+
 	//time.Sleep(10 * time.Second)
 	//path = "./podForService2.yaml"
 	//testCreatePod(path)
 	//time.Sleep(10 * time.Second)
 	//
-	path := "./clusterIPService_test.yaml"
+	path = "./clusterIPService_test.yaml"
 	testCreateCIService(path)
-	testGetAllService()
+	//testGetAllService()
 
-	time.Sleep(5 * time.Second)
-	path = "./podForService.yaml"
-	testCreatePod(path)
+	//time.Sleep(5 * time.Second)
+	//path = "./podForService.yaml"
+	//testCreatePod(path)
 
 	//time.Sleep(5 * time.Second)
 	//testDeleteCIService()
@@ -357,10 +359,10 @@ func TestUpdateIptablesRule(t *testing.T) {
 	//path = "./nodePortService_test.yaml"
 	//testCreateNPService(path)
 
-	time.Sleep(15 * time.Second)
+	//time.Sleep(15 * time.Second)
 	//testGetService("test-service2")
-	//
-	testGetAllService()
+
+	//testGetAllService()
 
 	//time.Sleep(5 * time.Second)
 	//testDeleteNPService()

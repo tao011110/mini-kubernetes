@@ -1,12 +1,14 @@
 package controller_utils
 
 import (
+	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 )
 
 func NewNPodInstance(etcdClient *clientv3.Client, podName string, num int) {
 	pod := GetPodByName(etcdClient, podName)
+	fmt.Println(pod)
 	for i := 0; i < num; i++ {
 		podInstance := def.PodInstance{
 			Pod:           *pod,

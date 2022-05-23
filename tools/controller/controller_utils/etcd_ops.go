@@ -2,6 +2,7 @@ package controller_utils
 
 import (
 	"encoding/json"
+	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
@@ -70,6 +71,8 @@ func RemovePodInstance(etcdClient *clientv3.Client, instance *def.PodInstance) {
 				break
 			}
 		}
+		fmt.Println("instance.ID:  ", instance.ID)
+		fmt.Println("after delete, podInstanceIDList:  ", podInstanceIDList)
 		newJsonString, _ := json.Marshal(podInstanceIDList)
 		etcd.Put(etcdClient, def.PodInstanceListID, string(newJsonString))
 	}
@@ -90,9 +93,13 @@ func RemovePodInstance(etcdClient *clientv3.Client, instance *def.PodInstance) {
 
 func RemoveAllReplicasOfPod(etcdClient *clientv3.Client, podName string) {
 	// remove from instance list, scheduler will remove it from node
+	fmt.Println("podName is:  ", podName)
 	key := def.GetKeyOfPodReplicasNameListByPodName(podName)
 	podInstanceIDList := GetReplicaNameListByPodName(etcdClient, podName)
+	fmt.Println("GetReplicaNameListByPodName: ", key)
+	fmt.Println("podInstanceIDList: ", podInstanceIDList)
 	for _, instanceID := range podInstanceIDList {
+		fmt.Println("try to get by instanceID:  ", instanceID)
 		instance := util.GetPodInstance(instanceID, etcdClient)
 		RemovePodInstance(etcdClient, &instance)
 	}

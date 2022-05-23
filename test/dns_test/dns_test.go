@@ -18,6 +18,6 @@ func TestOthers(t *testing.T) {
 	}
 	defer cli.Close()
 
-	coredns.AddItem(cli, "www.minik8s.com:80", "10.24.1.3", 80)
+	coredns.AddItem(cli, "www.minik8s.com", "10.24.1.3", 80)
 	//coredns.DeleteItem(cli, "www.leffss.com:80")
 }

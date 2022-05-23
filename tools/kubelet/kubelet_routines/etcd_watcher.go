@@ -12,7 +12,7 @@ import (
 func EtcdWatcher(node *def.Node) {
 	key := def.PodInstanceListKeyOfNode(node)
 	watch := etcd.Watch(node.EtcdClient, key)
-	fmt.Println("watch now!")
+	fmt.Printf("%s watch now!\n", key)
 	for wc := range watch {
 		for _, w := range wc.Events {
 			var instances []string

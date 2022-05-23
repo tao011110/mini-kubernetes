@@ -52,7 +52,7 @@ func SchedulerMetaInit() {
 }
 
 func EtcdNodeWatcher() {
-	watch := etcd.Watch(schedulerMeta.EtcdClient, def.NodeListName)
+	watch := etcd.Watch(schedulerMeta.EtcdClient, def.NodeListID)
 	for wc := range watch {
 		for _, w := range wc.Events {
 			var instances []int
@@ -104,7 +104,11 @@ func HandlePodInstanceChange(news []string) {
 	schedulerMeta.Lock.Lock()
 	defer schedulerMeta.Lock.Unlock()
 
+	fmt.Println(schedulerMeta.ScheduledPodInstancesName)
+	fmt.Println(news)
 	addeds, deleteds := util.DifferTwoStringList(schedulerMeta.ScheduledPodInstancesName, news)
+	fmt.Println("addeds:  ", addeds)
+	fmt.Println("deleteds:  ", deleteds)
 	for _, deleted := range deleteds {
 		found := false
 		for _, node := range schedulerMeta.Nodes {
@@ -124,10 +128,12 @@ func HandlePodInstanceChange(news []string) {
 	for _, added := range addeds {
 		success, nodeID, podInstance := SchedulePodInstanceToNode(added)
 		if success {
+			fmt.Printf("success\n")
 			scheduler_utils.AddPodInstanceToNode(schedulerMeta.EtcdClient, nodeID, podInstance)
 			AddPodInstanceFromSchedulerCache(nodeID, podInstance)
 			schedulerMeta.ScheduledPodInstancesName = append(schedulerMeta.ScheduledPodInstancesName, added)
 		} else {
+			fmt.Printf("failed\n")
 			schedulerMeta.CannotSchedule = append(schedulerMeta.CannotSchedule, added)
 		}
 	}

@@ -45,8 +45,10 @@ func DeleteAutoscaler(cli *clientv3.Client, autoscalerName string) bool {
 
 	// 在etcd中删除autoscaler的pod
 	{
-		prefix := autoscalerName + "-pod-"
-		etcd.DeleteWithPrefix(cli, prefix)
+		podPrefix := "/pod/" + autoscalerName
+		etcd.DeleteWithPrefix(cli, podPrefix)
+		//podInstancePrefix := "/podInstance/" + autoscalerName
+		//etcd.DeleteWithPrefix(cli, podInstancePrefix)
 	}
 
 	return true
