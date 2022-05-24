@@ -15,6 +15,8 @@ const (
 	Dns_t
 	Deployment_t
 	Autoscaler_t
+	Gpujob_t
+	Activity_t
 	Unknown_t
 )
 
@@ -52,6 +54,10 @@ func ReadType(path string) (int, error) {
 			return Deployment_t, err
 		} else if (*yml_).Kind == "HorizontalPodAutoscaler" {
 			return Autoscaler_t, err
+		} else if (*yml_).Kind == "GPUJob" {
+			return Gpujob_t, err
+		} else if (*yml_).Kind == "activity" {
+			return Activity_t, err
 		}
 		return -1, err
 	}
@@ -77,6 +83,20 @@ func ReadTypeAndName(path string) (int, string, error) {
 			return Deployment_t, (*yml_).Metadata.Name, err
 		} else if (*yml_).Kind == "HorizontalPodAutoscaler" {
 			return Autoscaler_t, (*yml_).Metadata.Name, err
+		} else if (*yml_).Kind == "GPUJob" {
+			gpu_, err := ReadGPUJobConfig(path)
+			if err != nil {
+				fmt.Println("wrong config")
+				return -1, "", err
+			}
+			return Gpujob_t, (*gpu_).Name, err
+		} else if (*yml_).Kind == "activity" {
+			act_, err := ReadActivityConfig(path)
+			if err != nil {
+				fmt.Println("wrong config")
+				return -1, "", err
+			}
+			return Activity_t, (*act_).Name, err
 		}
 		return -1, "", err
 	}
@@ -197,4 +217,38 @@ func ReadAutoScalerConfig(path string) (*def.Autoscaler, error) {
 		}
 	}
 	return auto_, nil
+}
+
+func ReadGPUJobConfig(path string) (*def.GPUJob, error) {
+	gpu_ := &def.GPUJob{}
+	if f, err := os.Open(path); err != nil {
+		return nil, err
+	} else {
+		err := yaml.NewDecoder(f).Decode(gpu_)
+		if err != nil {
+			return nil, err
+		}
+		if (*gpu_).Kind != "GPUJob" {
+			fmt.Println("kind should be GPUJob!")
+			return nil, err
+		}
+	}
+	return gpu_, nil
+}
+
+func ReadActivityConfig(path string) (*def.Activity, error) {
+	act_ := &def.Activity{}
+	if f, err := os.Open(path); err != nil {
+		return nil, err
+	} else {
+		err := yaml.NewDecoder(f).Decode(act_)
+		if err != nil {
+			return nil, err
+		}
+		if (*act_).Kind != "activity" {
+			fmt.Println("kind should be activity!")
+			return nil, err
+		}
+	}
+	return act_, nil
 }
