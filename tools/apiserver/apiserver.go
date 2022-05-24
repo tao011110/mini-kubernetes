@@ -277,7 +277,7 @@ func handleCreateDNS(c echo.Context) error {
 						panic(err)
 					}
 					if change.IP != "" {
-						coredns.AddItem(cli, dnsDetail.Host+":80", change.IP, 80)
+						coredns.AddItem(cli, dnsDetail.Host, change.IP, 80)
 						fmt.Println("find add")
 						return
 					}

@@ -32,7 +32,8 @@ const (
 	GatewayImage                   = "hejingkai/zuul"
 	GatewayRoutesConfigPathInImage = `/home/zuul/src/main/resources/application.yaml`
 	GatewayPackageCmd              = `./package.sh`
-	GatewayStartCmd                = `./start.sh`
+	GatewayStartArgs               = `./package_and_start.sh`
+	StartBash                      = "/bin/bash"
 
 	//for py functional image
 	PyFunctionTemplateImage   = `hejingkai/python_serverless_template`
