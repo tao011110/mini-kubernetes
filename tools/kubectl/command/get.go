@@ -130,6 +130,26 @@ func getFunc(c *cli.Context) {
 		} else {
 			fmt.Printf("No deployment exists\n")
 		}
+	} else if ty == "autoscaler" {
+		// 用来获取所有的 autoscaler
+		// AutoscalerBrief提供了 的 kubelet get autoscaler 显示的部分信息
+		response := make([]def.AutoscalerBrief, 0)
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/autoscaler").
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		fmt.Printf("get_all_autoscaler status is %s\n", status)
+		if status == "200" {
+			fmt.Println("All autoscalers' information is as follows")
+			for _, autoscaler := range response {
+				fmt.Printf("%v\n", autoscaler)
+			}
+		} else {
+			fmt.Printf("No autoscaler exists\n")
+		}
 	}
 
 }
