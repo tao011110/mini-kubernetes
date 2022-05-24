@@ -120,6 +120,21 @@ func createFunc(c *cli.Context) {
 			fmt.Println("[Fault] " + err.Error())
 		}
 		fmt.Printf("create_deployment is %s and response is: %s\n", status, response)
+	case yaml.Autoscaler_t:
+		// 用来创建AutoScaler，需要发送给apiserver的参数为 autoScaler (def.AutoScaler)
+		autoscaler, _ := yaml.ReadAutoScalerConfig(dir)
+		request := *autoscaler
+		response := ""
+		body, _ := json.Marshal(request)
+		err, status := httpget.Post("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/create/autoscaler").
+			ContentType("application/json").
+			Body(bytes.NewReader(body)).
+			GetString(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		fmt.Printf("create_autoscaler is %s and response is: %s\n", status, response)
 	}
 
 }

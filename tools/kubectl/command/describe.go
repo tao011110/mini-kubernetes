@@ -26,7 +26,7 @@ func describeFunc(c *cli.Context) {
 		fmt.Println("You need to specify pod name")
 		return
 	} else if len(c.Args()) < 2 {
-		fmt.Println("Available command is 'kubectl describe pod/service/dns/deployment xxx'")
+		fmt.Println("Unavailable command!")
 		return
 	}
 
@@ -103,7 +103,24 @@ func describeFunc(c *cli.Context) {
 		} else {
 			fmt.Printf("deployment %s doesn't exist\n", deploymentName)
 		}
-
+	} else if c.Args()[0] == "autoscaler" {
+		// kubectl describe autoscaler autoscalerName
+		// 用来获取特定名称的 autoscaler，需要发送给apiserver的参数为 autoscalerName(string)
+		autoscalerName := c.Args()[1]
+		response := def.AutoscalerDetail{}
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/autoscaler/" + autoscalerName).
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		fmt.Printf("get_autoscaler status is %s\n", status)
+		if status == "200" {
+			fmt.Printf("get autoscaler %s successfully and the response is: %v\n", autoscalerName, response)
+		} else {
+			fmt.Printf("autoscaler %s doesn't exist\n", autoscalerName)
+		}
 	}
 
 }

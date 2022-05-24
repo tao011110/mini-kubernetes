@@ -53,6 +53,10 @@ func deleteFunc(c *cli.Context) {
 			src_type = yaml.Deployment_t
 			src_name = c.Args()[1]
 			fmt.Printf("Delete deployment whose name is : %s\n", src_name)
+		} else if c.Args()[0] == "autoscaler" {
+			src_type = yaml.Autoscaler_t
+			src_name = c.Args()[1]
+			fmt.Printf("Delete autoscaler whose name is : %s\n", src_name)
 		}
 	}
 
@@ -109,8 +113,23 @@ func deleteFunc(c *cli.Context) {
 			} else {
 				fmt.Printf("deployment %s doesn't exist\n", src_name)
 			}
+		} else if src_type == yaml.Autoscaler_t {
+			response := ""
+			err, status := httpget.DELETE("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/autoscaler/" + src_name).
+				ContentType("application/json").
+				GetString(&response).
+				Execute()
+			if err != nil {
+				fmt.Println("[Fault] " + err.Error())
+			}
+			fmt.Printf("delete autoscaler status is %s\n", status)
+			if status == "200" {
+				fmt.Printf("delete autoscaler %s successfully and the response is: %v\n", src_name, response)
+			} else {
+				fmt.Printf("autoscaler %s doesn't exist\n", src_name)
+			}
 		} else {
-			fmt.Println("Now delete only support pod/service/deployment")
+			fmt.Println("Now delete only support pod/service/deployment/autoscaler")
 		}
 	}
 
