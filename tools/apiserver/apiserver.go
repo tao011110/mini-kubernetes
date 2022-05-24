@@ -59,6 +59,13 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.GET("/get/all/autoscaler", handleGetAllAutoscaler)
 	e.GET("/get/dns/:dnsName", handleGetDNS)
 	e.GET("/get/all/dns", handleGetAllDNS)
+	e.GET("/get/dns/:dnsName", handleGetDNS)
+	e.GET("/get/all/gpuJob", handleGetAllGPUJob)
+	e.GET("/get/gpuJob/:gpuJobName", handleGetGPUJob)
+	e.GET("/get/all/function", handleGetAllFunction)
+	e.GET("/get/function/:functionName", handleGetFunction)
+	e.GET("/get/all/stateMachine", handleGetAllStateMachine)
+	e.GET("/get/stateMachine/:stateMachineName", handleGetStateMachine)
 
 	e.Logger.Fatal(e.Start(":" + port))
 }
@@ -578,4 +585,58 @@ func handleGetAllDNS(c echo.Context) error {
 	}
 
 	return c.JSON(200, dnsDetailList)
+}
+
+func handleGetFunction(c echo.Context) error {
+	functionName := c.Param("functionName")
+	function, flag := get_api.GetFunction(cli, functionName)
+	fmt.Println(function)
+	if flag == false {
+		return c.JSON(404, function)
+	}
+	return c.JSON(200, function)
+}
+
+func handleGetAllFunction(c echo.Context) error {
+	functionList, flag := get_api.GetAllFunction(cli)
+	if flag == false {
+		return c.JSON(404, functionList)
+	}
+	return c.JSON(200, functionList)
+}
+
+func handleGetGPUJob(c echo.Context) error {
+	gpuJobName := c.Param("gpuJobName")
+	gpuJobGet, flag := get_api.GetGPUJob(cli, gpuJobName)
+	fmt.Println(gpuJobGet)
+	if flag == false {
+		return c.JSON(404, gpuJobGet)
+	}
+	return c.JSON(200, gpuJobGet)
+}
+
+func handleGetAllGPUJob(c echo.Context) error {
+	gpuJobList, flag := get_api.GetAllGPUJob(cli)
+	if flag == false {
+		return c.JSON(404, gpuJobList)
+	}
+	return c.JSON(200, gpuJobList)
+}
+
+func handleGetStateMachine(c echo.Context) error {
+	stateMachineName := c.Param("stateMachineName")
+	stateMachine, flag := get_api.GetStateMachine(cli, stateMachineName)
+	fmt.Println(stateMachine)
+	if flag == false {
+		return c.JSON(404, stateMachine)
+	}
+	return c.JSON(200, stateMachine)
+}
+
+func handleGetAllStateMachine(c echo.Context) error {
+	stateMachineList, flag := get_api.GetAllStateMachine(cli)
+	if flag == false {
+		return c.JSON(404, stateMachineList)
+	}
+	return c.JSON(200, stateMachineList)
 }

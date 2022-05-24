@@ -38,6 +38,11 @@ func GenerateGpuJobUploaderPod(job *def.GPUJob) def.Pod {
 						ContainerPort: 80,
 						HostPort:      80,
 						Protocol:      "HTTP",
+					}, {
+						Name:          "port_mapping_22",
+						ContainerPort: 22,
+						HostPort:      22,
+						Protocol:      "TCP",
 					}},
 					Resources: defualtResource,
 					Commands:  []string{def.GPUJobUploaderRunCmd},

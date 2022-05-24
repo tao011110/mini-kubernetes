@@ -11,11 +11,12 @@ import (
 
 func GetAutoscaler(cli *clientv3.Client, autoscalerName string) (*def.AutoscalerDetail, bool) {
 	flag := false
-	autoscalerKey := def.GetKeyOfDeployment(autoscalerName)
+	autoscalerKey := def.GetKeyOfAutoscaler(autoscalerName)
 	kv := etcd.Get(cli, autoscalerKey).Kvs
 	parsedAutoscaler := def.ParsedHorizontalPodAutoscaler{}
 	autoscalerValue := make([]byte, 0)
 	autoscalerDetail := def.AutoscalerDetail{}
+	fmt.Println("autoscalerKey is :   ", autoscalerKey)
 	if len(kv) != 0 {
 		autoscalerValue = kv[0].Value
 		flag = true

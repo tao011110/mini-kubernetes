@@ -19,4 +19,5 @@ type GPUJob struct {
 	Slurm          GPUSlurmConfig `yaml:"slurm"`
 	ResultPath     string         `yaml:"resultPath"`
 	ImageName      string
+	PodName        string
 }

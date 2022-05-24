@@ -183,24 +183,24 @@ func testGetAllAutoscaler() {
 }
 
 func Test(t *testing.T) {
-	path := "./deployment_test.yaml"
-	testCreateDeployment(path)
-
-	time.Sleep(30 * time.Second)
-	testGetDeployment("test-deployment")
-
-	testGetAllDeployment()
-	time.Sleep(10 * time.Second)
-
-	testDeleteDeployment()
-
-	//path := "./HorizontalPodAutoscaler_test.yaml"
-	//testCreateAutoscaler(path)
+	//path := "./deployment_test.yaml"
+	//testCreateDeployment(path)
 	//
 	//time.Sleep(30 * time.Second)
-	//testGetAutoscaler("test-autoscaler")
+	//testGetDeployment("test-deployment")
 	//
-	//testGetAllAutoscaler()
+	//testGetAllDeployment()
+	//time.Sleep(10 * time.Second)
 	//
-	//testDeleteAutoscaler()
+	//testDeleteDeployment()
+
+	path := "./HorizontalPodAutoscaler_test.yaml"
+	testCreateAutoscaler(path)
+
+	time.Sleep(30 * time.Second)
+	testGetAutoscaler("test-autoscaler")
+
+	testGetAllAutoscaler()
+	//
+	testDeleteAutoscaler()
 }
