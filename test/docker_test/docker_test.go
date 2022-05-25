@@ -29,9 +29,10 @@ func Test(t *testing.T) {
 	//}
 	//docker.CreateContainer(container, "test")
 
-	content := "server:\n  port: 80\nspring:\n  application:\n    name: zuul\nzuul:\n  routes:\n    route0:\n      path: /route1/**\n      url: http://192.168.40.10:300\n    route1:\n      path: /route2/**\n      url: http://192.168.40.10:80\n"
-	docker.CopyToContainer("ccfccf2c4786ffa7bd862c3cc84380bcb7f8140117f214e27c05e97a1afe71f0",
-		"/", "application.yaml", content)
-
-	t.Log("test finished\n")
+	//content := "server:\n  port: 80\nspring:\n  application:\n    name: zuul\nzuul:\n  routes:\n    route0:\n      path: /route1/**\n      url: http://192.168.40.10:300\n    route1:\n      path: /route2/**\n      url: http://192.168.40.10:80\n"
+	//docker.CopyToContainer("ccfccf2c4786ffa7bd862c3cc84380bcb7f8140117f214e27c05e97a1afe71f0",
+	//	"/", "application.yaml", content)
+	//
+	//t.Log("test finished\n")
+	docker.DockerExec("8870a837e43a", []string{"/bin/bash", "/package.sh"})
 }

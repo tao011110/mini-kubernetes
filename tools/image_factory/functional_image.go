@@ -5,7 +5,6 @@ import (
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/docker"
 	"mini-kubernetes/tools/util"
-	"os/exec"
 )
 
 func MakeFunctionalImage(function *def.Function) {
@@ -19,13 +18,7 @@ func MakeFunctionalImage(function *def.Function) {
 	containerID := docker.CreateContainer(container, imageName)
 	docker.CopyToContainer(containerID, def.PyHandlerParentDirPath, def.PyHandlerFileName, pyString)
 	docker.CopyToContainer(containerID, def.RequirementsParentDirPath, def.RequirementsFileName, requirementsString)
-	cmd := exec.Command("docker", "exec", containerID, "/bin/bash", "-c", fmt.Sprintf("'%s'", def.PyFunctionPrepareCmd)).String()
-	WriteCmdToFile(def.TemplateCmdFilePath, cmd)
-	command := fmt.Sprintf(`%s .`, def.TemplateCmdFilePath)
-	err := exec.Command("/bin/bash", "-c", command).Run()
-	if err != nil {
-		fmt.Println(err)
-	}
+	docker.DockerExec(containerID, []string{"/bin/bash", def.PyFunctionPrepareFile})
 	docker.CommitContainer(containerID, imageName)
 	docker.PushImage(imageName)
 	docker.StopContainer(containerID)
