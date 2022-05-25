@@ -1,0 +1,5 @@
+kind: activity
+name: state1_function
+function: <.py文件路径>
+requirements: <requirements.txt文件路径>
+version: 1
