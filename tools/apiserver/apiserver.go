@@ -10,6 +10,7 @@ import (
 	"mini-kubernetes/tools/apiserver/create_api"
 	"mini-kubernetes/tools/apiserver/delete_api"
 	"mini-kubernetes/tools/apiserver/get_api"
+	"mini-kubernetes/tools/apiserver/gpu_job_api"
 	"mini-kubernetes/tools/apiserver/register_api"
 	"mini-kubernetes/tools/coredns"
 	"mini-kubernetes/tools/def"
@@ -40,6 +41,10 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.POST("/create/deployment", handleCreateDeployment)
 	e.POST("/create/autoscaler", handleCreateAutoscaler)
 	e.POST("/create/dns", handleCreateDNS)
+	e.POST("/create/function", handleCreateFunction)
+	e.POST("/create/stateMachine", handleCreateStateMachine)
+	e.POST("/create/gpuJob", handleCreateGPUJob)
+	e.POST("/gpu_job_result", handleOutputGPUJOB)
 
 	// handle delete-api
 	e.DELETE("/delete_pod/:podpodInstanceName", handleDeletePod)
@@ -59,13 +64,12 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.GET("/get/all/autoscaler", handleGetAllAutoscaler)
 	e.GET("/get/dns/:dnsName", handleGetDNS)
 	e.GET("/get/all/dns", handleGetAllDNS)
-	e.GET("/get/dns/:dnsName", handleGetDNS)
-	e.GET("/get/all/gpuJob", handleGetAllGPUJob)
 	e.GET("/get/gpuJob/:gpuJobName", handleGetGPUJob)
-	e.GET("/get/all/function", handleGetAllFunction)
+	e.GET("/get/all/gpuJob", handleGetAllGPUJob)
 	e.GET("/get/function/:functionName", handleGetFunction)
-	e.GET("/get/all/stateMachine", handleGetAllStateMachine)
+	e.GET("/get/all/function", handleGetAllFunction)
 	e.GET("/get/stateMachine/:stateMachineName", handleGetStateMachine)
+	e.GET("/get/all/stateMachine", handleGetAllStateMachine)
 
 	e.Logger.Fatal(e.Start(":" + port))
 }
@@ -344,6 +348,82 @@ func letProxyCreateNPRule(service def.Service, node def.Node) {
 		}
 		fmt.Printf("%s create service successfully\n", target)
 	}(target)
+}
+
+func handleCreateFunction(c echo.Context) error {
+	function := def.Function{}
+	requestBody := new(bytes.Buffer)
+	_, err := requestBody.ReadFrom(c.Request().Body)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	err = json.Unmarshal(requestBody.Bytes(), &function)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	create_api.CreateFunction(cli, function)
+	fmt.Println("Create function ", function.Name)
+
+	return c.String(200, "function "+function.Name+" has been created")
+}
+
+func handleCreateGPUJob(c echo.Context) error {
+	job := def.GPUJob{}
+	requestBody := new(bytes.Buffer)
+	_, err := requestBody.ReadFrom(c.Request().Body)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	err = json.Unmarshal(requestBody.Bytes(), &job)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	create_api.CreateGPUJobUploader(cli, job)
+	fmt.Println("Create job ", job.Name)
+
+	return c.String(200, "job "+job.Name+" has been created")
+}
+
+func handleCreateStateMachine(c echo.Context) error {
+	stateMachine := def.StateMachine{}
+	requestBody := new(bytes.Buffer)
+	_, err := requestBody.ReadFrom(c.Request().Body)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	err = json.Unmarshal(requestBody.Bytes(), &stateMachine)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	create_api.CreateStateMachine(cli, stateMachine)
+	fmt.Println("Create stateMachine ", stateMachine.Name)
+
+	return c.String(200, "stateMachine "+stateMachine.Name+" has been created")
+}
+
+func handleOutputGPUJOB(c echo.Context) error {
+	gpuJobResponse := def.GPUJobResponse{}
+	requestBody := new(bytes.Buffer)
+	_, err := requestBody.ReadFrom(c.Request().Body)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	err = json.Unmarshal(requestBody.Bytes(), &gpuJobResponse)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	gpu_job_api.OutputGPUJOBResponse(cli, gpuJobResponse)
+	fmt.Println("Create gpuJobResponse ", gpuJobResponse.JobName)
+
+	return c.String(200, "gpuJobResponse "+gpuJobResponse.JobName+" has been output")
 }
 
 func handleDeletePod(c echo.Context) error {

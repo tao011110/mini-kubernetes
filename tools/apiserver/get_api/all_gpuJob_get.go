@@ -8,11 +8,11 @@ import (
 	"mini-kubernetes/tools/etcd"
 )
 
-func GetAllGPUJob(cli *clientv3.Client) ([]GpuJobGet, bool) {
+func GetAllGPUJob(cli *clientv3.Client) ([]def.GPUJobDetail, bool) {
 	dnsPrefix := "/gpu_job/"
 	kvs := etcd.GetWithPrefix(cli, dnsPrefix).Kvs
 	value := make([]byte, 0)
-	jobGetList := make([]GpuJobGet, 0)
+	jobDetailList := make([]def.GPUJobDetail, 0)
 	flag := false
 	if len(kvs) != 0 {
 		flag = true
@@ -24,9 +24,9 @@ func GetAllGPUJob(cli *clientv3.Client) ([]GpuJobGet, bool) {
 				fmt.Printf("%v\n", err)
 				panic(err)
 			}
-			gpuJobGet, _ := GetGPUJob(cli, job.Name)
-			jobGetList = append(jobGetList, gpuJobGet)
+			gpuJobDetail, _ := GetGPUJob(cli, job.Name)
+			jobDetailList = append(jobDetailList, gpuJobDetail)
 		}
 	}
-	return jobGetList, flag
+	return jobDetailList, flag
 }

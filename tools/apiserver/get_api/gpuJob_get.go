@@ -8,15 +8,9 @@ import (
 	"mini-kubernetes/tools/etcd"
 )
 
-type GpuJobGet struct {
-	Job         def.GPUJob
-	Pod         def.Pod
-	PodInstance def.PodInstance
-}
-
-func GetGPUJob(cli *clientv3.Client, jobName string) (GpuJobGet, bool) {
+func GetGPUJob(cli *clientv3.Client, jobName string) (def.GPUJobDetail, bool) {
 	flag := false
-	jobGet := GpuJobGet{
+	jobGet := def.GPUJobDetail{
 		Job:         def.GPUJob{},
 		Pod:         def.Pod{},
 		PodInstance: def.PodInstance{},
