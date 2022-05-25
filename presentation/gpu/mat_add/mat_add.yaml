@@ -1,0 +1,14 @@
+name: mat_add
+kind: GPUJob
+sourceCodePath: <path>
+MakefilePath: <path>
+ResultPath: <dirPath, end with '/'>
+slurm:
+  jobName: mat_add
+  partition: a100
+  cpusPerTask: 16
+  ntasksPerNode: 1
+  Node: 1
+  GPU: 1
+  time: 00-00:2:00
+  targetExecutableFileName: cuda

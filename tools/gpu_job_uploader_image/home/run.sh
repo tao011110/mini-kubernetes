@@ -24,7 +24,7 @@ sleep 5
 scp stu614@sylogin.hpc.sjtu.edu.cn:$targetDirName/result.out /home/result
 scp stu614@sylogin.hpc.sjtu.edu.cn:$targetDirName/error.err /home/result
 # remove dir in server
-ssh stu614@sylogin.hpc.sjtu.edu.cn "cd $targetDirName ; rm -rf gpu"
+ssh stu614@sylogin.hpc.sjtu.edu.cn "cd $targetDirName ; rm -rf gpu"//
 # http send result to server
 cd /home/result
 python3 sendResultToApiserver.py
