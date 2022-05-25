@@ -1,0 +1,14 @@
+name: GPUJob-name
+kind: GPUJob
+sourceCodePath: <path>
+MakefilePath: <path>
+ResultPath: <dirPath, end with '/'>
+slurm:
+    jobName: <string>
+    partition: <string, e.g.a100>
+    cpusPerTask: 1
+    ntasksPerNode: 2
+    Node: 3
+    GPU: 4
+    time: <dd-hh:mm:ss, string>
+    targetExecutableFileName: <string>

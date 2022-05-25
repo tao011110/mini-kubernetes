@@ -58,3 +58,12 @@ func Test(t *testing.T) {
 		fmt.Printf("typeid: %d\n", num)
 	}
 }
+
+func TestGPUJob(t *testing.T) {
+	gpu, name, err := yaml.ReadTypeAndName("gpu.yaml")
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		fmt.Printf("typeid: %d\nname: %s\n", gpu, name)
+	}
+}
