@@ -12,28 +12,6 @@ import (
 )
 
 func CreateAutoscaler(cli *clientv3.Client, autoscaler def.Autoscaler) {
-	// Put autoscaler's name into autoscaler_list_name
-	{
-		autoscalerListNameKey := def.HorizontalPodAutoscalerListName
-		kvs := etcd.Get(cli, autoscalerListNameKey).Kvs
-		list := make([]string, 0)
-		if len(kvs) != 0 {
-			autoscalerListNameValue := kvs[0].Value
-			err := json.Unmarshal(autoscalerListNameValue, &list)
-			if err != nil {
-				fmt.Printf("%v\n", err)
-				panic(err)
-			}
-		}
-		list = append(list, autoscaler.Metadata.Name)
-		autoscalerListNameValue, err := json.Marshal(list)
-		if err != nil {
-			fmt.Printf("%v\n", err)
-			panic(err)
-		}
-		etcd.Put(cli, autoscalerListNameKey, string(autoscalerListNameValue))
-	}
-
 	podName := def.GetPodNameOfAutoscaler(autoscaler.Metadata.Name)
 	// Parse autoscaler' meta into ParsedDeployment, and put it into etcd
 	{
@@ -119,5 +97,27 @@ func CreateAutoscaler(cli *clientv3.Client, autoscaler def.Autoscaler) {
 			panic(err)
 		}
 		etcd.Put(cli, podKey, string(podValue))
+	}
+
+	// Put autoscaler's name into autoscaler_list_name
+	{
+		autoscalerListNameKey := def.HorizontalPodAutoscalerListName
+		kvs := etcd.Get(cli, autoscalerListNameKey).Kvs
+		list := make([]string, 0)
+		if len(kvs) != 0 {
+			autoscalerListNameValue := kvs[0].Value
+			err := json.Unmarshal(autoscalerListNameValue, &list)
+			if err != nil {
+				fmt.Printf("%v\n", err)
+				panic(err)
+			}
+		}
+		list = append(list, autoscaler.Metadata.Name)
+		autoscalerListNameValue, err := json.Marshal(list)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			panic(err)
+		}
+		etcd.Put(cli, autoscalerListNameKey, string(autoscalerListNameValue))
 	}
 }

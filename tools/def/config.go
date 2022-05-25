@@ -57,7 +57,7 @@ const (
 	GPUApiServerIpAndPortFileFileName      = `apiserver_ip_and_port`
 	GPUJobNameParentDirName                = `/home/`
 	GPUJobNameFileName                     = `job_name`
-	GPUJobUploaderRunCmd                   = `./home/run.sh`
+	GPUJobUploaderRunArgs                  = `./home/run.sh`
 
 	TemplateCmdFilePath = "/home/temp_cmd.sh"
 	//TemplateFileDir     = `/home/temp/`

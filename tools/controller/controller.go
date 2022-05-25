@@ -64,8 +64,11 @@ func HandleDeploymentListChange(deploymentList []string) {
 	fmt.Println("added:   ", added)
 	fmt.Println("deleted:   ", deleted)
 	for _, name := range added {
+		fmt.Println("name:  ", name)
+		fmt.Println("def.GetKeyOfDeployment(deploymentName):  ", def.GetKeyOfDeployment(name))
 		deployment := controller_utils.GetDeploymentByName(controllerMeta.EtcdClient, name)
 		fmt.Println(deployment)
+		fmt.Println("deployment.Name:  ", deployment.Name)
 		controllerMeta.ParsedDeployments = append(controllerMeta.ParsedDeployments, deployment)
 		controller_utils.NewReplicaNameListByPodName(controllerMeta.EtcdClient, deployment.PodName)
 		controller_utils.NewNPodInstance(controllerMeta.EtcdClient, deployment.PodName, deployment.ReplicasNum)

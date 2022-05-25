@@ -4,11 +4,11 @@ sourceCodePath: /home/go/src/mini-kubernetes/tools/gpu_job_uploader_image/home/g
 MakefilePath: /home/go/src/mini-kubernetes/tools/gpu_job_uploader_image/home/gpu/Makefile
 ResultPath: /home/go/src/mini-kubernetes/tools/gpu_job_uploader_image/home/result/
 slurm:
-    jobName: job1
+    jobName: job2
     partition: a100
     cpusPerTask: 1
     ntasksPerNode: 2
     Node: 3
     GPU: 4
-    time: 25-10:55:53
+    time: 00-00:2:00
     targetExecutableFileName: targetFile

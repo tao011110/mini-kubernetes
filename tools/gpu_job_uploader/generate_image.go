@@ -13,14 +13,14 @@ func generateImage(job *def.GPUJob) {
 	slurmContent := slurmGenerator(job.Slurm)
 	apiServerIPFileContent := apiServerIPFileGenerator()
 	sourceCodeContent := util.ReadFile(job.SourceCodePath)
-	makefilePath := job.MakefilePath
+	makefileContent := util.ReadFile(job.MakefilePath)
 	container := def.Container{
 		Image: def.GPUJobUploaderImage,
 	}
 	containerID := docker.CreateContainer(container, newImageName)
 	docker.CopyToContainer(containerID, def.GPUSlurmScriptParentDirPath, def.GPUSlurmScriptFileName, slurmContent)
 	docker.CopyToContainer(containerID, def.GPUApiServerIpAndPortFileParentDirPath, def.GPUApiServerIpAndPortFileFileName, apiServerIPFileContent)
-	docker.CopyToContainer(containerID, def.GPUJOBMakefileParentDirPath, def.GPUJOBMakefileFileName, makefilePath)
+	docker.CopyToContainer(containerID, def.GPUJOBMakefileParentDirPath, def.GPUJOBMakefileFileName, makefileContent)
 	docker.CopyToContainer(containerID, def.GPUJobSourceCodeParentDirPath, def.GPUJobSourceCodeFileName, sourceCodeContent)
 	docker.CopyToContainer(containerID, def.GPUJobNameParentDirName, def.GPUJobNameFileName, job.Name)
 

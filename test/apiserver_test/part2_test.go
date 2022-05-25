@@ -191,7 +191,7 @@ func TestReplicas(t *testing.T) {
 	//
 	//testGetAllDeployment()
 	//time.Sleep(10 * time.Second)
-	//
+
 	//testDeleteDeployment()
 
 	path := "./HorizontalPodAutoscaler_test.yaml"
@@ -201,7 +201,8 @@ func TestReplicas(t *testing.T) {
 	testGetAutoscaler("test-autoscaler")
 
 	testGetAllAutoscaler()
-	//
+
+	time.Sleep(30 * time.Second)
 	testDeleteAutoscaler()
 }
 

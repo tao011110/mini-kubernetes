@@ -42,6 +42,7 @@ func OutputGPUJOBResponse(li *clientv3.Client, response def.GPUJobResponse) {
 		return
 	}
 	nameList := apiserver_utils.GetPodReplicaListByPodName(li, gpuJob.PodName)
+	fmt.Println("nameList:   ", nameList)
 	if len(nameList) != 1 {
 		panic("job's pod replica name list length!=1")
 	}

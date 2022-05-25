@@ -44,7 +44,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.POST("/create/function", handleCreateFunction)
 	e.POST("/create/stateMachine", handleCreateStateMachine)
 	e.POST("/create/gpuJob", handleCreateGPUJob)
-	e.POST("/gpu_job_result", handleOutputGPUJOB)
+	e.POST("/gpu_job_result", handleOutputGPUJob)
 
 	// handle delete-api
 	e.DELETE("/delete_pod/:podpodInstanceName", handleDeletePod)
@@ -407,7 +407,7 @@ func handleCreateStateMachine(c echo.Context) error {
 	return c.String(200, "stateMachine "+stateMachine.Name+" has been created")
 }
 
-func handleOutputGPUJOB(c echo.Context) error {
+func handleOutputGPUJob(c echo.Context) error {
 	gpuJobResponse := def.GPUJobResponse{}
 	requestBody := new(bytes.Buffer)
 	_, err := requestBody.ReadFrom(c.Request().Body)
@@ -415,6 +415,7 @@ func handleOutputGPUJOB(c echo.Context) error {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
+	fmt.Println("requestBody.Bytes():  ", string(requestBody.Bytes()))
 	err = json.Unmarshal(requestBody.Bytes(), &gpuJobResponse)
 	if err != nil {
 		fmt.Printf("%v\n", err)
