@@ -91,7 +91,7 @@ func ReadTypeAndName(path string) (int, string, error) {
 			}
 			return Gpujob_t, (*gpu_).Name, err
 		} else if (*yml_).Kind == "activity" {
-			act_, err := ReadActivityConfig(path)
+			act_, err := ReadFunctionConfig(path)
 			if err != nil {
 				fmt.Println("wrong config")
 				return -1, "", err
@@ -236,19 +236,19 @@ func ReadGPUJobConfig(path string) (*def.GPUJob, error) {
 	return gpu_, nil
 }
 
-func ReadActivityConfig(path string) (*def.Activity, error) {
-	act_ := &def.Activity{}
+func ReadFunctionConfig(path string) (*def.Function, error) {
+	func_ := &def.Function{}
 	if f, err := os.Open(path); err != nil {
 		return nil, err
 	} else {
-		err := yaml.NewDecoder(f).Decode(act_)
+		err := yaml.NewDecoder(f).Decode(func_)
 		if err != nil {
 			return nil, err
 		}
-		if (*act_).Kind != "activity" {
+		if (*func_).Kind != "activity" {
 			fmt.Println("kind should be activity!")
 			return nil, err
 		}
 	}
-	return act_, nil
+	return func_, nil
 }

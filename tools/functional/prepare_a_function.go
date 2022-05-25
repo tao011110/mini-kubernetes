@@ -35,17 +35,17 @@ func GenerateFunctionPodAndService(function *def.Function) (pod def.Pod, service
 			Containers: []def.Container{
 				{
 					Name:         containerName,
-					Image:        function.Image,
-					Commands:     []string{def.PyFunctionStartCmd},
-					Args:         []string{},
+					Image:        def.RgistryAddr + function.Image,
+					Commands:     []string{def.StartBash},
+					Args:         []string{def.PyFunctionStartArgs},
 					WorkingDir:   "",
 					VolumeMounts: []def.VolumeMount{},
 					PortMappings: []def.PortMapping{
 						{
 							Name:          fmt.Sprintf("portmaping_%s", id),
 							ContainerPort: 80,
-							HostPort:      80,
-							Protocol:      "HTTP",
+							//HostPort:      80,
+							Protocol: "TCP",
 						},
 					},
 					Resources: defaultContainerResource,
@@ -65,7 +65,7 @@ func GenerateFunctionPodAndService(function *def.Function) (pod def.Pod, service
 			Ports: []def.PortPair{{
 				Port:       80,
 				TargetPort: `80`,
-				Protocol:   "HTTP",
+				Protocol:   "TCP",
 			}},
 			Selector: def.Selector{Name: podLabel},
 		},

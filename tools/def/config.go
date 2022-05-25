@@ -42,7 +42,7 @@ const (
 	RequirementsParentDirPath = `/`
 	RequirementsFileName      = `requirements.txt`
 	PyFunctionPrepareFile     = `/prepare.sh`
-	PyFunctionStartCmd        = `./start.sh`
+	PyFunctionStartArgs       = `./start.sh`
 	MaxBodySize               = 2048
 
 	//for gpu job uploader image

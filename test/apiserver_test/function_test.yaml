@@ -1,0 +1,5 @@
+kind: activity
+name: function_test
+function: /home/go/src/mini-kubernetes/presentation/serverless-function/function.py
+requirements: /home/go/src/mini-kubernetes/presentation/serverless-function/requirements.txt
+version: 1

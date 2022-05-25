@@ -127,28 +127,28 @@ func CheckAddInService(cli *clientv3.Client, podInstance def.PodInstance) []def.
 		// 匹配发现该pod应该被纳入到service的监管下
 		fmt.Printf("in pod create podInstance.Pod.Metadata.Label is %s\n", podInstance.Pod.Metadata.Label)
 		fmt.Printf("in pod create service.Selector.Name is %s\n", service.Selector.Name)
-		tmpBindings := make([]def.PortsBindings, 0)
+		//tmpBindings := make([]def.PortsBindings, 0)
 		if podInstance.Pod.Metadata.Label == service.Selector.Name {
-			for _, binding := range service.PortsBindings {
-				tmpBinding := def.PortsBindings{
-					Ports: binding.Ports,
-				}
-				tmpEndpoints := make([]string, 0)
-				for _, container := range podInstance.Pod.Spec.Containers {
-					for _, portMapping := range container.PortMappings {
-						containerPort := strconv.Itoa(int(portMapping.ContainerPort))
-						fmt.Println(binding.Ports.TargetPort)
-						fmt.Println(containerPort)
-						if binding.Ports.TargetPort == containerPort {
-							tmpEndpoints = append(tmpEndpoints, podInstance.IP+":"+binding.Ports.TargetPort)
-							fmt.Printf("podInstance.IP is %v\n", podInstance.IP)
-						}
-					}
-				}
-				tmpBinding.Endpoints = tmpEndpoints
-				tmpBindings = append(tmpBindings, tmpBinding)
-			}
-			service.PortsBindings = tmpBindings
+			//for _, binding := range service.PortsBindings {
+			//	tmpBinding := def.PortsBindings{
+			//		Ports: binding.Ports,
+			//	}
+			//	tmpEndpoints := make([]string, 0)
+			//	for _, container := range podInstance.Pod.Spec.Containers {
+			//		for _, portMapping := range container.PortMappings {
+			//			containerPort := strconv.Itoa(int(portMapping.ContainerPort))
+			//			fmt.Println(binding.Ports.TargetPort)
+			//			fmt.Println(containerPort)
+			//			if binding.Ports.TargetPort == containerPort {
+			//				tmpEndpoints = append(tmpEndpoints, podInstance.IP+":"+binding.Ports.TargetPort)
+			//				fmt.Printf("podInstance.IP is %v\n", podInstance.IP)
+			//			}
+			//		}
+			//	}
+			//	tmpBinding.Endpoints = tmpEndpoints
+			//	tmpBindings = append(tmpBindings, tmpBinding)
+			//}
+			service.PortsBindings = AddPodInstanceIntoService(podInstance, service)
 			fmt.Printf("now service si %v\n", service)
 			serviceList = append(serviceList, service)
 		}
@@ -166,4 +166,29 @@ func CheckAddInService(cli *clientv3.Client, podInstance def.PodInstance) []def.
 	}
 
 	return serviceList
+}
+
+func AddPodInstanceIntoService(podInstance def.PodInstance, service def.Service) []def.PortsBindings {
+	tmpBindings := make([]def.PortsBindings, 0)
+	for _, binding := range service.PortsBindings {
+		tmpBinding := def.PortsBindings{
+			Ports: binding.Ports,
+		}
+		tmpEndpoints := make([]string, 0)
+		for _, container := range podInstance.Pod.Spec.Containers {
+			for _, portMapping := range container.PortMappings {
+				containerPort := strconv.Itoa(int(portMapping.ContainerPort))
+				fmt.Println(binding.Ports.TargetPort)
+				fmt.Println(containerPort)
+				if binding.Ports.TargetPort == containerPort {
+					tmpEndpoints = append(tmpEndpoints, podInstance.IP+":"+binding.Ports.TargetPort)
+					fmt.Printf("podInstance.IP is %v\n", podInstance.IP)
+				}
+			}
+		}
+		tmpBinding.Endpoints = tmpEndpoints
+		tmpBindings = append(tmpBindings, tmpBinding)
+	}
+
+	return tmpBindings
 }

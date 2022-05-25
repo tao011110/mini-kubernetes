@@ -7,10 +7,12 @@ import (
 	"mini-kubernetes/tools/functional"
 )
 
-func CreateFunction(cli *clientv3.Client, function def.Function) {
-	pod, service := functional.GenerateFunctionPodAndService(&function)
+func CreateFunction(cli *clientv3.Client, function def.Function) def.Service {
+	pod, ciService := functional.GenerateFunctionPodAndService(&function)
 	apiserver_utils.PersistPod(cli, pod) //NOTE: 只存储不创建
 	apiserver_utils.PersistFunction(cli, function)
 	apiserver_utils.AddFunctionNameToList(cli, function.Name)
-	CreateClusterIPService(cli, service)
+	service := CreateClusterIPService(cli, ciService)
+
+	return service
 }

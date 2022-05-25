@@ -235,7 +235,7 @@ func testGetGPUJob(gpuJobName string) {
 		fmt.Println("err")
 		fmt.Println(err)
 	}
-	fmt.Printf("get_autoscaler status is %s\n", status)
+	fmt.Printf("get_gpuJob status is %s\n", status)
 	if status == "200" {
 		fmt.Printf("get gpuJob %s successfully and the response is: %v\n", gpuJobName, response)
 	} else {
@@ -257,19 +257,144 @@ func testGetAllGPUJob() {
 	fmt.Printf("get_all_gpuJob status is %s\n", status)
 	if status == "200" {
 		fmt.Println("All gpuJobs' information is as follows")
-		for _, autoscaler := range response {
-			fmt.Printf("%v\n", autoscaler)
+		for _, gpuJobDetail := range response {
+			fmt.Printf("%v\n", gpuJobDetail)
 		}
 	} else {
-		fmt.Printf("No autoscaler exists\n")
+		fmt.Printf("No gpuJob exists\n")
 	}
 }
 
 func TestGPU(t *testing.T) {
-	testCreateGPUJob("./gpu.yaml")
+	testCreateGPUJob("./gpu_test.yaml")
 
 	time.Sleep(50 * time.Second)
 
 	testGetGPUJob("GPUJob-test")
 	testGetAllGPUJob()
+}
+
+//TODO: 用来创建function，需要发送给apiserver的参数为 function (def.Function)
+func testCreateFunction(path string) {
+	function, _ := yaml.ReadFunctionConfig(path)
+	request2 := *function
+	response2 := ""
+	body2, _ := json.Marshal(request2)
+	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/create/function").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetString(&response2).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("create_function is %s and response is: %s\n", status, response2)
+}
+
+//TODO: 用来获取特定名称的 function，需要发送给apiserver的参数为 functionName(string)
+func testGetFunction(functionName string) {
+	response := def.Function{}
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/function/" + functionName).
+		ContentType("application/json").
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_function status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("get function %s successfully and the response is: %v\n", functionName, response)
+	} else {
+		fmt.Printf("function %s doesn't exist\n", functionName)
+	}
+}
+
+//TODO: 用来获取所有的 function
+func testGetAllFunction() {
+	response := make([]def.Function, 0)
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/all/function").
+		ContentType("application/json").
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_all_function status is %s\n", status)
+	if status == "200" {
+		fmt.Println("All functions' information is as follows")
+		for _, function := range response {
+			fmt.Printf("%v\n", function)
+		}
+	} else {
+		fmt.Printf("No function exists\n")
+	}
+}
+
+//不需要加入到kubectl里面
+func testCreateFuncPodInstance(podName string) {
+	request2 := podName
+	response2 := ""
+	body2, _ := json.Marshal(request2)
+	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/create/funcPodInstance").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetString(&response2).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("create_function is %s and response is: %s\n", status, response2)
+}
+
+//不需要加入到kubectl里面
+func testDeleteFuncPodInstance(podInstanceID string) {
+	response4 := ""
+	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/funcPodInstance/" + podInstanceID).
+		ContentType("application/json").
+		GetString(&response4).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+
+	fmt.Printf("delete funcPodInstance status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("delete funcPodInstance %s successfully and the response is: %v\n", podInstanceID, response4)
+	} else {
+		fmt.Printf("funcPodInstance %s doesn't exist\n", podInstanceID)
+	}
+}
+func testtmp(podInstanceID string) {
+	response4 := ""
+	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/woc/" + podInstanceID + "/" + "2").
+		ContentType("application/json").
+		GetString(&response4).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+
+	fmt.Printf("delete funcPodInstance status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("delete funcPodInstance %s successfully and the response is: %v\n", podInstanceID, response4)
+	} else {
+		fmt.Printf("funcPodInstance %s doesn't exist\n", podInstanceID)
+	}
+}
+
+func TestFunction(t *testing.T) {
+	//testCreateFunction("./function_test.yaml")
+	//
+	//testGetFunction("function_test")
+	//testGetAllFunction()
+	testtmp("wdadawd")
+
+	//testCreateFuncPodInstance("pod_functional_function_test_1_8375b943-3cfb-4c46-a69a-76ecb96b7362")
+	//testDeleteFuncPodInstance("/podInstance/pod_functional_function_test_1_8375b943-3cfb-4c46-a69a-76ecb96b7362")
 }

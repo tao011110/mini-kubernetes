@@ -9,6 +9,7 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/apiserver/create_api"
 	"mini-kubernetes/tools/apiserver/delete_api"
+	"mini-kubernetes/tools/apiserver/function_api"
 	"mini-kubernetes/tools/apiserver/get_api"
 	"mini-kubernetes/tools/apiserver/gpu_job_api"
 	"mini-kubernetes/tools/apiserver/register_api"
@@ -17,6 +18,7 @@ import (
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/httpget"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -45,12 +47,14 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.POST("/create/stateMachine", handleCreateStateMachine)
 	e.POST("/create/gpuJob", handleCreateGPUJob)
 	e.POST("/gpu_job_result", handleOutputGPUJob)
+	e.POST("/create/funcPodInstance", handleCreateFuncPodInstance)
 
 	// handle delete-api
-	e.DELETE("/delete_pod/:podpodInstanceName", handleDeletePod)
+	e.DELETE("/delete_pod/:podInstanceName", handleDeletePod)
 	e.DELETE("/delete/service/:serviceName", handleDeleteService)
 	e.DELETE("/delete/deployment/:deploymentName", handleDeleteDeployment)
 	e.DELETE("/delete/autoscaler/:autoscalerName", handleDeleteAutoscaler)
+	e.DELETE("/delete/funcPodInstance/:podName/:num", handleDeleteFuncPodInstance)
 
 	// handle get-api
 	e.GET("/get_pod/:podInstanceName", handleGetPod)
@@ -141,13 +145,13 @@ func handleCreatePod(c echo.Context) error {
 							if service.Type == "ClusterIP" {
 								for _, node := range nodeList {
 									go letProxyDeleteCIRule(service.Name, node)
-									time.Sleep(5 * time.Second)
+									time.Sleep(10 * time.Second)
 									go letProxyCreateCIRule(service, node)
 								}
 							} else {
 								for _, node := range nodeList {
 									go letProxyDeleteCIRule(service.Name, node)
-									time.Sleep(5 * time.Second)
+									time.Sleep(10 * time.Second)
 									go letProxyCreateNPRule(service, node)
 								}
 							}
@@ -363,10 +367,16 @@ func handleCreateFunction(c echo.Context) error {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	create_api.CreateFunction(cli, function)
+	service := create_api.CreateFunction(cli, function)
 	fmt.Println("Create function ", function.Name)
 
-	return c.String(200, "function "+function.Name+" has been created")
+	// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
+	nodeList := get_api.GetAllNode(cli)
+	for _, node := range nodeList {
+		go letProxyCreateNPRule(service, node)
+	}
+
+	return c.String(200, fmt.Sprintf("/%s:%d", function.Name, def.ActiverPort))
 }
 
 func handleCreateGPUJob(c echo.Context) error {
@@ -427,11 +437,78 @@ func handleOutputGPUJob(c echo.Context) error {
 	return c.String(200, "gpuJobResponse "+gpuJobResponse.JobName+" has been output")
 }
 
-func handleDeletePod(c echo.Context) error {
-	podpodInstanceName := c.Param("podpodInstanceName")
+func handleCreateFuncPodInstance(c echo.Context) error {
+	podNameAndNum := ""
+	requestBody := new(bytes.Buffer)
+	_, err := requestBody.ReadFrom(c.Request().Body)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	err = json.Unmarshal(requestBody.Bytes(), &podNameAndNum)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	params := strings.Split(podNameAndNum, "&")
+	podName := params[0]
+	num, _ := strconv.Atoi(params[1])
+	podInstanceList, service := function_api.CreateFuncPodInstance(cli, podName, num)
+	fmt.Println("Create FuncPodInstance of ", podInstance.Pod.Metadata.Name)
 
-	if delete_api.DeletePod(cli, podpodInstanceName) == true {
+	go func(podInstanceID string) {
+		fmt.Println("Start to watch ", podInstanceID)
+		watchResult := etcd.Watch(cli, podInstanceID)
+		for wc := range watchResult {
+			change := def.PodInstance{}
+			for _, w := range wc.Events {
+				if w.Type == clientv3.EventTypePut {
+					err := json.Unmarshal(w.Kv.Value, &change)
+					if err != nil {
+						fmt.Println(err)
+						panic(err)
+					}
+					if change.IP != "" {
+						fmt.Println("change.IP:  ", change.IP)
+						// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
+						nodeList := get_api.GetAllNode(cli)
+						for _, node := range nodeList {
+							go letProxyDeleteCIRule(service.Name, node)
+							time.Sleep(10 * time.Second)
+							go letProxyCreateCIRule(service, node)
+						}
+						return
+					}
+				}
+			}
+		}
+	}(podInstance.ID)
+
+	return c.String(200, "FuncPodInstance of "+podInstance.Pod.Metadata.Name+" has been created")
+}
+
+func handleDeletePod(c echo.Context) error {
+	podpodInstanceName := c.Param("podInstanceName")
+	flag, podInstance := delete_api.DeletePod(cli, podpodInstanceName)
+	if flag == true {
 		fmt.Println("Pod " + podpodInstanceName + " has been deleted")
+		serviceList := delete_api.CheckDeleteInService(cli, podInstance)
+		nodeList := get_api.GetAllNode(cli)
+		for _, service := range serviceList {
+			if service.Type == "ClusterIP" {
+				for _, node := range nodeList {
+					go letProxyDeleteCIRule(service.Name, node)
+					time.Sleep(10 * time.Second)
+					go letProxyCreateCIRule(service, node)
+				}
+			} else {
+				for _, node := range nodeList {
+					go letProxyDeleteCIRule(service.Name, node)
+					time.Sleep(10 * time.Second)
+					go letProxyCreateNPRule(service, node)
+				}
+			}
+		}
 		return c.String(200, "Pod "+podpodInstanceName+" has been deleted")
 	} else {
 		fmt.Println("Pod " + podpodInstanceName + " has been deleted")
@@ -484,6 +561,26 @@ func handleDeleteAutoscaler(c echo.Context) error {
 	} else {
 		fmt.Println("Autoscaler " + autoscalerName + " has been deleted")
 		return c.String(404, "Autoscaler "+autoscalerName+" doesn't exist")
+	}
+}
+
+func handleDeleteFuncPodInstance(c echo.Context) error {
+	podName := c.Param("podName")
+	numStr := c.Param("num")
+	num, _ := strconv.Atoi(numStr)
+	flag, service := function_api.DeleteFuncPodInstance(cli, podName, num)
+	if flag == true {
+		fmt.Println("PodInstance of " + podName + " has been deleted")
+		nodeList := get_api.GetAllNode(cli)
+		for _, node := range nodeList {
+			go letProxyDeleteCIRule(service.ClusterIP, node)
+			time.Sleep(10 * time.Second)
+			go letProxyCreateCIRule(service, node)
+		}
+		return c.String(200, "PodInstance of "+podName+" has been deleted")
+	} else {
+		fmt.Println("PodInstance of " + podName + " has been deleted")
+		return c.String(404, "PodInstance of "+podName+" doesn't exist")
 	}
 }
 

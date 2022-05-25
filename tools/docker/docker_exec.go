@@ -22,6 +22,7 @@ func DockerExec(containerID string, commands []string) {
 		Detach:       true,
 	})
 	if err != nil {
+		fmt.Println("err:   ", err)
 		panic(err)
 	}
 	err = cli.ContainerExecStart(context.Background(), copyfiletoBin.ID, types.ExecStartCheck{
