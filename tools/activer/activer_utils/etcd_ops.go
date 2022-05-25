@@ -12,6 +12,7 @@ func GetFunctionNameList(etcdClient *clientv3.Client) []string {
 	util.EtcdUnmarshal(etcd.Get(etcdClient, def.FunctionNameListKey), &functionNameList)
 	return functionNameList
 }
+
 func GetFunctionByName(etcdClient *clientv3.Client, name string) *def.Function {
 	function := def.Function{}
 	util.EtcdUnmarshal(etcd.Get(etcdClient, def.GetKeyOfFunction(name)), &function)

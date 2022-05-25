@@ -16,7 +16,7 @@ func AddNPodInstance(podName string, num int) {
 	//TODO: apiServer add a podInstance
 }
 
-func RemoveNPodInstance(podName string, num int) {
+func RemovePodInstance(podName string, num int) {
 	//TODO: apiServer delete a podInstance
 }
 
@@ -26,7 +26,7 @@ func AdjustReplicaNum2Target(etcdClient *clientv3.Client, funcName string, targe
 	if len(replicaNameList) < target {
 		AddNPodInstance(function.PodName, target-len(replicaNameList))
 	} else if len(replicaNameList) > target {
-		RemoveNPodInstance(function.PodName, len(replicaNameList)-target)
+		RemovePodInstance(function.PodName, len(replicaNameList)-target)
 		//if target == 0 {
 		//	StopService(function.ServiceName)
 		//}
