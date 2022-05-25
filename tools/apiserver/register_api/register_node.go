@@ -41,6 +41,7 @@ func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpA
 		}
 	}
 	nodeIDList = append(nodeIDList, newFollower.NodeID)
+	fmt.Println("newFollower.NodeID is   ", newFollower.NodeID)
 	nodeIDListValue, err := json.Marshal(nodeIDList)
 	if err != nil {
 		fmt.Printf("%v\n", err)

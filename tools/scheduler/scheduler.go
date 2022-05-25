@@ -72,6 +72,8 @@ func HandleNodeListChange(newNodeList []int) {
 		olds = append(olds, fmt.Sprintf("%d", old.NodeID))
 	}
 	added, deleted := util.DifferTwoStringList(olds, news)
+	fmt.Println("nodes  added:  ", added)
+	fmt.Println("nodes  deleted", deleted)
 	for _, add := range added {
 		nodeId, _ := strconv.Atoi(add)
 		nodeInfo, replicas := scheduler_utils.GetInfoOfANode(schedulerMeta.EtcdClient, nodeId)
@@ -175,6 +177,7 @@ func SchedulePodInstanceToNode(instanceID string) (success bool, nodeId int, pod
 	for index := range schedulerMeta.Nodes {
 		nodeIndexList = append(nodeIndexList, index)
 	}
+	fmt.Println("nodeIndexList:  ", nodeIndexList)
 	notWithFilterResult := scheduler_utils.NotWithFilter(nodeIndexList, podInstance.NodeSelector.NotWith, schedulerMeta.Nodes)
 	if len(notWithFilterResult) == 0 {
 		success = false
@@ -197,6 +200,7 @@ func SchedulePodInstanceToNode(instanceID string) (success bool, nodeId int, pod
 	success = true
 	choseNodeIndex := scheduler_utils.ChooseNode(schedulerMeta.EtcdClient, resourceFilterResult, schedulerMeta.Nodes)
 	nodeId = schedulerMeta.Nodes[choseNodeIndex].NodeID
+	fmt.Println("Schedule to node:  ", nodeId)
 	return
 }
 

@@ -32,7 +32,8 @@ const (
 	GatewayImage                   = "hejingkai/zuul"
 	GatewayRoutesConfigPathInImage = `/home/zuul/src/main/resources/application.yaml`
 	GatewayPackageCmd              = `./package.sh`
-	GatewayStartCmd                = `./start.sh`
+	GatewayStartArgs               = `./package_and_start.sh`
+	StartBash                      = "/bin/bash"
 
 	//for py functional image
 	PyFunctionTemplateImage   = `hejingkai/python_serverless_template`
@@ -56,7 +57,7 @@ const (
 	GPUApiServerIpAndPortFileFileName      = `apiserver_ip_and_port`
 	GPUJobNameParentDirName                = `/home/`
 	GPUJobNameFileName                     = `job_name`
-	GPUJobUploaderRunCmd                   = `./home/run.sh`
+	GPUJobUploaderRunArgs                  = `./home/run.sh`
 
 	TemplateCmdFilePath = "/home/temp_cmd.sh"
 	//TemplateFileDir     = `/home/temp/`

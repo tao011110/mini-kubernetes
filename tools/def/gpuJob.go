@@ -21,3 +21,9 @@ type GPUJob struct {
 	ImageName      string
 	PodName        string
 }
+
+type GPUJobDetail struct {
+	Job         GPUJob      `yaml:"job" json:"job"`
+	Pod         Pod         `yaml:"pod" json:"pod"`
+	PodInstance PodInstance `yaml:"podInstance" json:"podInstance"`
+}

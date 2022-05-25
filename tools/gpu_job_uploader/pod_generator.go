@@ -21,6 +21,8 @@ func GenerateGpuJobUploaderPod(job *def.GPUJob) def.Pod {
 	podName := fmt.Sprintf("gpuUploader_pod_%s_name", job.Name)
 	podLabel := fmt.Sprintf("gpuUploader_pod_%s_label", job.Name)
 
+	job.PodName = podName
+
 	return def.Pod{
 		ApiVersion: `v1`,
 		Kind:       `Pod`,
@@ -32,20 +34,21 @@ func GenerateGpuJobUploaderPod(job *def.GPUJob) def.Pod {
 			Containers: []def.Container{
 				{
 					Name:  containerName,
-					Image: job.ImageName,
+					Image: def.RgistryAddr + job.ImageName,
 					PortMappings: []def.PortMapping{{
 						Name:          "port_mapping_80",
 						ContainerPort: 80,
-						HostPort:      80,
-						Protocol:      "HTTP",
+						//HostPort:      80,
+						Protocol: "TCP",
 					}, {
 						Name:          "port_mapping_22",
 						ContainerPort: 22,
-						HostPort:      22,
-						Protocol:      "TCP",
+						//HostPort:      22,
+						Protocol: "TCP",
 					}},
 					Resources: defualtResource,
-					Commands:  []string{def.GPUJobUploaderRunCmd},
+					Commands:  []string{def.StartBash},
+					Args:      []string{def.GPUJobUploaderRunArgs},
 				},
 			},
 			Volumes: []def.Volume{},

@@ -10,28 +10,6 @@ import (
 )
 
 func CreateDeployment(cli *clientv3.Client, deployment def.Deployment) {
-	// Put deployment's name into deployment_list_name
-	{
-		deploymentListNameKey := def.DeploymentListName
-		list := make([]string, 0)
-		kvs := etcd.Get(cli, deploymentListNameKey).Kvs
-		if len(kvs) != 0 {
-			deploymentListNameValue := kvs[0].Value
-			err := json.Unmarshal(deploymentListNameValue, &list)
-			if err != nil {
-				fmt.Printf("%v\n", err)
-				panic(err)
-			}
-		}
-		list = append(list, deployment.Metadata.Name)
-		deploymentListNameValue, err := json.Marshal(list)
-		if err != nil {
-			fmt.Printf("%v\n", err)
-			panic(err)
-		}
-		etcd.Put(cli, deploymentListNameKey, string(deploymentListNameValue))
-	}
-
 	podName := def.GetPodNameOfDeployment(deployment.Metadata.Name)
 	// Parse Deployment' meta into ParsedDeployment, and put it into etcd
 	{
@@ -108,5 +86,27 @@ func CreateDeployment(cli *clientv3.Client, deployment def.Deployment) {
 			panic(err)
 		}
 		etcd.Put(cli, podKey, string(podValue))
+	}
+
+	// Put deployment's name into deployment_list_name
+	{
+		deploymentListNameKey := def.DeploymentListName
+		list := make([]string, 0)
+		kvs := etcd.Get(cli, deploymentListNameKey).Kvs
+		if len(kvs) != 0 {
+			deploymentListNameValue := kvs[0].Value
+			err := json.Unmarshal(deploymentListNameValue, &list)
+			if err != nil {
+				fmt.Printf("%v\n", err)
+				panic(err)
+			}
+		}
+		list = append(list, deployment.Metadata.Name)
+		deploymentListNameValue, err := json.Marshal(list)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			panic(err)
+		}
+		etcd.Put(cli, deploymentListNameKey, string(deploymentListNameValue))
 	}
 }

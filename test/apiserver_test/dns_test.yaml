@@ -1,6 +1,6 @@
 kind: DNS
 name: dns-name
-host: example.com
+host: www.minik8s.com
 paths:
   - path: /route1
     service: test-service

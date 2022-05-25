@@ -1,0 +1,14 @@
+name: GPUJob-test
+kind: GPUJob
+sourceCodePath: /home/go/src/mini-kubernetes/tools/gpu_job_uploader_image/home/gpu/cuda_mat_add.cu
+MakefilePath: /home/go/src/mini-kubernetes/tools/gpu_job_uploader_image/home/gpu/Makefile
+ResultPath: /home/go/src/mini-kubernetes/tools/gpu_job_uploader_image/home/result/
+slurm:
+    jobName: job2
+    partition: a100
+    cpusPerTask: 1
+    ntasksPerNode: 2
+    Node: 3
+    GPU: 4
+    time: 00-00:2:00
+    targetExecutableFileName: targetFile

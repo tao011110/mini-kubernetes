@@ -182,7 +182,7 @@ func testGetAllAutoscaler() {
 	}
 }
 
-func Test(t *testing.T) {
+func TestReplicas(t *testing.T) {
 	//path := "./deployment_test.yaml"
 	//testCreateDeployment(path)
 	//
@@ -191,7 +191,7 @@ func Test(t *testing.T) {
 	//
 	//testGetAllDeployment()
 	//time.Sleep(10 * time.Second)
-	//
+
 	//testDeleteDeployment()
 
 	path := "./HorizontalPodAutoscaler_test.yaml"
@@ -201,6 +201,75 @@ func Test(t *testing.T) {
 	testGetAutoscaler("test-autoscaler")
 
 	testGetAllAutoscaler()
-	//
+
+	time.Sleep(30 * time.Second)
 	testDeleteAutoscaler()
+}
+
+//TODO: 用来创建GPUJob，需要发送给apiserver的参数为 gpu (def.GPUJob)
+func testCreateGPUJob(path string) {
+	gpu, _ := yaml.ReadGPUJobConfig(path)
+	request2 := *gpu
+	response2 := ""
+	body2, _ := json.Marshal(request2)
+	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/create/gpuJob").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetString(&response2).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("create_gpuJob is %s and response is: %s\n", status, response2)
+}
+
+//TODO: 用来获取特定名称的 gpuJob，需要发送给apiserver的参数为 gpuJobName(string)
+func testGetGPUJob(gpuJobName string) {
+	response := def.GPUJobDetail{}
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/gpuJob/" + gpuJobName).
+		ContentType("application/json").
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_autoscaler status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("get gpuJob %s successfully and the response is: %v\n", gpuJobName, response)
+	} else {
+		fmt.Printf("gpuJob %s doesn't exist\n", gpuJobName)
+	}
+}
+
+//TODO: 用来获取所有的 gpuJob
+func testGetAllGPUJob() {
+	response := make([]def.GPUJobDetail, 0)
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/all/gpuJob").
+		ContentType("application/json").
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_all_gpuJob status is %s\n", status)
+	if status == "200" {
+		fmt.Println("All gpuJobs' information is as follows")
+		for _, autoscaler := range response {
+			fmt.Printf("%v\n", autoscaler)
+		}
+	} else {
+		fmt.Printf("No autoscaler exists\n")
+	}
+}
+
+func TestGPU(t *testing.T) {
+	testCreateGPUJob("./gpu.yaml")
+
+	time.Sleep(50 * time.Second)
+
+	testGetGPUJob("GPUJob-test")
+	testGetAllGPUJob()
 }
