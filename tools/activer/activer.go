@@ -86,6 +86,8 @@ func ProcessFunctionHttpTrigger(c echo.Context) error {
 	bytes_ = bytes_[:read]
 	var body interface{}
 	_ = json.Unmarshal(bytes_, &body)
+	fmt.Println("params:  ", params)
+	fmt.Println("body:   ", body)
 	code, response := TriggerFunction(funcName, params, body)
 	bytes_, _ = json.Marshal(response)
 	return c.String(code, string(bytes_))
@@ -101,7 +103,8 @@ func TriggerFunction(funcName string, parames map[string]string, body interface{
 		//activer_utils.StartService(function.ServiceName)
 	}
 	time.Sleep(5 * time.Second)
-	uri := fmt.Sprintf("%s:80", service.ClusterIP)
+	uri := fmt.Sprintf("http://%s:80", service.ClusterIP)
+	fmt.Println(uri)
 	c := request.Client{
 		URL:    uri,
 		Method: "GET",
@@ -110,7 +113,9 @@ func TriggerFunction(funcName string, parames map[string]string, body interface{
 	}
 	var result interface{}
 	resp := c.Send().Scan(&result)
-	if !resp.OK() {
+	fmt.Println(resp)
+	fmt.Println(resp.Response().StatusCode)
+	if resp.Response().StatusCode != 200 {
 		return http.StatusInternalServerError, "{}"
 	}
 	return http.StatusOK, result
@@ -130,6 +135,8 @@ func ProcessStateMachineHttpTrigger(c echo.Context) error {
 
 	var body interface{}
 	_ = json.Unmarshal(bytes_, &body)
+	fmt.Println("params:  ", params)
+	fmt.Println("body:   ", body)
 	code, response := TriggerStateMachine(machineName, params, body)
 	bytes_, _ = json.Marshal(response)
 	return c.String(code, string(bytes_))

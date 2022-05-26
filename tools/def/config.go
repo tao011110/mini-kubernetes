@@ -37,7 +37,7 @@ const (
 
 	//for py functional image
 	PyFunctionTemplateImage   = `hejingkai/python_serverless_template`
-	PyHandlerParentDirPath    = `/home/functionalTemplate/`
+	PyHandlerParentDirPath    = `/home/functionalTemplate/functionalTemplate/`
 	PyHandlerFileName         = `handler.py`
 	RequirementsParentDirPath = `/`
 	RequirementsFileName      = `requirements.txt`

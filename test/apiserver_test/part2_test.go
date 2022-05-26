@@ -394,7 +394,7 @@ func TestActiver(t *testing.T) {
 	fmt.Println(request2)
 	fmt.Println(body2)
 	fmt.Println(bytes.NewReader(body2))
-	err, status := httpget.Get("http://127.0.0.1:33067" + "/function/" + functionName + "?test_param1=0&test_param2=2").
+	err, status := httpget.Get("http://127.0.0.1:3306" + "/function/" + functionName + "?test_param1=0&test_param2=2").
 		ContentType("application/json").
 		Body(bytes.NewReader(body2)).
 		GetString(&response).
@@ -497,7 +497,7 @@ func TestStateActiver(t *testing.T) {
 	fmt.Println(request2)
 	fmt.Println(body2)
 	fmt.Println(bytes.NewReader(body2))
-	err, status := httpget.Get("http://192.168.1.7:3306" + "/state_machine/" + stateMachineName + "?test_param1=0&test_param2=2").
+	err, status := httpget.Get("http://127.0.0.1:3306" + "/state_machine/" + stateMachineName + "?test_param1=0&test_param2=2").
 		ContentType("application/json").
 		Body(bytes.NewReader(body2)).
 		GetString(&response).
