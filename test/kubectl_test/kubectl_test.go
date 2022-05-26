@@ -35,13 +35,26 @@ func TestCreate(t *testing.T) {
 func TestDescribe(t *testing.T) {
 	app := kubectl.Initial()
 
-	// create pod
-	err := kubectl.ParseArgs(app, "kubectl create -f pod.yaml")
+	// create pod-1
+	err := kubectl.ParseArgs(app, "kubectl create -f pod-1.yaml")
 	if err != nil {
 		t.Error("test kubectl create fail")
 	}
+
+	// create pod-2
+	err = kubectl.ParseArgs(app, "kubectl create -f pod-2.yaml")
+	if err != nil {
+		t.Error("test kubectl create fail")
+	}
+
 	// test describe pod
-	err = kubectl.ParseArgs(app, "kubectl describe pod test-pod")
+	err = kubectl.ParseArgs(app, "kubectl describe pod test-pod-1")
+	if err != nil {
+		t.Error("test kubectl describe pod fail")
+	}
+
+	// test get pods
+	err = kubectl.ParseArgs(app, "kubectl get pods")
 	if err != nil {
 		t.Error("test kubectl describe pod fail")
 	}

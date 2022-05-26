@@ -174,7 +174,7 @@ func addCIPServiceRule(c echo.Context) error {
 
 func deleteCIPServiceRule(c echo.Context) error {
 	clusterIP := c.Param("clusterIP")
-	fmt.Println("clusterIP is\n" + clusterIP)
+	fmt.Println("clusterIP is" + clusterIP)
 
 	svcName := "mK8S-SVC-" + clusterIP
 

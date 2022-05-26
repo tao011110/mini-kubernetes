@@ -16,9 +16,9 @@ func MakeFunctionalImage(function *def.Function) {
 	imageName := fmt.Sprintf("image_%s_%d", function.Name, function.Version)
 	function.Image = imageName
 	containerID := docker.CreateContainer(container, imageName)
+	docker.StartContainer(containerID)
 	docker.CopyToContainer(containerID, def.PyHandlerParentDirPath, def.PyHandlerFileName, pyString)
 	docker.CopyToContainer(containerID, def.RequirementsParentDirPath, def.RequirementsFileName, requirementsString)
-	docker.StartContainer(containerID)
 	docker.DockerExec(containerID, []string{"/bin/bash", def.PyFunctionPrepareFile})
 	docker.CommitContainer(containerID, imageName)
 	docker.PushImage(imageName)

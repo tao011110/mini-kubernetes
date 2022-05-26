@@ -152,8 +152,10 @@ func RemovePodInstanceFromService(podInstance def.PodInstance, service def.Servi
 			Ports: binding.Ports,
 		}
 		tmpEndpoints := make([]string, 0)
-		for _, tmpEndpoint := range tmpBinding.Endpoints {
+		for _, tmpEndpoint := range binding.Endpoints {
 			tmpEndpointIP := (strings.Split(tmpEndpoint, ":"))[0]
+			fmt.Println("tmpEndpointIP:   ", tmpEndpointIP)
+			fmt.Println("podInstance.IP:   ", podInstance.IP)
 			if tmpEndpointIP != podInstance.IP {
 				tmpEndpoints = append(tmpEndpoints, tmpEndpointIP)
 			}
@@ -161,6 +163,7 @@ func RemovePodInstanceFromService(podInstance def.PodInstance, service def.Servi
 		tmpBinding.Endpoints = tmpEndpoints
 		tmpBindings = append(tmpBindings, tmpBinding)
 	}
+	fmt.Println("tmpBindings:  ", tmpBindings)
 
 	return tmpBindings
 }

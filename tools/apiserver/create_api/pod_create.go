@@ -174,7 +174,7 @@ func AddPodInstanceIntoService(podInstance def.PodInstance, service def.Service)
 		tmpBinding := def.PortsBindings{
 			Ports: binding.Ports,
 		}
-		tmpEndpoints := make([]string, 0)
+		tmpEndpoints := binding.Endpoints
 		for _, container := range podInstance.Pod.Spec.Containers {
 			for _, portMapping := range container.PortMappings {
 				containerPort := strconv.Itoa(int(portMapping.ContainerPort))

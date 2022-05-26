@@ -17,7 +17,7 @@ const (
 	ProxyPort      = 3000
 	SchedulerPort  = 9200
 	ControllerPort = 8081
-	ActiverPort    = 3306
+	ActiverPort    = 33067
 	MasterPort     = 8000
 )
 
@@ -87,11 +87,11 @@ func PodInstanceListKeyOfNodeID(nodeID int) string {
 }
 
 func KeyNodeResourceUsage(nodeID int) string {
-	return fmt.Sprintf("%d_resource_usage", nodeID)
+	return fmt.Sprintf("/resource_usage/%d", nodeID)
 }
 
 func GetKeyOfResourceUsageByPodInstanceID(instanceID string) string {
-	return fmt.Sprintf("%s_resource_usage", instanceID)
+	return fmt.Sprintf("resource_usage%s", instanceID)
 }
 
 func GetKeyOfPod(podName string) string {

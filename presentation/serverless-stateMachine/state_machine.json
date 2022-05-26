@@ -1,0 +1,41 @@
+{
+  "Name": "test_state_machine",
+  "StartAt": "State1",
+  "States": {
+    "State1": {
+      "Type": "Task",
+      "Resource": "function_state1",
+      "Next": "Choice"
+    },
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.type_state1",
+          "StringEquals": "1",
+          "Next": "State2"
+        },
+        {
+          "Variable": "$.type_state1",
+          "StringEquals": "2",
+          "Next": "State3"
+        }
+      ]
+    },
+    "State2": {
+      "Type": "Task",
+      "Resource": "function_state2",
+      "Next": "State4"
+    },
+    "State3": {
+      "Type": "Task",
+      "Resource": "function_state3",
+      "Next": "State4"
+    },
+    "State4": {
+      "Type": "Task",
+      "Resource": "function_state4",
+      "End": true
+    }
+  }
+}

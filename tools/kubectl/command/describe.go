@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"encoding/json"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/util"
@@ -41,9 +42,11 @@ func describeFunc(c *cli.Context) {
 		if err != nil {
 			fmt.Println("[Fault] " + err.Error())
 		}
-		fmt.Printf("get_pod status is %s\n", status)
+		// fmt.Printf("get_pod status is %s\n", status)
 		if status == "200" {
-			fmt.Printf("get pod_ %s successfully and the response is:\n %v\n", podName, response)
+			if res, err := json.MarshalIndent(response, "", "   "); err == nil {
+				fmt.Println("get pod successfully and the response is:\n", string(res))
+			}
 		} else {
 			fmt.Printf("pod_ %s doesn't exist\n", podName)
 		}
@@ -59,9 +62,11 @@ func describeFunc(c *cli.Context) {
 		if err != nil {
 			fmt.Println("[Fault] " + err.Error())
 		}
-		fmt.Printf("get_service status is %s\n", status)
+		// fmt.Printf("get_service status is %s\n", status)
 		if status == "200" {
-			fmt.Printf("get service %s successfully and the response is: %v\n", serviceName, response)
+			if res, err := json.MarshalIndent(response, "", "   "); err == nil {
+				fmt.Println("get service successfully and the response is:\n", string(res))
+			}
 		} else {
 			fmt.Printf("service %s doesn't exist\n", serviceName)
 		}
@@ -78,9 +83,11 @@ func describeFunc(c *cli.Context) {
 		if err != nil {
 			fmt.Println("[Fault] " + err.Error())
 		}
-		fmt.Printf("get_dns status is %s\n", status)
+		// fmt.Printf("get_dns status is %s\n", status)
 		if status == "200" {
-			fmt.Printf("get dns %s successfully and the response is: %v\n", dnsName, response)
+			if res, err := json.MarshalIndent(response, "", "   "); err == nil {
+				fmt.Println("get dns successfully and the response is:\n", string(res))
+			}
 		} else {
 			fmt.Printf("dns %s doesn't exist\n", dnsName)
 		}
@@ -97,9 +104,11 @@ func describeFunc(c *cli.Context) {
 		if err != nil {
 			fmt.Println("[Fault] " + err.Error())
 		}
-		fmt.Printf("get_deployment status is %s\n", status)
+		// fmt.Printf("get_deployment status is %s\n", status)
 		if status == "200" {
-			fmt.Printf("get deployment %s successfully and the response is: %v\n", deploymentName, response)
+			if res, err := json.MarshalIndent(response, "", "   "); err == nil {
+				fmt.Println("get deployment successfully and the response is:\n", string(res))
+			}
 		} else {
 			fmt.Printf("deployment %s doesn't exist\n", deploymentName)
 		}
@@ -115,9 +124,11 @@ func describeFunc(c *cli.Context) {
 		if err != nil {
 			fmt.Println("[Fault] " + err.Error())
 		}
-		fmt.Printf("get_autoscaler status is %s\n", status)
+		// fmt.Printf("get_autoscaler status is %s\n", status)
 		if status == "200" {
-			fmt.Printf("get autoscaler %s successfully and the response is: %v\n", autoscalerName, response)
+			if res, err := json.MarshalIndent(response, "", "   "); err == nil {
+				fmt.Println("get autoscaler successfully and the response is:\n", string(res))
+			}
 		} else {
 			fmt.Printf("autoscaler %s doesn't exist\n", autoscalerName)
 		}

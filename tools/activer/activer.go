@@ -14,10 +14,9 @@ import (
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/util"
 	"net/http"
-	"os"
+	//"os"
+	"time"
 )
-
-//NOTE: 根据pod对应的replica数目来判断集群中是否有实例, replica数目降为0时service删除, 冷启动时service创建
 
 var activerMeta = def.ActiverCache{
 	FunctionsNameList: []string{},
@@ -31,15 +30,15 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	etcdClient, err := etcd.Start("", def.EtcdPort)
-	activerMeta.EtcdClient = etcdClient
-	if err != nil {
-		e.Logger.Error("Start etcd error!")
-		os.Exit(0)
-	}
+	//etcdClient, err := etcd.Start("", def.EtcdPort)
+	//activerMeta.EtcdClient = etcdClient
+	//if err != nil {
+	//	e.Logger.Error("Start etcd error!")
+	//	os.Exit(0)
+	//}
 	Initialize()
-	go AutoExpanderAndShrinker()
 	go EtcdFunctionsNameListWatcher()
+	go AutoExpanderAndShrinker()
 	e.GET("/function/:funcname", ProcessFunctionHttpTrigger)
 	e.GET("/state_machine/:state_machine_name", ProcessStateMachineHttpTrigger)
 
@@ -47,10 +46,10 @@ func main() {
 }
 
 func Initialize() {
-	activerMeta.FunctionsNameList = activer_utils.GetFunctionNameList(activerMeta.EtcdClient)
-	for _, functionName := range activerMeta.FunctionsNameList {
-		activerMeta.AccessRecorder[functionName] = 0
-	}
+	//activerMeta.FunctionsNameList = activer_utils.GetFunctionNameList(activerMeta.EtcdClient)
+	//for _, functionName := range activerMeta.FunctionsNameList {
+	//	activerMeta.AccessRecorder[functionName] = 0
+	//}
 }
 
 func EtcdFunctionsNameListWatcher() {
@@ -75,6 +74,58 @@ func HandleFunctionsNameListChange(functionNameList []string) {
 	activerMeta.FunctionsNameList = functionNameList
 }
 
+func ProcessFunctionHttpTrigger(c echo.Context) error {
+	funcName := c.Param("funcname")
+	parames := c.QueryParams().Encode()
+	bytes_ := make([]byte, def.MaxBodySize)
+	fmt.Printf("c.Request().Body: %v\n", c.Request().Body)
+	read, _ := c.Request().Body.Read(bytes_)
+	//fmt.Printf("read: %v\n", read)
+	//fmt.Printf("bytes_: %v\n", bytes_)
+	//fmt.Printf("string(bytes_): %v\n", string(bytes_))
+	bytes_ = bytes_[:read]
+	body := string(bytes_)
+	fmt.Printf("body: %v\n", body)
+	fmt.Println("parames:  ", parames)
+	return c.String(TriggerFunction(funcName, parames, body))
+}
+
+type Person struct {
+	UserType int `json:"userType"`
+}
+
+func TriggerFunction(funcName string, parames string, body string) (int, string) {
+	FlowCount(funcName)
+	//function := activer_utils.GetFunctionByName(activerMeta.EtcdClient, funcName)
+	//podReplicaNameList := activer_utils.GetPodReplicaIDListByPodName(activerMeta.EtcdClient, function.PodName)
+	//service := activer_utils.GetServiceByName(activerMeta.EtcdClient, function.ServiceName)
+	//if len(podReplicaNameList) == 0 {
+	//	activer_utils.AddNPodInstance(function.PodName, 1)
+	//	//activer_utils.StartService(function.ServiceName)
+	//}
+	time.Sleep(5 * time.Second)
+	//uri := fmt.Sprintf("http://%s:80?%s", service.ClusterIP, parames)
+	uri := fmt.Sprintf("http://127.0.0.1:37889?%s", parames)
+	fmt.Println(uri)
+	fmt.Println("line 106: ", body)
+	response := ""
+	request2 := Person{
+		UserType: 2,
+	}
+	body2, _ := json.Marshal(request2)
+	err, status := httpget.Get(uri).
+		ContentType("application/json").
+		Body(bytes.NewReader([]byte(body2))).
+		GetString(&response).
+		Execute()
+	if err != nil || status != "200 OK" {
+		fmt.Println(err)
+		fmt.Println(status)
+		return http.StatusInternalServerError, ""
+	}
+	return http.StatusOK, response
+}
+
 func ProcessStateMachineHttpTrigger(c echo.Context) error {
 	machineName := c.Param("state_machine_name")
 	parames := c.QueryParams().Encode()
@@ -83,16 +134,6 @@ func ProcessStateMachineHttpTrigger(c echo.Context) error {
 	bytes_ = bytes_[:read]
 	body := string(bytes_)
 	return c.String(TriggerStateMachine(machineName, parames, body))
-}
-
-func ProcessFunctionHttpTrigger(c echo.Context) error {
-	funcName := c.Param("funcname")
-	parames := c.QueryParams().Encode()
-	bytes_ := make([]byte, def.MaxBodySize)
-	read, _ := c.Request().Body.Read(bytes_)
-	bytes_ = bytes_[:read]
-	body := string(bytes_)
-	return c.String(TriggerFunction(funcName, parames, body))
 }
 
 func TriggerStateMachine(stateMachineName string, parames string, body string) (int, string) {
@@ -129,34 +170,6 @@ func TriggerStateMachine(stateMachineName string, parames string, body string) (
 
 	}
 }
-
-func TriggerFunction(funcName string, parames string, body string) (int, string) {
-	FlowCount(funcName)
-	function := activer_utils.GetFunctionByName(activerMeta.EtcdClient, funcName)
-	//podReplicaNameList := activer_utils.GetPodReplicaIDListByPodName(activerMeta.EtcdClient, function.PodName)
-	service := activer_utils.GetServiceByName(activerMeta.EtcdClient, function.ServiceName)
-	//if len(podReplicaNameList) == 0 {
-	//	activer_utils.AddNPodInstance(function.PodName, 1)
-	//	//activer_utils.StartService(function.ServiceName)
-	//}
-	//time.Sleep(15 * time.Second)
-	//uri := fmt.Sprintf("%s:80?%s", service.ClusterIP, parames)
-	uri := fmt.Sprintf("%s:80", service.ClusterIP)
-	response := ""
-	fmt.Println(uri)
-	fmt.Println(parames)
-	err, status := httpget.Get(uri).
-		ContentType("application/json").
-		Body(bytes.NewReader([]byte(body))).
-		GetString(&response).
-		Execute()
-	if err != nil || status != "200 OK" {
-		fmt.Println("status:  ", status)
-		return http.StatusInternalServerError, ""
-	}
-	return http.StatusOK, response
-}
-
 func AutoExpanderAndShrinker() {
 	cron2 := cron.New()
 	err := cron2.AddFunc("*/30 * * * * *", ExpandAndShrink)

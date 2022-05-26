@@ -45,6 +45,7 @@ func getFunc(c *cli.Context) {
 		fmt.Printf("get_all_pod status is %s\n", status)
 		if status == "200" {
 			fmt.Println("All pods' brief information is as follows")
+			fmt.Println("NAME   READY   STATUS   RESTARTS   AGE")
 			for _, podInstanceBrief := range response {
 				fmt.Printf("%v\n", podInstanceBrief)
 			}

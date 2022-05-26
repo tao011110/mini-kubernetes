@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"mini-kubernetes/tools/apiserver/apiserver_utils"
 	"mini-kubernetes/tools/apiserver/create_api"
 	"mini-kubernetes/tools/apiserver/delete_api"
 	"mini-kubernetes/tools/apiserver/function_api"
@@ -18,8 +19,6 @@ import (
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/httpget"
 	"strconv"
-	"strings"
-	"time"
 )
 
 var IpAndPort string
@@ -54,7 +53,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.DELETE("/delete/service/:serviceName", handleDeleteService)
 	e.DELETE("/delete/deployment/:deploymentName", handleDeleteDeployment)
 	e.DELETE("/delete/autoscaler/:autoscalerName", handleDeleteAutoscaler)
-	e.DELETE("/delete/funcPodInstance/:podName/:num", handleDeleteFuncPodInstance)
+	e.DELETE("/delete/funcPodInstance/:podName", handleDeleteFuncPodInstance)
 
 	// handle get-api
 	e.GET("/get_pod/:podInstanceName", handleGetPod)
@@ -144,18 +143,17 @@ func handleCreatePod(c echo.Context) error {
 						for _, service := range serviceList {
 							if service.Type == "ClusterIP" {
 								for _, node := range nodeList {
-									go letProxyDeleteCIRule(service.Name, node)
-									time.Sleep(10 * time.Second)
-									go letProxyCreateCIRule(service, node)
+									letProxyDeleteCIRule(service.ClusterIP, node)
+									letProxyCreateCIRule(service, node)
 								}
 							} else {
 								for _, node := range nodeList {
-									go letProxyDeleteCIRule(service.Name, node)
-									time.Sleep(10 * time.Second)
-									go letProxyCreateNPRule(service, node)
+									letProxyDeleteCIRule(service.ClusterIP, node)
+									letProxyCreateNPRule(service, node)
 								}
 							}
 						}
+						fmt.Println("end watch")
 						return
 					}
 				}
@@ -258,6 +256,7 @@ func handleCreateAutoscaler(c echo.Context) error {
 	return c.String(200, "autoscaler "+autoscaler.Metadata.Name+" has been created")
 }
 
+//TODO: 这里watch可能有问题？
 func handleCreateDNS(c echo.Context) error {
 	dns := def.DNS{}
 	requestBody := new(bytes.Buffer)
@@ -287,7 +286,6 @@ func handleCreateDNS(c echo.Context) error {
 					if change.IP != "" {
 						coredns.AddItem(cli, dnsDetail.Host+":80", change.IP, 80)
 						fmt.Println("find add")
-						return
 					}
 				} else {
 					if w.Type == clientv3.EventTypeDelete {
@@ -315,21 +313,21 @@ func letProxyCreateCIRule(service def.Service, node def.Node) {
 	target := node.NodeIP.String() + ":" + strconv.Itoa(node.ProxyPort)
 
 	// 创建携程，并发执行
-	go func(target string) {
-		fmt.Println("target is " + target)
-		response := ""
-		body, _ := json.Marshal(service)
-		err, _ := httpget.Post("http://" + target + "/add/clusterIPServiceRule").
-			ContentType("application/json").
-			Body(bytes.NewReader(body)).
-			GetString(&response).
-			Execute()
-		if err != nil {
-			fmt.Println("err")
-			fmt.Println(err)
-		}
-		fmt.Printf("%s create service successfully\n", target)
-	}(target)
+	//go func(target string) {
+	fmt.Println("target is " + target)
+	response := ""
+	body, _ := json.Marshal(service)
+	err, _ := httpget.Post("http://" + target + "/add/clusterIPServiceRule").
+		ContentType("application/json").
+		Body(bytes.NewReader(body)).
+		GetString(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("%s create service successfully\n", target)
+	//}(target)
 }
 
 func letProxyCreateNPRule(service def.Service, node def.Node) {
@@ -337,21 +335,21 @@ func letProxyCreateNPRule(service def.Service, node def.Node) {
 	target := node.NodeIP.String() + ":" + strconv.Itoa(node.ProxyPort)
 
 	// 创建携程，并发执行
-	go func(target string) {
-		fmt.Println("target is " + target)
-		response := ""
-		body, _ := json.Marshal(service)
-		err, _ := httpget.Post("http://" + target + "/add/nodePortServiceRule").
-			ContentType("application/json").
-			Body(bytes.NewReader(body)).
-			GetString(&response).
-			Execute()
-		if err != nil {
-			fmt.Println("err")
-			fmt.Println(err)
-		}
-		fmt.Printf("%s create service successfully\n", target)
-	}(target)
+	//go func(target string) {
+	fmt.Println("target is " + target)
+	response := ""
+	body, _ := json.Marshal(service)
+	err, _ := httpget.Post("http://" + target + "/add/nodePortServiceRule").
+		ContentType("application/json").
+		Body(bytes.NewReader(body)).
+		GetString(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("%s create service successfully\n", target)
+	//}(target)
 }
 
 func handleCreateFunction(c echo.Context) error {
@@ -373,7 +371,7 @@ func handleCreateFunction(c echo.Context) error {
 	// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
 	nodeList := get_api.GetAllNode(cli)
 	for _, node := range nodeList {
-		go letProxyCreateNPRule(service, node)
+		go letProxyCreateCIRule(service, node)
 	}
 
 	return c.String(200, fmt.Sprintf("/%s:%d", function.Name, def.ActiverPort))
@@ -438,22 +436,19 @@ func handleOutputGPUJob(c echo.Context) error {
 }
 
 func handleCreateFuncPodInstance(c echo.Context) error {
-	podNameAndNum := ""
+	podName := ""
 	requestBody := new(bytes.Buffer)
 	_, err := requestBody.ReadFrom(c.Request().Body)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	err = json.Unmarshal(requestBody.Bytes(), &podNameAndNum)
+	err = json.Unmarshal(requestBody.Bytes(), &podName)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	params := strings.Split(podNameAndNum, "&")
-	podName := params[0]
-	num, _ := strconv.Atoi(params[1])
-	podInstanceList, service := function_api.CreateFuncPodInstance(cli, podName, num)
+	podInstance := function_api.CreateFuncPodInstance(cli, podName)
 	fmt.Println("Create FuncPodInstance of ", podInstance.Pod.Metadata.Name)
 
 	go func(podInstanceID string) {
@@ -470,13 +465,20 @@ func handleCreateFuncPodInstance(c echo.Context) error {
 					}
 					if change.IP != "" {
 						fmt.Println("change.IP:  ", change.IP)
+
+						// 在service中加上该podInstance
+						service, _ := get_api.GetService(cli, "service_"+podName[4:])
+						fmt.Println("and service is", service)
+						service.PortsBindings = create_api.AddPodInstanceIntoService(change, *service)
+						apiserver_utils.PersistService(cli, *service)
+
 						// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
 						nodeList := get_api.GetAllNode(cli)
 						for _, node := range nodeList {
-							go letProxyDeleteCIRule(service.Name, node)
-							time.Sleep(10 * time.Second)
-							go letProxyCreateCIRule(service, node)
+							letProxyDeleteCIRule(service.ClusterIP, node)
+							letProxyCreateCIRule(*service, node)
 						}
+						fmt.Println("end watch")
 						return
 					}
 				}
@@ -497,15 +499,13 @@ func handleDeletePod(c echo.Context) error {
 		for _, service := range serviceList {
 			if service.Type == "ClusterIP" {
 				for _, node := range nodeList {
-					go letProxyDeleteCIRule(service.Name, node)
-					time.Sleep(10 * time.Second)
-					go letProxyCreateCIRule(service, node)
+					letProxyDeleteCIRule(service.ClusterIP, node)
+					letProxyCreateCIRule(service, node)
 				}
 			} else {
 				for _, node := range nodeList {
-					go letProxyDeleteCIRule(service.Name, node)
-					time.Sleep(10 * time.Second)
-					go letProxyCreateNPRule(service, node)
+					letProxyDeleteCIRule(service.ClusterIP, node)
+					letProxyCreateNPRule(service, node)
 				}
 			}
 		}
@@ -565,23 +565,28 @@ func handleDeleteAutoscaler(c echo.Context) error {
 }
 
 func handleDeleteFuncPodInstance(c echo.Context) error {
-	podName := c.Param("podName")
-	numStr := c.Param("num")
-	num, _ := strconv.Atoi(numStr)
-	flag, service := function_api.DeleteFuncPodInstance(cli, podName, num)
+	podInstanceID := c.Param("podName")
+	flag, service := function_api.DeleteFuncPodInstance(cli, podInstanceID)
 	if flag == true {
-		fmt.Println("PodInstance of " + podName + " has been deleted")
+		fmt.Println("PodInstance of " + podInstanceID + " has been deleted")
 		nodeList := get_api.GetAllNode(cli)
 		for _, node := range nodeList {
-			go letProxyDeleteCIRule(service.ClusterIP, node)
-			time.Sleep(10 * time.Second)
-			go letProxyCreateCIRule(service, node)
+			fmt.Println("service.ClusterIP is :   ", service.ClusterIP)
+			letProxyDeleteCIRule(service.ClusterIP, node)
+			letProxyCreateCIRule(service, node)
 		}
-		return c.String(200, "PodInstance of "+podName+" has been deleted")
+		return c.String(200, "PodInstance of "+podInstanceID+" has been deleted")
 	} else {
-		fmt.Println("PodInstance of " + podName + " has been deleted")
-		return c.String(404, "PodInstance of "+podName+" doesn't exist")
+		return c.String(404, "PodInstance of "+podInstanceID+" doesn't exist")
 	}
+}
+
+func tmp(c echo.Context) error {
+	podInstanceID := c.Param("podInstanceID")
+	num := c.Param("num")
+	fmt.Println(podInstanceID)
+	fmt.Println(num)
+	return c.String(404, "PodInstance of "+podInstanceID+" doesn't exist")
 }
 
 func letProxyDeleteCIRule(clusterIP string, node def.Node) {
@@ -590,24 +595,24 @@ func letProxyDeleteCIRule(clusterIP string, node def.Node) {
 	fmt.Println("target is " + target)
 
 	// 创建携程，并发执行
-	go func(target string) {
-		response := ""
-		err, status := httpget.DELETE("http://" + target + "/delete/clusterIPServiceRule/" + clusterIP).
-			ContentType("application/json").
-			GetString(&response).
-			Execute()
-		if err != nil {
-			fmt.Println("err")
-			fmt.Println(err)
-		}
+	//go func(target string) {
+	response := ""
+	err, status := httpget.DELETE("http://" + target + "/delete/clusterIPServiceRule/" + clusterIP).
+		ContentType("application/json").
+		GetString(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
 
-		fmt.Printf("get_pod status is %s\n", status)
-		if status == "200" {
-			fmt.Printf("%s delete service rule %s successfully\n", target, clusterIP)
-		} else {
-			fmt.Printf("%s failed to delete service %s\n", target, clusterIP)
-		}
-	}(target)
+	fmt.Printf("get_pod status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("%s delete service rule %s successfully\n", target, clusterIP)
+	} else {
+		fmt.Printf("%s failed to delete service %s\n", target, clusterIP)
+	}
+	//}(target)
 }
 
 func letProxyDeleteNPRule(clusterIP string, node def.Node) {
@@ -616,24 +621,24 @@ func letProxyDeleteNPRule(clusterIP string, node def.Node) {
 	fmt.Println("target is " + target)
 
 	// 创建携程，并发执行
-	go func(target string) {
-		response := ""
-		err, status := httpget.DELETE("http://" + target + "/delete/nodePortServiceRule/" + clusterIP).
-			ContentType("application/json").
-			GetString(&response).
-			Execute()
-		if err != nil {
-			fmt.Println("err")
-			fmt.Println(err)
-		}
+	//go func(target string) {
+	response := ""
+	err, status := httpget.DELETE("http://" + target + "/delete/nodePortServiceRule/" + clusterIP).
+		ContentType("application/json").
+		GetString(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
 
-		fmt.Printf("get_pod status is %s\n", status)
-		if status == "200" {
-			fmt.Printf("%s delete service rule %s successfully\n", target, clusterIP)
-		} else {
-			fmt.Printf("%s failed to delete service %s\n", target, clusterIP)
-		}
-	}(target)
+	fmt.Printf("get_pod status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("%s delete service rule %s successfully\n", target, clusterIP)
+	} else {
+		fmt.Printf("%s failed to delete service %s\n", target, clusterIP)
+	}
+	//}(target)
 }
 
 func handleGetPod(c echo.Context) error {

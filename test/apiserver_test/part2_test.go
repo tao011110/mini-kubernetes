@@ -351,9 +351,9 @@ func testCreateFuncPodInstance(podName string) {
 }
 
 //不需要加入到kubectl里面
-func testDeleteFuncPodInstance(podInstanceID string) {
+func testDeleteFuncPodInstance(podName string) {
 	response4 := ""
-	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/funcPodInstance/" + podInstanceID).
+	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/funcPodInstance/" + podName).
 		ContentType("application/json").
 		GetString(&response4).
 		Execute()
@@ -364,37 +364,48 @@ func testDeleteFuncPodInstance(podInstanceID string) {
 
 	fmt.Printf("delete funcPodInstance status is %s\n", status)
 	if status == "200" {
-		fmt.Printf("delete funcPodInstance %s successfully and the response is: %v\n", podInstanceID, response4)
+		fmt.Printf("delete funcPodInstance %s successfully and the response is: %v\n", podName, response4)
 	} else {
-		fmt.Printf("funcPodInstance %s doesn't exist\n", podInstanceID)
-	}
-}
-func testtmp(podInstanceID string) {
-	response4 := ""
-	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/woc/" + podInstanceID + "/" + "2").
-		ContentType("application/json").
-		GetString(&response4).
-		Execute()
-	if err != nil {
-		fmt.Println("err")
-		fmt.Println(err)
-	}
-
-	fmt.Printf("delete funcPodInstance status is %s\n", status)
-	if status == "200" {
-		fmt.Printf("delete funcPodInstance %s successfully and the response is: %v\n", podInstanceID, response4)
-	} else {
-		fmt.Printf("funcPodInstance %s doesn't exist\n", podInstanceID)
+		fmt.Printf("funcPodInstance %s doesn't exist\n", podName)
 	}
 }
 
 func TestFunction(t *testing.T) {
-	//testCreateFunction("./function_test.yaml")
-	//
-	//testGetFunction("function_test")
-	//testGetAllFunction()
-	testtmp("wdadawd")
+	testCreateFunction("./function_test.yaml")
 
-	//testCreateFuncPodInstance("pod_functional_function_test_1_8375b943-3cfb-4c46-a69a-76ecb96b7362")
-	//testDeleteFuncPodInstance("/podInstance/pod_functional_function_test_1_8375b943-3cfb-4c46-a69a-76ecb96b7362")
+	testGetFunction("function_test")
+	testGetAllFunction()
+
+	//testCreateFuncPodInstance("pod_functional_function_test_1_57cb853e-a6fb-460f-a24a-c2a9b0753d8a")
+	//testDeleteFuncPodInstance("pod_functional_function_test_1_57cb853e-a6fb-460f-a24a-c2a9b0753d8a")
+}
+
+func TestActiver(t *testing.T) {
+	response := def.Function{}
+	functionName := "function_test"
+	type person struct {
+		UserType int `json:"userType"`
+	}
+	request2 := person{
+		UserType: 2,
+	}
+	body2, _ := json.Marshal(request2)
+	fmt.Println(request2)
+	fmt.Println(body2)
+	fmt.Println(bytes.NewReader(body2))
+	err, status := httpget.Get("http://127.0.0.1:33067" + "/function/" + functionName + "?test_param1=0&test_param2=2").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_function status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("get function %s successfully and the response is: %v\n", functionName, response)
+	} else {
+		fmt.Printf("function %s doesn't exist\n", functionName)
+	}
 }
