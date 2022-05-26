@@ -37,12 +37,12 @@ const (
 
 	//for py functional image
 	PyFunctionTemplateImage   = `hejingkai/python_serverless_template`
-	PyHandlerParentDirPath    = `/home/functionalTemplate/`
+	PyHandlerParentDirPath    = `/home/functionalTemplate/functionalTemplate/`
 	PyHandlerFileName         = `handler.py`
 	RequirementsParentDirPath = `/`
 	RequirementsFileName      = `requirements.txt`
 	PyFunctionPrepareFile     = `/prepare.sh`
-	PyFunctionStartCmd        = `./start.sh`
+	PyFunctionStartArgs       = `./start.sh`
 	MaxBodySize               = 2048
 
 	//for gpu job uploader image
@@ -87,11 +87,11 @@ func PodInstanceListKeyOfNodeID(nodeID int) string {
 }
 
 func KeyNodeResourceUsage(nodeID int) string {
-	return fmt.Sprintf("%d_resource_usage", nodeID)
+	return fmt.Sprintf("/resource_usage/%d", nodeID)
 }
 
 func GetKeyOfResourceUsageByPodInstanceID(instanceID string) string {
-	return fmt.Sprintf("%s_resource_usage", instanceID)
+	return fmt.Sprintf("resource_usage%s", instanceID)
 }
 
 func GetKeyOfPod(podName string) string {

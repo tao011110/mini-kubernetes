@@ -14,6 +14,7 @@ import (
 	"mini-kubernetes/tools/util"
 	"net/http"
 	"os"
+	"time"
 )
 
 var activerMeta = def.ActiverCache{
@@ -85,6 +86,8 @@ func ProcessFunctionHttpTrigger(c echo.Context) error {
 	bytes_ = bytes_[:read]
 	var body interface{}
 	_ = json.Unmarshal(bytes_, &body)
+	fmt.Println("params:  ", params)
+	fmt.Println("body:   ", body)
 	code, response := TriggerFunction(funcName, params, body)
 	bytes_, _ = json.Marshal(response)
 	return c.String(code, string(bytes_))
@@ -99,7 +102,9 @@ func TriggerFunction(funcName string, parames map[string]string, body interface{
 		activer_utils.AddNPodInstance(function.PodName, 1)
 		//activer_utils.StartService(function.ServiceName)
 	}
-	uri := fmt.Sprintf("%s:80", service.ClusterIP)
+	time.Sleep(5 * time.Second)
+	uri := fmt.Sprintf("http://%s:80", service.ClusterIP)
+	fmt.Println(uri)
 	c := request.Client{
 		URL:    uri,
 		Method: "GET",
@@ -108,7 +113,9 @@ func TriggerFunction(funcName string, parames map[string]string, body interface{
 	}
 	var result interface{}
 	resp := c.Send().Scan(&result)
-	if !resp.OK() {
+	fmt.Println(resp)
+	fmt.Println(resp.Response().StatusCode)
+	if resp.Response().StatusCode != 200 {
 		return http.StatusInternalServerError, "{}"
 	}
 	return http.StatusOK, result
@@ -125,8 +132,11 @@ func ProcessStateMachineHttpTrigger(c echo.Context) error {
 	bytes_ := make([]byte, def.MaxBodySize)
 	read, _ := c.Request().Body.Read(bytes_)
 	bytes_ = bytes_[:read]
+
 	var body interface{}
 	_ = json.Unmarshal(bytes_, &body)
+	fmt.Println("params:  ", params)
+	fmt.Println("body:   ", body)
 	code, response := TriggerStateMachine(machineName, params, body)
 	bytes_, _ = json.Marshal(response)
 	return c.String(code, string(bytes_))
@@ -139,6 +149,7 @@ func TriggerStateMachine(stateMachineName string, parames map[string]string, bod
 	for {
 		type_ := gojsonq.New().FromInterface(currentState).Find("Type")
 		if type_ == "Task" {
+			fmt.Println("currentState:  ", currentState)
 			task := currentState.(def.Task)
 			state, response := TriggerFunction(task.Resource, parames, currentBody)
 			if state != http.StatusOK || task.End {
@@ -163,7 +174,6 @@ func TriggerStateMachine(stateMachineName string, parames map[string]string, bod
 		}
 	}
 }
-
 func AutoExpanderAndShrinker() {
 	cron2 := cron.New()
 	err := cron2.AddFunc("*/30 * * * * *", ExpandAndShrink)

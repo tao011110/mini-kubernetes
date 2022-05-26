@@ -150,7 +150,7 @@ func testGetAllPodStatus() {
 }
 
 func TestPod(t *testing.T) {
-	testRegisterNode()
+	//testRegisterNode()
 
 	var path = "./podForService.yaml"
 	testCreatePod(path)

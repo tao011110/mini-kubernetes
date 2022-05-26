@@ -235,7 +235,7 @@ func testGetGPUJob(gpuJobName string) {
 		fmt.Println("err")
 		fmt.Println(err)
 	}
-	fmt.Printf("get_autoscaler status is %s\n", status)
+	fmt.Printf("get_gpuJob status is %s\n", status)
 	if status == "200" {
 		fmt.Printf("get gpuJob %s successfully and the response is: %v\n", gpuJobName, response)
 	} else {
@@ -257,19 +257,259 @@ func testGetAllGPUJob() {
 	fmt.Printf("get_all_gpuJob status is %s\n", status)
 	if status == "200" {
 		fmt.Println("All gpuJobs' information is as follows")
-		for _, autoscaler := range response {
-			fmt.Printf("%v\n", autoscaler)
+		for _, gpuJobDetail := range response {
+			fmt.Printf("%v\n", gpuJobDetail)
 		}
 	} else {
-		fmt.Printf("No autoscaler exists\n")
+		fmt.Printf("No gpuJob exists\n")
 	}
 }
 
 func TestGPU(t *testing.T) {
-	testCreateGPUJob("./gpu.yaml")
+	testCreateGPUJob("./gpu_test.yaml")
 
 	time.Sleep(50 * time.Second)
 
 	testGetGPUJob("GPUJob-test")
 	testGetAllGPUJob()
+}
+
+//TODO: 用来创建function，需要发送给apiserver的参数为 function (def.Function)
+//需要注意的是，返回的 response 会提供一个url，kubectl将它呈现给用户，后续用户可以使用它发送请求
+func testCreateFunction(path string) {
+	function, _ := yaml.ReadFunctionConfig(path)
+	request := *function
+	response := ""
+	body2, _ := json.Marshal(request)
+	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/create/function").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetString(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("create_function is %s and response is: %s\n", status, response)
+}
+
+//TODO: 用来获取特定名称的 function，需要发送给apiserver的参数为 functionName(string)
+func testGetFunction(functionName string) {
+	response := def.Function{}
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/function/" + functionName).
+		ContentType("application/json").
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_function status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("get function %s successfully and the response is: %v\n", functionName, response)
+	} else {
+		fmt.Printf("function %s doesn't exist\n", functionName)
+	}
+}
+
+//TODO: 用来获取所有的 function
+func testGetAllFunction() {
+	response := make([]def.Function, 0)
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/all/function").
+		ContentType("application/json").
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_all_function status is %s\n", status)
+	if status == "200" {
+		fmt.Println("All functions' information is as follows")
+		for _, function := range response {
+			fmt.Printf("%v\n", function)
+		}
+	} else {
+		fmt.Printf("No function exists\n")
+	}
+}
+
+//该函数不需要加入到kubectl里面
+func testCreateFuncPodInstance(podName string) {
+	request2 := podName
+	response2 := ""
+	body2, _ := json.Marshal(request2)
+	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/create/funcPodInstance").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetString(&response2).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("create_function is %s and response is: %s\n", status, response2)
+}
+
+//该函数不需要加入到kubectl里面
+func testDeleteFuncPodInstance(podName string) {
+	response4 := ""
+	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/funcPodInstance/" + podName).
+		ContentType("application/json").
+		GetString(&response4).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+
+	fmt.Printf("delete funcPodInstance status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("delete funcPodInstance %s successfully and the response is: %v\n", podName, response4)
+	} else {
+		fmt.Printf("funcPodInstance %s doesn't exist\n", podName)
+	}
+}
+
+func TestFunction(t *testing.T) {
+	testCreateFunction("./function_test.yaml")
+
+	testGetFunction("function_test")
+	testGetAllFunction()
+
+	//testCreateFuncPodInstance("pod_functional_function_test_1_57cb853e-a6fb-460f-a24a-c2a9b0753d8a")
+	//testDeleteFuncPodInstance("pod_functional_function_test_1_57cb853e-a6fb-460f-a24a-c2a9b0753d8a")
+}
+
+func TestActiver(t *testing.T) {
+	response := ""
+	functionName := "function_test"
+	type person struct {
+		UserType int `json:"userType"`
+	}
+	request2 := person{
+		UserType: 2,
+	}
+	body2, _ := json.Marshal(request2)
+	fmt.Println(request2)
+	fmt.Println(body2)
+	fmt.Println(bytes.NewReader(body2))
+	err, status := httpget.Get("http://127.0.0.1:3306" + "/function/" + functionName + "?test_param1=0&test_param2=2").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetString(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_function status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("get function %s successfully and the response is: %v\n", functionName, response)
+	} else {
+		fmt.Printf("function %s doesn't exist\n", functionName)
+	}
+}
+
+//TODO: 用来创建StateMachine，需要发送给apiserver的参数为 stateMachine (def.StateMachine)
+//需要注意的是，返回的 response 会提供一个url，kubectl将它呈现给用户，后续用户可以使用它发送请求
+func testCreateStateMachine(path string) {
+	//TODO: 这里需要注意的是，用户会交给kubectl一个.json文件的路径，kubectl从中json字符串后，将其转为def.StateMachine。
+	//这里并没有关于读文件的操作，kubectl需自己实现
+	stateMachineJson := "{\"Name\": \"test_state_machine\",\"StartAt\": \"State1\",\"States\": {\"State1\": {\"Type\": \"Task\",\"Resource\": \"function_state1\",\"Next\": \"Choice\"},\"Choice\": {\"Type\": \"Choice\",\"Choices\": [{\"Variable\": \"$.type_state1\",\"StringEquals\": \"1\",\"Next\": \"State2\"},{\"Variable\": \"$.type_state1\",\"StringEquals\": \"2\",\"Next\": \"State3\"}]},\"State2\": {\"Type\": \"Task\",\"Resource\": \"function_state2\",\"Next\": \"State4\"},\"State3\": {\"Type\": \"Task\",\"Resource\": \"function_state3\",\"Next\": \"State4\"},\"State4\": {\"Type\": \"Task\",\"Resource\": \"function_state4\",\"End\": true}}}"
+	stateMachine := def.StateMachine{}
+	_ = json.Unmarshal([]byte(stateMachineJson), &stateMachine)
+	fmt.Println(stateMachine)
+
+	request2 := stateMachine
+	response2 := ""
+	body2, _ := json.Marshal(request2)
+	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/create/stateMachine").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetString(&response2).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("create_stateMachine is %s and response is: %s\n", status, response2)
+}
+
+//TODO: 用来获取特定名称的 StateMachine，需要发送给apiserver的参数为 stateMachineName(string)
+func testGetStateMachine(stateMachineName string) {
+	response := def.StateMachine{}
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/stateMachine/" + stateMachineName).
+		ContentType("application/json").
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_stateMachine status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("get stateMachine %s successfully and the response is: %v\n", stateMachineName, response)
+	} else {
+		fmt.Printf("stateMachine %s doesn't exist\n", stateMachineName)
+	}
+}
+
+//TODO: 用来获取所有的 StateMachine
+func testGetAllStateMachine() {
+	response := make([]def.StateMachine, 0)
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/all/stateMachine").
+		ContentType("application/json").
+		GetJson(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_all_stateMachine status is %s\n", status)
+	if status == "200" {
+		fmt.Println("All stateMachines' information is as follows")
+		for _, stateMachine := range response {
+			fmt.Printf("%v\n", stateMachine)
+		}
+	} else {
+		fmt.Printf("No stateMachine exists\n")
+	}
+}
+
+func TestStateStateMachine(t *testing.T) {
+	testCreateStateMachine("./function_test.json")
+
+	testGetStateMachine("test_state_machine")
+	testGetAllStateMachine()
+}
+
+func TestStateActiver(t *testing.T) {
+	response := ""
+	stateMachineName := "test_state_machine"
+	type person struct {
+		UserType int `json:"userType"`
+	}
+	request2 := person{
+		UserType: 2,
+	}
+	body2, _ := json.Marshal(request2)
+	fmt.Println(request2)
+	fmt.Println(body2)
+	fmt.Println(bytes.NewReader(body2))
+	err, status := httpget.Get("http://127.0.0.1:3306" + "/state_machine/" + stateMachineName + "?test_param1=0&test_param2=2").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetString(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_function status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("get stateMachine %s successfully and the response is: %v\n", stateMachineName, response)
+	} else {
+		fmt.Printf("stateMachine %s doesn't exist\n", stateMachineName)
+	}
 }
