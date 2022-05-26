@@ -2,6 +2,9 @@ package command
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
+	"time"
 	"mini-kubernetes/tools/util"
 
 	"mini-kubernetes/tools/def"
@@ -42,12 +45,23 @@ func getFunc(c *cli.Context) {
 		if err != nil {
 			fmt.Println("[Fault] " + err.Error())
 		}
-		fmt.Printf("get_all_pod status is %s\n", status)
+		// fmt.Printf("get_all_pod status is %s\n", status)
 		if status == "200" {
 			fmt.Println("All pods' brief information is as follows")
-			fmt.Println("NAME   READY   STATUS   RESTARTS   AGE")
+			max := 12
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n", 
+					"NAME",
+					"READY",
+					"STATUS",
+					"RESTARTS",
+					"AGE")
 			for _, podInstanceBrief := range response {
-				fmt.Printf("%v\n", podInstanceBrief)
+				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n", 
+					podInstanceBrief.Name,
+					podInstanceBrief.Ready,
+					strconv.Itoa(int(podInstanceBrief.Status)),
+					strconv.Itoa(int(podInstanceBrief.Restarts)),
+					podInstanceBrief.Age)
 			}
 		} else {
 			fmt.Printf("No pod exists\n")
@@ -62,7 +76,7 @@ func getFunc(c *cli.Context) {
 		if err != nil {
 			fmt.Println("[Fault] " + err.Error())
 		}
-		fmt.Printf("get_all_pod status is %s\n", status)
+		// fmt.Printf("get_all_pod status is %s\n", status)
 		if status == "200" {
 			fmt.Println("All pods are as follows")
 			for _, podInstance := range response {
@@ -82,11 +96,32 @@ func getFunc(c *cli.Context) {
 		if err != nil {
 			fmt.Println("[Fault] " + err.Error())
 		}
-		fmt.Printf("get_all_service status is %s\n", status)
+		// fmt.Printf("get_all_service status is %s\n", status)
 		if status == "200" {
 			fmt.Println("All services' information is as follows")
+			max := 12
+			ip := 15
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(ip)+"s %-"+
+							strconv.Itoa(ip)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n", 
+					"NAME",
+					"TYPE",
+					"CLUSTER-IP",
+					"EXTERNAL-IP",
+					"PORT(S)",
+					"AGE")
 			for _, service := range response {
-				fmt.Printf("%v\n", service)
+				t := time.Now()  // 用于获取当前时间
+				var Age time.Duration = t.Sub(service.StartTime)  //进行计算，得到AGE
+				for i := range service.PortsBindings {
+					fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(ip)+"s %-"+
+									strconv.Itoa(ip)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n", 
+						service.Name,
+						service.Type,
+						service.ClusterIP,
+						"<none>",
+						strconv.Itoa(int(service.PortsBindings[i].Ports.Port))+"/"+strings.ToUpper(service.PortsBindings[i].Ports.Protocol),
+						Age)
+				}
 			}
 		} else {
 			fmt.Printf("No service exists\n")
@@ -102,11 +137,27 @@ func getFunc(c *cli.Context) {
 		if err != nil {
 			fmt.Println("[Fault] " + err.Error())
 		}
-		fmt.Printf("get_all_dns status is %s\n", status)
+		// fmt.Printf("get_all_dns status is %s\n", status)
 		if status == "200" {
 			fmt.Println("All dns' information is as follows")
-			for _, service := range response {
-				fmt.Printf("%v\n", service)
+			max := 15
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+
+							strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n", 
+					"NAME",
+					"HOST",
+					"PATH",
+					"SERVICE-NAME",
+					"PORT")
+			for _, dns := range response {
+				for i := range dns.Paths {
+					fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+
+									strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n", 
+						dns.Name,
+						dns.Host,
+						dns.Paths[i].Path,
+						dns.Paths[i].Service.Metadata.Name,
+						strconv.Itoa(int(dns.Paths[i].Port)))
+				}
 			}
 		} else {
 			fmt.Printf("No dns exists\n")
@@ -122,17 +173,32 @@ func getFunc(c *cli.Context) {
 		if err != nil {
 			fmt.Println("[Fault] " + err.Error())
 		}
-		fmt.Printf("get_all_deployment status is %s\n", status)
+		// fmt.Printf("get_all_deployment status is %s\n", status)
 		if status == "200" {
 			fmt.Println("All deployments' information is as follows")
-			for _, deployment := range response {
-				fmt.Printf("%v\n", deployment)
+			max := 15
+			num := 10
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+
+							strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n", 
+					"NAME",
+					"READY",
+					"UpToDate",
+					"AVAILABLE",
+					"AGE")
+			for _, dep := range response {
+				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+
+								strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n", 
+					dep.Name,
+					dep.Ready,
+					strconv.Itoa(dep.UpToDate),
+					strconv.Itoa(dep.Available),
+					dep.Age)
 			}
 		} else {
 			fmt.Printf("No deployment exists\n")
 		}
 	} else if ty == "autoscaler" {
-		// 用来获取所有的 autoscaler
+		// kubectl get autoscaler 用来获取所有的 autoscaler
 		// AutoscalerBrief提供了 的 kubelet get autoscaler 显示的部分信息
 		response := make([]def.AutoscalerBrief, 0)
 		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/autoscaler").
@@ -142,11 +208,26 @@ func getFunc(c *cli.Context) {
 		if err != nil {
 			fmt.Println("[Fault] " + err.Error())
 		}
-		fmt.Printf("get_all_autoscaler status is %s\n", status)
+		// fmt.Printf("get_all_autoscaler status is %s\n", status)
 		if status == "200" {
 			fmt.Println("All autoscalers' information is as follows")
-			for _, autoscaler := range response {
-				fmt.Printf("%v\n", autoscaler)
+			max := 15
+			num := 10
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+strconv.Itoa(num)+"s %-"+
+							strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n", 
+					"NAME",
+					"MIN-PODS",
+					"MAX-PODS",
+					"REPLICAS",
+					"AGE")
+			for _, auto := range response {
+				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+strconv.Itoa(num)+"s %-"+
+								strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n", 
+					auto.Name,
+					strconv.Itoa(auto.MinPods),
+					strconv.Itoa(auto.MaxPods),
+					strconv.Itoa(auto.Replicas),
+					auto.Age)
 			}
 		} else {
 			fmt.Printf("No autoscaler exists\n")

@@ -72,7 +72,7 @@ func deleteFunc(c *cli.Context) {
 			if err != nil {
 				fmt.Println("[Fault] " + err.Error())
 			} else {
-				fmt.Printf("get_pod status is %s\n", status)
+				// fmt.Printf("get_pod status is %s\n", status)
 				if status == "200" {
 					fmt.Printf("Delete pod %s successfully and the response is: %v\n", src_name, response)
 				} else {
@@ -90,7 +90,7 @@ func deleteFunc(c *cli.Context) {
 			if err != nil {
 				fmt.Println("[Fault] " + err.Error())
 			}
-			fmt.Printf("delete clusterIPService status is %s\n", status)
+			// fmt.Printf("delete clusterIPService status is %s\n", status)
 			if status == "200" {
 				fmt.Printf("Delete service %s successfully and the response is: %v\n", src_name, response)
 			} else {
@@ -107,7 +107,7 @@ func deleteFunc(c *cli.Context) {
 			if err != nil {
 				fmt.Println("[Fault] " + err.Error())
 			}
-			fmt.Printf("delete deployment status is %s\n", status)
+			// fmt.Printf("delete deployment status is %s\n", status)
 			if status == "200" {
 				fmt.Printf("delete deployment %s successfully and the response is: %v\n", src_name, response)
 			} else {

@@ -1,10 +1,10 @@
 kind: DNS
-name: dns-name
+name: test-dns
 host: example.com
 paths:
   - path: /
-    service: service-name
+    service: service-1
     port: 80
   - path: /temp
-    service: service-name
+    service: service-2
     port: 80
