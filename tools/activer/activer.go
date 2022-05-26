@@ -14,7 +14,7 @@ import (
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/util"
 	"net/http"
-	//"os"
+	"os"
 	"time"
 )
 
@@ -30,12 +30,12 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	//etcdClient, err := etcd.Start("", def.EtcdPort)
-	//activerMeta.EtcdClient = etcdClient
-	//if err != nil {
-	//	e.Logger.Error("Start etcd error!")
-	//	os.Exit(0)
-	//}
+	etcdClient, err := etcd.Start("", def.EtcdPort)
+	activerMeta.EtcdClient = etcdClient
+	if err != nil {
+		e.Logger.Error("Start etcd error!")
+		os.Exit(0)
+	}
 	Initialize()
 	go EtcdFunctionsNameListWatcher()
 	go AutoExpanderAndShrinker()
@@ -46,10 +46,10 @@ func main() {
 }
 
 func Initialize() {
-	//activerMeta.FunctionsNameList = activer_utils.GetFunctionNameList(activerMeta.EtcdClient)
-	//for _, functionName := range activerMeta.FunctionsNameList {
-	//	activerMeta.AccessRecorder[functionName] = 0
-	//}
+	activerMeta.FunctionsNameList = activer_utils.GetFunctionNameList(activerMeta.EtcdClient)
+	for _, functionName := range activerMeta.FunctionsNameList {
+		activerMeta.AccessRecorder[functionName] = 0
+	}
 }
 
 func EtcdFunctionsNameListWatcher() {
@@ -78,11 +78,7 @@ func ProcessFunctionHttpTrigger(c echo.Context) error {
 	funcName := c.Param("funcname")
 	parames := c.QueryParams().Encode()
 	bytes_ := make([]byte, def.MaxBodySize)
-	fmt.Printf("c.Request().Body: %v\n", c.Request().Body)
 	read, _ := c.Request().Body.Read(bytes_)
-	//fmt.Printf("read: %v\n", read)
-	//fmt.Printf("bytes_: %v\n", bytes_)
-	//fmt.Printf("string(bytes_): %v\n", string(bytes_))
 	bytes_ = bytes_[:read]
 	body := string(bytes_)
 	fmt.Printf("body: %v\n", body)
@@ -90,32 +86,23 @@ func ProcessFunctionHttpTrigger(c echo.Context) error {
 	return c.String(TriggerFunction(funcName, parames, body))
 }
 
-type Person struct {
-	UserType int `json:"userType"`
-}
-
 func TriggerFunction(funcName string, parames string, body string) (int, string) {
 	FlowCount(funcName)
-	//function := activer_utils.GetFunctionByName(activerMeta.EtcdClient, funcName)
-	//podReplicaNameList := activer_utils.GetPodReplicaIDListByPodName(activerMeta.EtcdClient, function.PodName)
-	//service := activer_utils.GetServiceByName(activerMeta.EtcdClient, function.ServiceName)
-	//if len(podReplicaNameList) == 0 {
-	//	activer_utils.AddNPodInstance(function.PodName, 1)
-	//	//activer_utils.StartService(function.ServiceName)
-	//}
+	function := activer_utils.GetFunctionByName(activerMeta.EtcdClient, funcName)
+	podReplicaNameList := activer_utils.GetPodReplicaIDListByPodName(activerMeta.EtcdClient, function.PodName)
+	service := activer_utils.GetServiceByName(activerMeta.EtcdClient, function.ServiceName)
+	if len(podReplicaNameList) == 0 {
+		activer_utils.AddNPodInstance(function.PodName, 1)
+		//activer_utils.StartService(function.ServiceName)
+	}
 	time.Sleep(5 * time.Second)
-	//uri := fmt.Sprintf("http://%s:80?%s", service.ClusterIP, parames)
-	uri := fmt.Sprintf("http://127.0.0.1:37889?%s", parames)
+	uri := fmt.Sprintf("http://%s:80?%s", service.ClusterIP, parames)
 	fmt.Println(uri)
 	fmt.Println("line 106: ", body)
 	response := ""
-	request2 := Person{
-		UserType: 2,
-	}
-	body2, _ := json.Marshal(request2)
 	err, status := httpget.Get(uri).
 		ContentType("application/json").
-		Body(bytes.NewReader([]byte(body2))).
+		Body(bytes.NewReader([]byte(body))).
 		GetString(&response).
 		Execute()
 	if err != nil || status != "200 OK" {
@@ -133,6 +120,8 @@ func ProcessStateMachineHttpTrigger(c echo.Context) error {
 	read, _ := c.Request().Body.Read(bytes_)
 	bytes_ = bytes_[:read]
 	body := string(bytes_)
+	fmt.Printf("body: %v\n", body)
+	fmt.Println("parames:  ", parames)
 	return c.String(TriggerStateMachine(machineName, parames, body))
 }
 
@@ -141,10 +130,12 @@ func TriggerStateMachine(stateMachineName string, parames string, body string) (
 	currentState := stateMachine.States[stateMachine.StartAt]
 	currentBody := body
 	for {
-		type_ := gojsonq.New().FromString(currentState).Find("Type")
+		type_ := gojsonq.New().FromInterface(currentState).Find("Type")
 		if type_ == "Task" {
-			task := def.Task{}
-			_ = json.Unmarshal([]byte(currentState), &task)
+			//task := def.Task{}
+			fmt.Println("currentState:  ", currentState)
+			task := currentState.(def.Task)
+			//_ = json.Unmarshal([]byte(currentState), &task)
 			state, responce := TriggerFunction(task.Resource, parames, currentBody)
 			if state != http.StatusOK || task.End {
 				return state, responce
@@ -152,8 +143,9 @@ func TriggerStateMachine(stateMachineName string, parames string, body string) (
 			currentBody = responce
 			currentState = stateMachine.States[task.Next]
 		} else if type_ == "choice" {
-			choice := def.Choice{}
-			_ = json.Unmarshal([]byte(currentState), &choice)
+			//choice := def.Choice{}
+			choice := currentState.(def.Choice)
+			//_ = json.Unmarshal([]byte(currentState), &choice)
 			find := false
 			for _, option := range choice.Choices {
 				part := activer_utils.GetPartOfJsonResponce(option.Variable, currentBody)

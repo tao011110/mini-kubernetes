@@ -60,7 +60,6 @@ github.com/gogo/protobuf/protoc-gen-gogo/descriptor
 # github.com/golang-jwt/jwt v3.2.2+incompatible
 github.com/golang-jwt/jwt
 # github.com/golang/protobuf v1.5.2
-## explicit
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
@@ -86,6 +85,13 @@ github.com/labstack/gommon/random
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.14
 github.com/mattn/go-isatty
+# github.com/monaco-io/request v1.0.15
+## explicit
+github.com/monaco-io/request
+github.com/monaco-io/request/context
+github.com/monaco-io/request/curl
+github.com/monaco-io/request/request
+github.com/monaco-io/request/response
 # github.com/opencontainers/go-digest v1.0.0
 github.com/opencontainers/go-digest
 # github.com/opencontainers/image-spec v1.0.2
@@ -97,8 +103,6 @@ github.com/pkg/errors
 # github.com/robfig/cron v1.2.0
 ## explicit
 github.com/robfig/cron
-# github.com/robfig/cron/v3 v3.0.0
-## explicit
 # github.com/russross/blackfriday/v2 v2.0.1
 github.com/russross/blackfriday/v2
 # github.com/shirou/gopsutil v3.21.11+incompatible

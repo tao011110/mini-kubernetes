@@ -1,9 +1,9 @@
 package def
 
 type StateMachine struct {
-	Name    string            `json:"Name"`
-	StartAt string            `json:"StartAt"`
-	States  map[string]string `json:"States"`
+	Name    string                 `json:"Name"`
+	StartAt string                 `json:"StartAt"`
+	States  map[string]interface{} `json:"States"`
 }
 
 type Task struct {

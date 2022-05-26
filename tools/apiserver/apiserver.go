@@ -374,7 +374,7 @@ func handleCreateFunction(c echo.Context) error {
 		go letProxyCreateCIRule(service, node)
 	}
 
-	return c.String(200, fmt.Sprintf("/%s:%d", function.Name, def.ActiverPort))
+	return c.String(200, fmt.Sprintf("http://127.0.0.1:%d/function/%s", def.ActiverPort, function.Name))
 }
 
 func handleCreateGPUJob(c echo.Context) error {
@@ -412,7 +412,7 @@ func handleCreateStateMachine(c echo.Context) error {
 	create_api.CreateStateMachine(cli, stateMachine)
 	fmt.Println("Create stateMachine ", stateMachine.Name)
 
-	return c.String(200, "stateMachine "+stateMachine.Name+" has been created")
+	return c.String(200, fmt.Sprintf("http://127.0.0.1:%d/state_machine/%s", def.ActiverPort, stateMachine.Name))
 }
 
 func handleOutputGPUJob(c echo.Context) error {

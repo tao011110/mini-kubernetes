@@ -17,7 +17,7 @@ const (
 	ProxyPort      = 3000
 	SchedulerPort  = 9200
 	ControllerPort = 8081
-	ActiverPort    = 33067
+	ActiverPort    = 3306
 	MasterPort     = 8000
 )
 
