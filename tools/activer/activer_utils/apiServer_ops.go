@@ -8,7 +8,6 @@ import (
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/util"
-	"strconv"
 )
 
 //TODO: apiserver加接口, service元数据预存在etcd中但不部署, 只需通过name部署和删除(此处删除不删除元数据)
@@ -24,7 +23,7 @@ import (
 func AddNPodInstance(podName string, num int) {
 	//apiServer add a podInstance
 	for i := 0; i < num; i++ {
-		request2 := podName + "&" + strconv.Itoa(num)
+		request2 := podName
 		response2 := ""
 		body2, _ := json.Marshal(request2)
 		err, status := httpget.Post("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/create/funcPodInstance").
@@ -43,9 +42,8 @@ func AddNPodInstance(podName string, num int) {
 func RemovePodInstance(podName string, num int) {
 	//apiServer delete a podInstance
 	for i := 0; i < num; i++ {
-		podInstanceID := ""
 		response4 := ""
-		err, status := httpget.DELETE("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/funcPodInstance/" + podInstanceID).
+		err, status := httpget.DELETE("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/funcPodInstance/" + podName).
 			ContentType("application/json").
 			GetString(&response4).
 			Execute()
@@ -56,9 +54,9 @@ func RemovePodInstance(podName string, num int) {
 
 		fmt.Printf("delete funcPodInstance status is %s\n", status)
 		if status == "200" {
-			fmt.Printf("delete funcPodInstance %s successfully and the response is: %v\n", podInstanceID, response4)
+			fmt.Printf("delete funcPodInstance %s successfully and the response is: %v\n", podName, response4)
 		} else {
-			fmt.Printf("funcPodInstance %s doesn't exist\n", podInstanceID)
+			fmt.Printf("funcPodInstance %s doesn't exist\n", podName)
 		}
 	}
 }

@@ -133,20 +133,25 @@ func TriggerStateMachine(stateMachineName string, parames string, body string) (
 func TriggerFunction(funcName string, parames string, body string) (int, string) {
 	FlowCount(funcName)
 	function := activer_utils.GetFunctionByName(activerMeta.EtcdClient, funcName)
-	podReplicaNameList := activer_utils.GetPodReplicaIDListByPodName(activerMeta.EtcdClient, function.PodName)
+	//podReplicaNameList := activer_utils.GetPodReplicaIDListByPodName(activerMeta.EtcdClient, function.PodName)
 	service := activer_utils.GetServiceByName(activerMeta.EtcdClient, function.ServiceName)
-	if len(podReplicaNameList) == 0 {
-		activer_utils.AddNPodInstance(function.PodName, 1)
-		//activer_utils.StartService(function.ServiceName)
-	}
-	uri := fmt.Sprintf("%s:80?%s", service.ClusterIP, parames)
+	//if len(podReplicaNameList) == 0 {
+	//	activer_utils.AddNPodInstance(function.PodName, 1)
+	//	//activer_utils.StartService(function.ServiceName)
+	//}
+	//time.Sleep(15 * time.Second)
+	//uri := fmt.Sprintf("%s:80?%s", service.ClusterIP, parames)
+	uri := fmt.Sprintf("%s:80", service.ClusterIP)
 	response := ""
-	err, status := httpget.Post(uri).
+	fmt.Println(uri)
+	fmt.Println(parames)
+	err, status := httpget.Get(uri).
 		ContentType("application/json").
 		Body(bytes.NewReader([]byte(body))).
 		GetString(&response).
 		Execute()
 	if err != nil || status != "200 OK" {
+		fmt.Println("status:  ", status)
 		return http.StatusInternalServerError, ""
 	}
 	return http.StatusOK, response
