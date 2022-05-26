@@ -12,7 +12,7 @@ require (
 	github.com/google/cadvisor v0.39.3
 	github.com/jakehl/goid v1.1.0
 	github.com/labstack/echo/v4 v4.7.2
-	github.com/monaco-io/request v1.0.15
+	github.com/monaco-io/request v1.0.15 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/robfig/cron v1.2.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
