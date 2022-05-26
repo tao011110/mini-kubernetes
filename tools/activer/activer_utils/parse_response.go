@@ -1,15 +1,18 @@
 package activer_utils
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/thedevsaddam/gojsonq/v2"
 )
 
-func GetPartOfJsonResponce(reg string, response string) string {
+func GetPartOfJsonResponce(reg string, response interface{}) string {
 	//只支持如下两种
 	if reg == "$" {
-		return response
+		bytes, _ := json.Marshal(response)
+		return string(bytes)
 	}
 	//"$.level1.level2...."
-	return fmt.Sprintf("%v", gojsonq.New().FromString(response).Find(string(([]byte(response))[2:])))
+	part := string(([]byte(reg))[2:])
+	bytes, _ := json.Marshal(gojsonq.New().FromInterface(response).Find(part))
+	return string(bytes)
 }

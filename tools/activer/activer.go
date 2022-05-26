@@ -1,17 +1,16 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/monaco-io/request"
 	"github.com/robfig/cron"
 	"github.com/thedevsaddam/gojsonq/v2"
 	"mini-kubernetes/tools/activer/activer_utils"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
-	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/util"
 	"net/http"
 	"os"
@@ -75,15 +74,23 @@ func HandleFunctionsNameListChange(functionNameList []string) {
 
 func ProcessFunctionHttpTrigger(c echo.Context) error {
 	funcName := c.Param("funcname")
-	parames := c.QueryParams().Encode()
+	params := make(map[string]string)
+	for k, v := range map[string][]string(c.QueryParams()) {
+		if len(v) != 0 {
+			params[k] = v[0]
+		}
+	}
 	bytes_ := make([]byte, def.MaxBodySize)
 	read, _ := c.Request().Body.Read(bytes_)
 	bytes_ = bytes_[:read]
-	body := string(bytes_)
-	return c.String(TriggerFunction(funcName, parames, body))
+	var body interface{}
+	_ = json.Unmarshal(bytes_, &body)
+	code, response := TriggerFunction(funcName, params, body)
+	bytes_, _ = json.Marshal(response)
+	return c.String(code, string(bytes_))
 }
 
-func TriggerFunction(funcName string, parames string, body string) (int, string) {
+func TriggerFunction(funcName string, parames map[string]string, body interface{}) (int, interface{}) {
 	FlowCount(funcName)
 	function := activer_utils.GetFunctionByName(activerMeta.EtcdClient, funcName)
 	podReplicaNameList := activer_utils.GetPodReplicaIDListByPodName(activerMeta.EtcdClient, function.PodName)
@@ -92,47 +99,55 @@ func TriggerFunction(funcName string, parames string, body string) (int, string)
 		activer_utils.AddNPodInstance(function.PodName, 1)
 		//activer_utils.StartService(function.ServiceName)
 	}
-	uri := fmt.Sprintf("%s:80?%s", service.ClusterIP, parames)
-	response := ""
-	err, status := httpget.Get(uri).
-		ContentType("application/json").
-		Body(bytes.NewReader([]byte(body))).
-		GetString(&response).
-		Execute()
-	if err != nil || status != "200 OK" {
-		return http.StatusInternalServerError, ""
+	uri := fmt.Sprintf("%s:80", service.ClusterIP)
+	c := request.Client{
+		URL:    uri,
+		Method: "GET",
+		Query:  parames,
+		JSON:   body,
 	}
-	return http.StatusOK, response
+	var result interface{}
+	resp := c.Send().Scan(&result)
+	if !resp.OK() {
+		return http.StatusInternalServerError, "{}"
+	}
+	return http.StatusOK, result
 }
 
 func ProcessStateMachineHttpTrigger(c echo.Context) error {
 	machineName := c.Param("state_machine_name")
-	parames := c.QueryParams().Encode()
+	params := make(map[string]string)
+	for k, v := range map[string][]string(c.QueryParams()) {
+		if len(v) != 0 {
+			params[k] = v[0]
+		}
+	}
 	bytes_ := make([]byte, def.MaxBodySize)
 	read, _ := c.Request().Body.Read(bytes_)
 	bytes_ = bytes_[:read]
-	body := string(bytes_)
-	return c.String(TriggerStateMachine(machineName, parames, body))
+	var body interface{}
+	_ = json.Unmarshal(bytes_, &body)
+	code, response := TriggerStateMachine(machineName, params, body)
+	bytes_, _ = json.Marshal(response)
+	return c.String(code, string(bytes_))
 }
 
-func TriggerStateMachine(stateMachineName string, parames string, body string) (int, string) {
+func TriggerStateMachine(stateMachineName string, parames map[string]string, body interface{}) (int, interface{}) {
 	stateMachine := activer_utils.GetStateMachineByName(activerMeta.EtcdClient, stateMachineName)
 	currentState := stateMachine.States[stateMachine.StartAt]
 	currentBody := body
 	for {
-		type_ := gojsonq.New().FromString(currentState).Find("Type")
+		type_ := gojsonq.New().FromInterface(currentState).Find("Type")
 		if type_ == "Task" {
-			task := def.Task{}
-			_ = json.Unmarshal([]byte(currentState), &task)
-			state, responce := TriggerFunction(task.Resource, parames, currentBody)
+			task := currentState.(def.Task)
+			state, response := TriggerFunction(task.Resource, parames, currentBody)
 			if state != http.StatusOK || task.End {
-				return state, responce
+				return state, response
 			}
-			currentBody = responce
+			currentBody = response
 			currentState = stateMachine.States[task.Next]
 		} else if type_ == "choice" {
-			choice := def.Choice{}
-			_ = json.Unmarshal([]byte(currentState), &choice)
+			choice := currentState.(def.Choice)
 			find := false
 			for _, option := range choice.Choices {
 				part := activer_utils.GetPartOfJsonResponce(option.Variable, currentBody)
@@ -143,10 +158,9 @@ func TriggerStateMachine(stateMachineName string, parames string, body string) (
 				}
 			}
 			if !find {
-				return http.StatusInternalServerError, ""
+				return http.StatusInternalServerError, "{}"
 			}
 		}
-
 	}
 }
 
