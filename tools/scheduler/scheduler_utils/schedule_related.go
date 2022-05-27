@@ -3,6 +3,7 @@ package scheduler_utils
 import (
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"math"
 	"mini-kubernetes/tools/def"
 )
 
@@ -64,12 +65,11 @@ func ResourceFilter(etcdClient *clientv3.Client, nodes []int, CPU int, memory in
 
 func ChooseNode(etcdClient *clientv3.Client, nodes []int, allNodesInfo []*def.NodeInfoSchedulerCache) int {
 	var chose int
-	maxScore := 0
+	minInstances := math.MaxInt
 	for _, node := range nodes {
-		info := GetNodeResourceInfo(etcdClient, allNodesInfo[node].NodeID)
-		score := int(info.MemoryTotal-info.MemoryUsage) + info.CPUNum*int(1000*(1-info.CPULoad))
-		if score >= maxScore {
-			maxScore = score
+		instances := len(GetPodInstanceIDListOfNode(etcdClient, allNodesInfo[node].NodeID))
+		if instances < minInstances {
+			minInstances = instances
 			chose = node
 		}
 	}

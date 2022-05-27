@@ -8,6 +8,7 @@ import (
 	"github.com/monaco-io/request"
 	"github.com/robfig/cron"
 	"github.com/thedevsaddam/gojsonq/v2"
+	"math"
 	"mini-kubernetes/tools/activer/activer_utils"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
@@ -237,7 +238,7 @@ func ExpandAndShrink() {
 	oldRecorder := activerMeta.AccessRecorder
 	activerMeta.AccessRecorder = newRecorder
 	for _, name := range activerMeta.FunctionsNameList {
-		targetReplicaNum := oldRecorder[name]/100 + 1
+		targetReplicaNum := int(math.Floor(float64(oldRecorder[name]) / 100))
 		activer_utils.AdjustReplicaNum2Target(activerMeta.EtcdClient, name, targetReplicaNum)
 	}
 }
