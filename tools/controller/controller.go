@@ -243,11 +243,11 @@ func CheckAllHorizontalPodAutoscalers() {
 		// TODO: 优化调度策略
 		if activeNum < horizontalPodAutoscaler.MinReplicas {
 			controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, horizontalPodAutoscaler.MinReplicas-activeNum)
-		} else if cpu < 0.8*horizontalPodAutoscaler.CPUMinValue || float64(memory) < 0.8*float64(controller_utils.MemoryToByte(horizontalPodAutoscaler.MemoryMinValue)) {
+		} else if cpu < 0.8*controller_utils.CPUToMCore(horizontalPodAutoscaler.CPUMinValue) || float64(memory) < 0.8*float64(controller_utils.MemoryToByte(horizontalPodAutoscaler.MemoryMinValue)) {
 			if activeNum < horizontalPodAutoscaler.MaxReplicas {
 				controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, 1)
 			}
-		} else if cpu > 1.2*horizontalPodAutoscaler.CPUMaxValue {
+		} else if cpu > 1.2*controller_utils.CPUToMCore(horizontalPodAutoscaler.CPUMaxValue) {
 			if activeNum > horizontalPodAutoscaler.MinReplicas {
 				controller_utils.RemovePodInstance(controllerMeta.EtcdClient, &minCPUUsagePodInstance)
 			}
