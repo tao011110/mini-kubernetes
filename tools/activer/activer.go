@@ -102,7 +102,7 @@ func TriggerFunction(funcName string, parames map[string]string, body interface{
 		activer_utils.AddNPodInstance(function.PodName, 1)
 		//activer_utils.StartService(function.ServiceName)
 	}
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 	uri := fmt.Sprintf("http://%s:80", service.ClusterIP)
 	fmt.Println(uri)
 	c := request.Client{
@@ -147,18 +147,45 @@ func TriggerStateMachine(stateMachineName string, parames map[string]string, bod
 	currentState := stateMachine.States[stateMachine.StartAt]
 	currentBody := body
 	for {
+		//TODOL parse interface here!
 		type_ := gojsonq.New().FromInterface(currentState).Find("Type")
+		fmt.Println("type:   ", type_)
 		if type_ == "Task" {
-			fmt.Println("currentState:  ", currentState)
-			task := currentState.(def.Task)
-			state, response := TriggerFunction(task.Resource, parames, currentBody)
-			if state != http.StatusOK || task.End {
-				return state, response
+			task := def.Task{}
+			if currentState.(map[string]interface{})["Next"] != nil {
+				task.Type = currentState.(map[string]interface{})["Type"].(string)
+				task.Resource = currentState.(map[string]interface{})["Resource"].(string)
+				task.Next = currentState.(map[string]interface{})["Next"].(string)
+			} else {
+				task.Type = currentState.(map[string]interface{})["Type"].(string)
+				task.Resource = currentState.(map[string]interface{})["Resource"].(string)
+				task.End = currentState.(map[string]interface{})["End"].(bool)
 			}
-			currentBody = response
+			fmt.Println("get task:  ", task)
+
+			//state, response := TriggerFunction(task.Resource, parames, currentBody)
+			//if state != http.StatusOK || task.End {
+			//	return state, response
+			//}
+			//currentBody = response
 			currentState = stateMachine.States[task.Next]
-		} else if type_ == "choice" {
-			choice := currentState.(def.Choice)
+			fmt.Println(currentState)
+		} else if type_ == "Choice" {
+			choice := def.Choice{
+				Type: currentState.(map[string]interface{})["Type"].(string),
+			}
+			interfaceMaps := currentState.(map[string]interface{})["Choices"].([]interface{})
+			optionList := make([]def.Options, 0)
+			for _, interface_ := range interfaceMaps {
+				options := def.Options{
+					Variable:     interface_.(map[string]interface{})["Variable"].(string),
+					StringEquals: interface_.(map[string]interface{})["StringEquals"].(string),
+					Next:         interface_.(map[string]interface{})["Next"].(string),
+				}
+				optionList = append(optionList, options)
+			}
+			choice.Choices = optionList
+			fmt.Println("get choice:   ", choice)
 			find := false
 			for _, option := range choice.Choices {
 				part := activer_utils.GetPartOfJsonResponce(option.Variable, currentBody)
@@ -169,6 +196,7 @@ func TriggerStateMachine(stateMachineName string, parames map[string]string, bod
 				}
 			}
 			if !find {
+				fmt.Println("not find")
 				return http.StatusInternalServerError, "{}"
 			}
 		}
