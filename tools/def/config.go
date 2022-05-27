@@ -41,7 +41,7 @@ const (
 	PyHandlerFileName         = `handler.py`
 	RequirementsParentDirPath = `/`
 	RequirementsFileName      = `requirements.txt`
-	PyFunctionPrepareFile     = `/prepare.sh`
+	PyFunctionPrepareFile     = `./prepare.sh`
 	PyFunctionStartArgs       = `./start.sh`
 	MaxBodySize               = 2048
 
