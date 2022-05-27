@@ -159,7 +159,7 @@ func ReplicaChecker() {
 
 func HorizontalPodAutoscalerChecker() {
 	cron2 := cron.New()
-	err := cron2.AddFunc("*/30 * * * * *", CheckAllHorizontalPodAutoscalers)
+	err := cron2.AddFunc("*/15 * * * * *", CheckAllHorizontalPodAutoscalers)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -210,37 +210,41 @@ func CheckAllHorizontalPodAutoscalers() {
 		minMemoryUsage := int64(math.MaxInt64)
 		activeNum := 0
 		tooShort := false
+		fmt.Println("[controller instancelist] ", instancelist)
 		for _, instanceID := range instancelist {
 			podInstance := util.GetPodInstance(instanceID, controllerMeta.EtcdClient)
 			if podInstance.Status == def.FAILED {
+				fmt.Println(podInstance)
+				fmt.Println(podInstance.ID, "is failed")
 				continue
-			} else if util.TimeToSecond(time.Now())-util.TimeToSecond(podInstance.StartTime) < 30 {
+			} else if util.TimeToSecond(time.Now())-util.TimeToSecond(podInstance.StartTime) < 15 {
 				tooShort = true
 				break
 			} else {
 				activeNum++
+				fmt.Println(podInstance.ID, "is health")
 				podInstanceResourceUsage := controller_utils.GetPodInstanceResourceUsageByName(controllerMeta.EtcdClient, instanceID)
-				if podInstanceResourceUsage.Valid {
-					instanceCPUUsage := float64(podInstanceResourceUsage.CPULoad) / 1000
-					cpu += instanceCPUUsage
-					if instanceCPUUsage < minCPUUsage {
-						minCPUUsage = instanceCPUUsage
-						minCPUUsagePodInstance = podInstance
-					}
+				//if podInstanceResourceUsage.Valid {
+				instanceCPUUsage := float64(podInstanceResourceUsage.CPULoad) / 1000
+				cpu += instanceCPUUsage
+				if instanceCPUUsage < minCPUUsage {
+					minCPUUsage = instanceCPUUsage
+					minCPUUsagePodInstance = podInstance
+				}
 
-					instanceMemoryUsage := int64(podInstanceResourceUsage.MemoryUsage)
-					memory += instanceMemoryUsage
-					if instanceMemoryUsage < minMemoryUsage {
-						minMemoryUsage = instanceMemoryUsage
-						minMemoryUsagePodInstance = podInstance
-					}
+				instanceMemoryUsage := int64(podInstanceResourceUsage.MemoryUsage)
+				memory += instanceMemoryUsage
+				if instanceMemoryUsage < minMemoryUsage {
+					minMemoryUsage = instanceMemoryUsage
+					minMemoryUsagePodInstance = podInstance
 				}
 			}
+			//}
 		}
 		if tooShort {
 			continue
 		}
-		// TODO: 优化调度策略
+		fmt.Println("activeNum is ", activeNum, " cpu is ", cpu, " memory is ", memory)
 		if activeNum < horizontalPodAutoscaler.MinReplicas {
 			controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, horizontalPodAutoscaler.MinReplicas-activeNum)
 		} else if cpu < 0.8*controller_utils.CPUToMCore(horizontalPodAutoscaler.CPUMinValue) || float64(memory) < 0.8*float64(controller_utils.MemoryToByte(horizontalPodAutoscaler.MemoryMinValue)) {

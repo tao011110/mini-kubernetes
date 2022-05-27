@@ -66,7 +66,7 @@ func GetGPUJob(cli *clientv3.Client, jobName string) (def.GPUJobDetail, bool) {
 		return jobGet, true
 	}
 	{
-		kv := etcd.Get(cli, def.GetKeyOfPodInstance(replicaIDList[0])).Kvs
+		kv := etcd.Get(cli, replicaIDList[0]).Kvs
 		value := make([]byte, 0)
 		if len(kv) != 0 {
 			value = kv[0].Value
