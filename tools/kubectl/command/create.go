@@ -135,6 +135,21 @@ func createFunc(c *cli.Context) {
 			fmt.Println("[Fault] " + err.Error())
 		}
 		fmt.Printf("create_autoscaler is %s and response is: %s\n", status, response)
+	case yaml.Gpujob_t:
+		// 用来创建GPUJob，需要发送给apiserver的参数为 gpu (def.GPUJob)
+		gpu, _ := yaml.ReadGPUJobConfig(dir)
+		request := *gpu
+		response := ""
+		body, _ := json.Marshal(request)
+		err, status := httpget.Post("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/create/gpuJob").
+			ContentType("application/json").
+			Body(bytes.NewReader(body)).
+			GetString(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		fmt.Printf("create_gpuJob is %s and response is: %s\n", status, response)
 	}
 
 }

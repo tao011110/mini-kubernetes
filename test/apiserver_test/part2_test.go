@@ -19,7 +19,7 @@ var node = def.Node{
 	MasterIpAndPort: fmt.Sprintf("%s:%d", util.GetLocalIP().String(), def.MasterPort),
 }
 
-//TODO: 用来创建Deployment，需要发送给apiserver的参数为 deployment (def.Deployment)
+// 用来创建Deployment，需要发送给apiserver的参数为 deployment (def.Deployment)
 func testCreateDeployment(path string) {
 	deployment, _ := yaml.ReadDeploymentConfig(path)
 	request2 := *deployment
@@ -37,7 +37,7 @@ func testCreateDeployment(path string) {
 	fmt.Printf("create_deployment is %s and response is: %s\n", status, response2)
 }
 
-//TODO: 用来删除deployment，需要发送给apiserver的参数为 deploymentName(string)
+// 用来删除deployment，需要发送给apiserver的参数为 deploymentName(string)
 func testDeleteDeployment() {
 	deploymentName := "test-deployment"
 	response4 := ""
@@ -58,7 +58,7 @@ func testDeleteDeployment() {
 	}
 }
 
-//TODO: 用来获取特定名称的 deployment，需要发送给apiserver的参数为 deploymentName(string)
+// 用来获取特定名称的 deployment，需要发送给apiserver的参数为 deploymentName(string)
 func testGetDeployment(deploymentName string) {
 	//http调用返回的json需解析转为def.DeploymentDetail类型，
 	response := def.DeploymentDetail{}
@@ -78,7 +78,7 @@ func testGetDeployment(deploymentName string) {
 	}
 }
 
-//TODO: 用来获取所有的 deployment
+// 用来获取所有的 deployment
 func testGetAllDeployment() {
 	// DeploymentBrief提供了 的 kubelet get deployment 显示的全部信息
 	response := make([]def.DeploymentBrief, 0)
@@ -101,7 +101,7 @@ func testGetAllDeployment() {
 	}
 }
 
-//TODO: 用来创建AutoScaler，需要发送给apiserver的参数为 autoScaler (def.AutoScaler)
+// 用来创建AutoScaler，需要发送给apiserver的参数为 autoScaler (def.AutoScaler)
 func testCreateAutoscaler(path string) {
 	autoscaler, _ := yaml.ReadAutoScalerConfig(path)
 	request2 := *autoscaler
@@ -119,7 +119,7 @@ func testCreateAutoscaler(path string) {
 	fmt.Printf("create_deployment is %s and response is: %s\n", status, response2)
 }
 
-//TODO: 用来删除autoscaler，需要发送给apiserver的参数为 autoscalerName(string)
+// 用来删除autoscaler，需要发送给apiserver的参数为 autoscalerName(string)
 func testDeleteAutoscaler() {
 	autoscalerName := "test-autoscaler"
 	response4 := ""
@@ -140,7 +140,7 @@ func testDeleteAutoscaler() {
 	}
 }
 
-//TODO: 用来获取特定名称的 autoscaler，需要发送给apiserver的参数为 autoscalerName(string)
+// 用来获取特定名称的 autoscaler，需要发送给apiserver的参数为 autoscalerName(string)
 func testGetAutoscaler(autoscalerName string) {
 	response := def.AutoscalerDetail{}
 	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/autoscaler/" + autoscalerName).
@@ -159,7 +159,7 @@ func testGetAutoscaler(autoscalerName string) {
 	}
 }
 
-//TODO: 用来获取所有的 autoscaler
+// 用来获取所有的 autoscaler
 func testGetAllAutoscaler() {
 	// AutoscalerBrief提供了 的 kubelet get autoscaler 显示的部分信息（根据我们项目与K8S实现的部分差异，对一些信息予以删除）
 	response := make([]def.AutoscalerBrief, 0)
