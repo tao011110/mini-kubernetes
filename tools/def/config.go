@@ -58,11 +58,6 @@ const (
 	GPUJobNameParentDirName                = `/home/`
 	GPUJobNameFileName                     = `job_name`
 	GPUJobUploaderRunArgs                  = `./home/run.sh`
-
-	TemplateCmdFilePath = "/home/temp_cmd.sh"
-	//TemplateFileDir     = `/home/temp/`
-	//ONLY FOR TEST !!!
-	TemplateFileDir = `/home/hjk/Desktop/Go/mini-kubernetes/test/slurmGenrator_test/`
 )
 
 /********** ETCD key **********/
@@ -80,6 +75,10 @@ func GetKeyOfPodReplicasNameListByPodName(podName string) string {
 
 func PodInstanceListKeyOfNode(node *Node) string {
 	return fmt.Sprintf("node%d_pod_instances", node.NodeID)
+}
+
+func GetKeyOfPodInstanceListKeyOfNodeByID(id int) string {
+	return fmt.Sprintf("node%d_pod_instances", id)
 }
 
 func PodInstanceListKeyOfNodeID(nodeID int) string {

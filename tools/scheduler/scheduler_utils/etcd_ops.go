@@ -61,3 +61,10 @@ func PersistPodInstanceListOfNode(etcdClient *clientv3.Client, replicaNameList [
 	newJsonString, _ := json.Marshal(replicaNameList)
 	etcd.Put(etcdClient, def.PodInstanceListKeyOfNodeID(nodeID), string(newJsonString))
 }
+
+func GetPodInstanceIDListOfNode(etcdClient *clientv3.Client, nodeID int) []string {
+	key := def.GetKeyOfPodInstanceListKeyOfNodeByID(nodeID)
+	var replicaIDList []string
+	util.EtcdUnmarshal(etcd.Get(etcdClient, key), &replicaIDList)
+	return replicaIDList
+}
