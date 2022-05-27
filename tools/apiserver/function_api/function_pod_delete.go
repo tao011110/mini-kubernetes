@@ -14,7 +14,6 @@ import (
 
 // DeleteFuncPodInstance 只删除podInstance而不删除pod, 注意从service中同步删除, 参数是podInstanceID
 func DeleteFuncPodInstance(cli *clientv3.Client, podName string) (bool, def.Service) {
-	flag := true
 	var instanceIDList []string
 	instanceIDListkey := def.GetKeyOfPodReplicasNameListByPodName(podName)
 	resp := etcd.Get(cli, instanceIDListkey)
@@ -71,5 +70,5 @@ func DeleteFuncPodInstance(cli *clientv3.Client, podName string) (bool, def.Serv
 	service.PortsBindings = delete_api.RemovePodInstanceFromService(podInstance, *service)
 	apiserver_utils.PersistService(cli, *service)
 
-	return flag, *service
+	return true, *service
 }

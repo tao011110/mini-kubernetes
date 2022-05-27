@@ -15,7 +15,9 @@ func CommitContainer(containerID string, funcName string) string {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	defer cli.Close()
+	defer func(cli *client.Client) {
+		_ = cli.Close()
+	}(cli)
 	containerDetail, err := InspectContainer(containerID)
 	if err != nil {
 		fmt.Printf("%v\n", err)

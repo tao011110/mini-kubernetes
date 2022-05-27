@@ -46,12 +46,12 @@ func GetPodByPodName(li *clientv3.Client, podName string) def.Pod {
 	return pod_
 }
 
-func GetPodReplicaIDListByPodName(li *clientv3.Client, podName string) []string {
-	idList := make([]string, 0)
-	key := def.GetKeyOfPodReplicasNameListByPodName(podName)
-	util.EtcdUnmarshal(etcd.Get(li, key), &idList)
-	return idList
-}
+//func GetPodReplicaIDListByPodName(li *clientv3.Client, podName string) []string {
+//	idList := make([]string, 0)
+//	key := def.GetKeyOfPodReplicasNameListByPodName(podName)
+//	util.EtcdUnmarshal(etcd.Get(li, key), &idList)
+//	return idList
+//}
 
 func PersistStateMachine(li *clientv3.Client, stateMachine def.StateMachine) {
 	key := def.GetKeyOfStateMachine(stateMachine.Name)

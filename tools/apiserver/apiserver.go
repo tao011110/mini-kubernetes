@@ -600,13 +600,13 @@ func handleDeleteFuncPodInstance(c echo.Context) error {
 	}
 }
 
-func tmp(c echo.Context) error {
-	podInstanceID := c.Param("podInstanceID")
-	num := c.Param("num")
-	fmt.Println(podInstanceID)
-	fmt.Println(num)
-	return c.String(404, "PodInstance of "+podInstanceID+" doesn't exist")
-}
+//func tmp(c echo.Context) error {
+//	podInstanceID := c.Param("podInstanceID")
+//	num := c.Param("num")
+//	fmt.Println(podInstanceID)
+//	fmt.Println(num)
+//	return c.String(404, "PodInstance of "+podInstanceID+" doesn't exist")
+//}
 
 func letProxyDeleteCIRule(clusterIP string, node def.Node) {
 	// 更新所有node的kube-proxy

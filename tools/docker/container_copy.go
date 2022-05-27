@@ -19,7 +19,9 @@ func CopyToContainer(containerID string, dstPath string, fileName string, fileCo
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	defer cli.Close()
+	defer func(cli *client.Client) {
+		_ = cli.Close()
+	}(cli)
 
 	var buf bytes.Buffer
 	tw := tar.NewWriter(&buf)
