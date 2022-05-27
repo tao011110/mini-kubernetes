@@ -63,7 +63,7 @@ func DeleteFuncPodInstance(cli *clientv3.Client, podName string) (bool, def.Serv
 	//更新ReplicasNameList
 	newInstanceIDList := instanceIDList[1:]
 	instanceIDListValue, _ := json.Marshal(newInstanceIDList)
-	etcd.Put(cli, podInstance.ID, string(instanceIDListValue))
+	etcd.Put(cli, instanceIDListkey, string(instanceIDListValue))
 
 	// 在service中删除该podInstance
 	service, _ := get_api.GetService(cli, "service_"+podInstance.Pod.Metadata.Name[4:])

@@ -1,0 +1,5 @@
+kind: activity
+name: state1_function
+function: /home/go/src/mini-kubernetes/presentation/serverless-stateMachine/state1/state1.py
+requirements: /home/go/src/mini-kubernetes/presentation/serverless-stateMachine/state1/requirements.txt
+version: 1

@@ -8,9 +8,10 @@ import (
 	"net"
 )
 
-var funcServiceID = 1
+var funcServiceID = 0
 
 func CreateFunction(cli *clientv3.Client, function def.Function) def.Service {
+	funcServiceID++
 	pod, ciService := functional.GenerateFunctionPodAndService(&function)
 	clusterIP := net.IPv4(10, 24, 0, byte(funcServiceID))
 	ciService.Spec.ClusterIP = clusterIP.String()
