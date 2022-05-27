@@ -183,22 +183,26 @@ func SchedulePodInstanceToNode(instanceID string) (success bool, nodeId int, pod
 		success = false
 		return
 	}
+	fmt.Println("[notWithFilterResult]", notWithFilterResult)
 	withFilterResult := scheduler_utils.WithFilter(notWithFilterResult, podInstance.NodeSelector.With, schedulerMeta.Nodes)
 	if len(withFilterResult) == 0 {
 		success = false
 		return
 	}
+	fmt.Println("[withFilterResult]", withFilterResult)
 	CPU, memory := scheduler_utils.PodResourceRequest(podInstance)
 	// TODO: memory的单位
 	resourceFilterResult := scheduler_utils.ResourceFilter(schedulerMeta.EtcdClient,
 		withFilterResult,
 		CPU, memory, schedulerMeta.Nodes)
+	fmt.Println("[resourceFilterResult]", resourceFilterResult)
 	if len(resourceFilterResult) == 0 {
 		success = false
 		return
 	}
 	success = true
 	choseNodeIndex := scheduler_utils.ChooseNode(schedulerMeta.EtcdClient, resourceFilterResult, schedulerMeta.Nodes)
+	fmt.Println("chose node index is ", choseNodeIndex, " id is ", schedulerMeta.Nodes[choseNodeIndex].NodeID)
 	nodeId = schedulerMeta.Nodes[choseNodeIndex].NodeID
 	fmt.Println("Schedule to node:  ", nodeId)
 	return

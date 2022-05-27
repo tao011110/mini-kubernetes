@@ -1,18 +1,22 @@
 package scheduler_utils
 
 import (
+	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 )
 
 func NotWithFilter(nodes []int, notWith string, allNodesInfo []*def.NodeInfoSchedulerCache) []int {
+	fmt.Println("[scheduler notWithFilter]", notWith)
 	var afterFilterNodes []int
 	if notWith == "" {
 		return nodes
 	}
 	for _, node := range nodes {
+		fmt.Println("[node info]", node, *allNodesInfo[node])
 		in := false
 		for _, instance := range allNodesInfo[node].PodInstanceList {
+			fmt.Println("[podInstance on node]", node, instance.PodName)
 			if instance.PodName == notWith {
 				in = true
 				break
@@ -22,6 +26,7 @@ func NotWithFilter(nodes []int, notWith string, allNodesInfo []*def.NodeInfoSche
 			afterFilterNodes = append(afterFilterNodes, node)
 		}
 	}
+	fmt.Println("[notwith filter]result is ", afterFilterNodes)
 	return afterFilterNodes
 }
 
@@ -63,7 +68,7 @@ func ChooseNode(etcdClient *clientv3.Client, nodes []int, allNodesInfo []*def.No
 	for _, node := range nodes {
 		info := GetNodeResourceInfo(etcdClient, allNodesInfo[node].NodeID)
 		score := int(info.MemoryTotal-info.MemoryUsage) + info.CPUNum*int(1000*(1-info.CPULoad))
-		if score > maxScore {
+		if score >= maxScore {
 			maxScore = score
 			chose = node
 		}

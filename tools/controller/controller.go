@@ -188,6 +188,7 @@ func CheckAllReplicas() {
 				controller_utils.RemovePodInstance(controllerMeta.EtcdClient, &podInstance)
 			}
 		}
+		fmt.Printf("[controller replica checker]%s has %d health, %d health", deployment.PodName, len(instancelist), health)
 		if health < deployment.ReplicasNum {
 			controller_utils.NewNPodInstance(controllerMeta.EtcdClient, pod.Metadata.Name, deployment.ReplicasNum-health)
 		}

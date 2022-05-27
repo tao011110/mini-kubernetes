@@ -183,27 +183,27 @@ func testGetAllAutoscaler() {
 }
 
 func TestReplicas(t *testing.T) {
-	//path := "./deployment_test.yaml"
-	//testCreateDeployment(path)
-	//
-	//time.Sleep(30 * time.Second)
-	//testGetDeployment("test-deployment")
-	//
-	//testGetAllDeployment()
-	//time.Sleep(10 * time.Second)
+	path := "./deployment_test.yaml"
+	testCreateDeployment(path)
+
+	time.Sleep(30 * time.Second)
+	testGetDeployment("test-deployment")
+
+	testGetAllDeployment()
+	time.Sleep(10 * time.Second)
 
 	//testDeleteDeployment()
 
-	path := "./HorizontalPodAutoscaler_test.yaml"
-	testCreateAutoscaler(path)
+	//path := "./HorizontalPodAutoscaler_test.yaml"
+	//testCreateAutoscaler(path)
+	//
+	//time.Sleep(30 * time.Second)
+	//testGetAutoscaler("test-autoscaler")
+	//
+	//testGetAllAutoscaler()
 
-	time.Sleep(30 * time.Second)
-	testGetAutoscaler("test-autoscaler")
-
-	testGetAllAutoscaler()
-
-	time.Sleep(30 * time.Second)
-	testDeleteAutoscaler()
+	//time.Sleep(30 * time.Second)
+	//testDeleteAutoscaler()
 }
 
 //TODO: 用来创建GPUJob，需要发送给apiserver的参数为 gpu (def.GPUJob)

@@ -47,6 +47,7 @@ func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpA
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
+	fmt.Println("nodeIDList:   ", nodeIDList)
 	etcd.Put(cli, def.NodeListID, string(nodeIDListValue))
 
 	return registeredNodeID, newFollower.CniIP

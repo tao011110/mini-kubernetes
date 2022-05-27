@@ -206,6 +206,7 @@ func recordResource() {
 			cpuTime2 := info.Stats[len(info.Stats)-2].Cpu.Usage.Total
 			cpuusageLenth := cpuTime1 - cpuTime2
 			cpuNum := (cpuusageLenth * 1000) / uint64(timeLenth)
+			fmt.Printf("time length is %ds, cpu usage is%dnano\n", timeLenth, cpuusageLenth)
 			cpuLoadAverage += int32(cpuNum)
 		}
 		key := def.GetKeyOfResourceUsageByPodInstanceID(podInstance.ID)

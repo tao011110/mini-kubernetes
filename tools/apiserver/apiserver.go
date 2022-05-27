@@ -122,7 +122,7 @@ func handleCreatePod(c echo.Context) error {
 	}
 
 	podInstance := create_api.CreatePod(cli, pod_)
-	fmt.Println("Pod " + pod_.Metadata.Name + " has been created at node " + strconv.Itoa(podInstance.NodeID))
+	fmt.Println("Pod " + pod_.Metadata.Name + " has been created")
 
 	go func(podInstanceID string) {
 		fmt.Println("Start to watch ", podInstanceID)
