@@ -18,7 +18,7 @@ func CreateGPUJobUploader(cli *clientv3.Client, job def.GPUJob) {
 	podInstance.Pod = pod_
 
 	//将新创建的podInstance写入到etcd当中
-	podInstanceKey := def.GetKeyOfPodInstance(pod_.Metadata.Name)
+	podInstanceKey := def.GenerateKeyOfPodInstanceReplicas(pod_.Metadata.Name)
 	podInstance.ID = podInstanceKey
 	podInstance.ContainerSpec = make([]def.ContainerStatus, len(pod_.Spec.Containers))
 

@@ -18,6 +18,7 @@ import (
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/httpget"
+	"mini-kubernetes/tools/util"
 	"strconv"
 )
 
@@ -373,6 +374,7 @@ func handleCreateFunction(c echo.Context) error {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
+	function.URL = fmt.Sprintf("http://%s:%d/function/%s", util.GetLocalIP().String(), def.ActiverPort, function.Name)
 	service := create_api.CreateFunction(cli, function)
 	fmt.Println("Create function ", function.Name)
 
@@ -382,7 +384,7 @@ func handleCreateFunction(c echo.Context) error {
 		go letProxyCreateCIRule(service, node)
 	}
 
-	return c.String(200, fmt.Sprintf("http://127.0.0.1:%d/function/%s", def.ActiverPort, function.Name))
+	return c.String(200, function.URL)
 }
 
 func handleCreateGPUJob(c echo.Context) error {
