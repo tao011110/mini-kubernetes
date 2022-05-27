@@ -33,7 +33,7 @@ func DeleteFuncPodInstance(cli *clientv3.Client, podName string) (bool, def.Serv
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	etcd.Delete(cli, podInstanceID)
+	//etcd.Delete(cli, podInstanceID)
 
 	//更新PodInstanceIDList
 	podInstanceIDList := make([]string, 0)
