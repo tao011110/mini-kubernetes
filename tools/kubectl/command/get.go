@@ -2,10 +2,10 @@ package command
 
 import (
 	"fmt"
+	"mini-kubernetes/tools/util"
 	"strconv"
 	"strings"
 	"time"
-	"mini-kubernetes/tools/util"
 
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
@@ -49,14 +49,14 @@ func getFunc(c *cli.Context) {
 		if status == "200" {
 			fmt.Println("All pods' brief information is as follows")
 			max := 12
-			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n", 
-					"NAME",
-					"READY",
-					"STATUS",
-					"RESTARTS",
-					"AGE")
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+				"NAME",
+				"READY",
+				"STATUS",
+				"RESTARTS",
+				"AGE")
 			for _, podInstanceBrief := range response {
-				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n", 
+				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
 					podInstanceBrief.Name,
 					podInstanceBrief.Ready,
 					strconv.Itoa(int(podInstanceBrief.Status)),
@@ -102,19 +102,19 @@ func getFunc(c *cli.Context) {
 			max := 12
 			ip := 15
 			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(ip)+"s %-"+
-							strconv.Itoa(ip)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n", 
-					"NAME",
-					"TYPE",
-					"CLUSTER-IP",
-					"EXTERNAL-IP",
-					"PORT(S)",
-					"AGE")
+				strconv.Itoa(ip)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+				"NAME",
+				"TYPE",
+				"CLUSTER-IP",
+				"EXTERNAL-IP",
+				"PORT(S)",
+				"AGE")
 			for _, service := range response {
-				t := time.Now()  // 用于获取当前时间
-				var Age time.Duration = t.Sub(service.StartTime)  //进行计算，得到AGE
+				t := time.Now()                                  // 用于获取当前时间
+				var Age time.Duration = t.Sub(service.StartTime) //进行计算，得到AGE
 				for i := range service.PortsBindings {
 					fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(ip)+"s %-"+
-									strconv.Itoa(ip)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n", 
+						strconv.Itoa(ip)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
 						service.Name,
 						service.Type,
 						service.ClusterIP,
@@ -142,16 +142,16 @@ func getFunc(c *cli.Context) {
 			fmt.Println("All dns' information is as follows")
 			max := 15
 			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+
-							strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n", 
-					"NAME",
-					"HOST",
-					"PATH",
-					"SERVICE-NAME",
-					"PORT")
+				strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+				"NAME",
+				"HOST",
+				"PATH",
+				"SERVICE-NAME",
+				"PORT")
 			for _, dns := range response {
 				for i := range dns.Paths {
 					fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+
-									strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n", 
+						strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
 						dns.Name,
 						dns.Host,
 						dns.Paths[i].Path,
@@ -179,15 +179,15 @@ func getFunc(c *cli.Context) {
 			max := 15
 			num := 10
 			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+
-							strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n", 
-					"NAME",
-					"READY",
-					"UpToDate",
-					"AVAILABLE",
-					"AGE")
+				strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n",
+				"NAME",
+				"READY",
+				"UpToDate",
+				"AVAILABLE",
+				"AGE")
 			for _, dep := range response {
 				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+
-								strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n", 
+					strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n",
 					dep.Name,
 					dep.Ready,
 					strconv.Itoa(dep.UpToDate),
@@ -214,15 +214,15 @@ func getFunc(c *cli.Context) {
 			max := 15
 			num := 10
 			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+strconv.Itoa(num)+"s %-"+
-							strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n", 
-					"NAME",
-					"MIN-PODS",
-					"MAX-PODS",
-					"REPLICAS",
-					"AGE")
+				strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n",
+				"NAME",
+				"MIN-PODS",
+				"MAX-PODS",
+				"REPLICAS",
+				"AGE")
 			for _, auto := range response {
 				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+strconv.Itoa(num)+"s %-"+
-								strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n", 
+					strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n",
 					auto.Name,
 					strconv.Itoa(auto.MinPods),
 					strconv.Itoa(auto.MaxPods),
@@ -232,6 +232,62 @@ func getFunc(c *cli.Context) {
 		} else {
 			fmt.Printf("No autoscaler exists\n")
 		}
+	} else if ty == "gpujob" {
+		// kubectl get gpujob 用来获取所有的 gpuJob
+		response := make([]def.GPUJobDetail, 0)
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/gpuJob").
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		// fmt.Printf("get_all_gpuJob status is %s\n", status)
+		if status == "200" {
+			fmt.Println("All gpuJobs' information is as follows")
+			for _, gpuJobDetail := range response {
+				fmt.Printf("%v\n", gpuJobDetail)
+			}
+		} else {
+			fmt.Printf("No gpuJob exists\n")
+		}
+	} else if ty == "function" {
+		// kubectl get function 用来获取所有的 function
+		response := make([]def.Function, 0)
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/function").
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		// fmt.Printf("get_all_function status is %s\n", status)
+		if status == "200" {
+			fmt.Println("All functions' information is as follows")
+			for _, function := range response {
+				fmt.Printf("%v\n", function)
+			}
+		} else {
+			fmt.Printf("No function exists\n")
+		}
+	} else if ty == "statemachine" {
+		// kubectl get statemachine 用来获取所有的 statemachine
+		response := make([]def.StateMachine, 0)
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/stateMachine").
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		// fmt.Printf("get_all_stateMachine status is %s\n", status)
+		if status == "200" {
+			fmt.Println("All stateMachines' information is as follows")
+			for _, stateMachine := range response {
+				fmt.Printf("%v\n", stateMachine)
+			}
+		} else {
+			fmt.Printf("No stateMachine exists\n")
+		}
 	}
-
 }
