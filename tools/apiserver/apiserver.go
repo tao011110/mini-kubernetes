@@ -141,6 +141,14 @@ func handleCreatePod(c echo.Context) error {
 						serviceList := create_api.CheckAddInService(cli, change)
 						nodeList := get_api.GetAllNode(cli)
 						for _, service := range serviceList {
+							// 需要检验，若原先该IP已存在于service当中，则不再重复添加
+							for _, bindings := range service.PortsBindings {
+								for _, endPoint := range bindings.Endpoints {
+									if endPoint == change.IP {
+										return
+									}
+								}
+							}
 							if service.Type == "ClusterIP" {
 								for _, node := range nodeList {
 									letProxyDeleteCIRule(service.ClusterIP, node)
@@ -467,8 +475,17 @@ func handleCreateFuncPodInstance(c echo.Context) error {
 						fmt.Println("change.IP:  ", change.IP)
 
 						// 在service中加上该podInstance
+						fmt.Println("podName:   ", podName)
 						service, _ := get_api.GetService(cli, "service_"+podName[4:])
 						fmt.Println("and service is", service)
+						// 需要检验，若原先该IP已存在于service当中，则不再重复添加
+						for _, bindings := range service.PortsBindings {
+							for _, endPoint := range bindings.Endpoints {
+								if endPoint == change.IP {
+									return
+								}
+							}
+						}
 						service.PortsBindings = create_api.AddPodInstanceIntoService(change, *service)
 						apiserver_utils.PersistService(cli, *service)
 

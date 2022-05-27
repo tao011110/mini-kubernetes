@@ -96,14 +96,17 @@ func ProcessFunctionHttpTrigger(c echo.Context) error {
 func TriggerFunction(funcName string, parames map[string]string, body interface{}) (int, interface{}) {
 	FlowCount(funcName)
 	function := activer_utils.GetFunctionByName(activerMeta.EtcdClient, funcName)
+	fmt.Println("funcName:   ", funcName)
+	fmt.Println("function:   ", function)
 	podReplicaNameList := activer_utils.GetPodReplicaIDListByPodName(activerMeta.EtcdClient, function.PodName)
 	service := activer_utils.GetServiceByName(activerMeta.EtcdClient, function.ServiceName)
 	if len(podReplicaNameList) == 0 {
 		activer_utils.AddNPodInstance(function.PodName, 1)
 		//activer_utils.StartService(function.ServiceName)
 	}
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 	uri := fmt.Sprintf("http://%s:80", service.ClusterIP)
+	//uri = fmt.Sprintf("http://10.24.1.2:80")
 	fmt.Println(uri)
 	c := request.Client{
 		URL:    uri,
@@ -112,9 +115,12 @@ func TriggerFunction(funcName string, parames map[string]string, body interface{
 		JSON:   body,
 	}
 	var result interface{}
+	fmt.Println(c.Send().String())
 	resp := c.Send().Scan(&result)
-	fmt.Println(resp)
-	fmt.Println(resp.Response().StatusCode)
+	_ = json.Unmarshal([]byte(c.Send().String()), &result)
+	fmt.Println("resp:   ", resp)
+	fmt.Println("resp.Response().StatusCode:   ", resp.Response().StatusCode)
+	fmt.Println("result:   ", result)
 	if resp.Response().StatusCode != 200 {
 		return http.StatusInternalServerError, "{}"
 	}
@@ -148,20 +154,52 @@ func TriggerStateMachine(stateMachineName string, parames map[string]string, bod
 	currentBody := body
 	for {
 		type_ := gojsonq.New().FromInterface(currentState).Find("Type")
+		fmt.Println("type:   ", type_)
+		fmt.Println("TriggerStateMachine  currentState:   ", currentState)
 		if type_ == "Task" {
-			fmt.Println("currentState:  ", currentState)
-			task := currentState.(def.Task)
+			task := def.Task{}
+			if currentState.(map[string]interface{})["Next"] != nil {
+				task.Type = currentState.(map[string]interface{})["Type"].(string)
+				task.Resource = currentState.(map[string]interface{})["Resource"].(string)
+				task.Next = currentState.(map[string]interface{})["Next"].(string)
+			} else {
+				task.Type = currentState.(map[string]interface{})["Type"].(string)
+				task.Resource = currentState.(map[string]interface{})["Resource"].(string)
+				task.End = currentState.(map[string]interface{})["End"].(bool)
+			}
+			fmt.Println("get task:  ", task)
+
 			state, response := TriggerFunction(task.Resource, parames, currentBody)
 			if state != http.StatusOK || task.End {
 				return state, response
 			}
+			fmt.Println(response)
 			currentBody = response
 			currentState = stateMachine.States[task.Next]
-		} else if type_ == "choice" {
-			choice := currentState.(def.Choice)
+			fmt.Println(currentState)
+		} else if type_ == "Choice" {
+			choice := def.Choice{
+				Type: currentState.(map[string]interface{})["Type"].(string),
+			}
+			interfaceMaps := currentState.(map[string]interface{})["Choices"].([]interface{})
+			optionList := make([]def.Options, 0)
+			for _, interface_ := range interfaceMaps {
+				options := def.Options{
+					Variable:     interface_.(map[string]interface{})["Variable"].(string),
+					StringEquals: interface_.(map[string]interface{})["StringEquals"].(string),
+					Next:         interface_.(map[string]interface{})["Next"].(string),
+				}
+				optionList = append(optionList, options)
+			}
+			choice.Choices = optionList
+			fmt.Println("get choice:   ", choice)
 			find := false
 			for _, option := range choice.Choices {
+				fmt.Println("option.Variable:  ", option.Variable)
+				fmt.Println("currentBody:  ", currentBody)
 				part := activer_utils.GetPartOfJsonResponce(option.Variable, currentBody)
+				fmt.Println("part:  ", part)
+				fmt.Println("option.StringEquals:  ", option.StringEquals)
 				if part == option.StringEquals {
 					currentState = stateMachine.States[option.Next]
 					find = true
@@ -169,6 +207,7 @@ func TriggerStateMachine(stateMachineName string, parames map[string]string, bod
 				}
 			}
 			if !find {
+				fmt.Println("not find")
 				return http.StatusInternalServerError, "{}"
 			}
 		}
@@ -176,7 +215,7 @@ func TriggerStateMachine(stateMachineName string, parames map[string]string, bod
 }
 func AutoExpanderAndShrinker() {
 	cron2 := cron.New()
-	err := cron2.AddFunc("*/30 * * * * *", ExpandAndShrink)
+	err := cron2.AddFunc("*/60 * * * * *", ExpandAndShrink)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -198,7 +237,7 @@ func ExpandAndShrink() {
 	oldRecorder := activerMeta.AccessRecorder
 	activerMeta.AccessRecorder = newRecorder
 	for _, name := range activerMeta.FunctionsNameList {
-		targetReplicaNum := oldRecorder[name] / 100
+		targetReplicaNum := oldRecorder[name]/100 + 1
 		activer_utils.AdjustReplicaNum2Target(activerMeta.EtcdClient, name, targetReplicaNum)
 	}
 }

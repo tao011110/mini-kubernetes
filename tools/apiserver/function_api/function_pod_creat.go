@@ -28,7 +28,7 @@ func CreateFuncPodInstance(cli *clientv3.Client, podName string) def.PodInstance
 	util.EtcdUnmarshal(etcd.Get(cli, instanceIDListkey), &instanceIDList)
 	instanceIDList = append(instanceIDList, podInstance.ID)
 	instanceIDListValue, _ := json.Marshal(instanceIDList)
-	etcd.Put(cli, podInstance.ID, string(instanceIDListValue))
+	etcd.Put(cli, instanceIDListkey, string(instanceIDListValue))
 
 	return podInstance
 }

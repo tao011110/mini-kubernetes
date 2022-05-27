@@ -4,7 +4,7 @@
   "States": {
     "State1": {
       "Type": "Task",
-      "Resource": "function_state1",
+      "Resource": "state1_function",
       "Next": "Choice"
     },
     "Choice": {
@@ -24,17 +24,17 @@
     },
     "State2": {
       "Type": "Task",
-      "Resource": "function_state2",
+      "Resource": "state2_function",
       "Next": "State4"
     },
     "State3": {
       "Type": "Task",
-      "Resource": "function_state3",
+      "Resource": "state3_function",
       "Next": "State4"
     },
     "State4": {
       "Type": "Task",
-      "Resource": "function_state4",
+      "Resource": "state4_function",
       "End": true
     }
   }
