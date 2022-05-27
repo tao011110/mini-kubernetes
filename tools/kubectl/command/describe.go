@@ -1,8 +1,8 @@
 package command
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/util"
@@ -132,6 +132,65 @@ func describeFunc(c *cli.Context) {
 		} else {
 			fmt.Printf("autoscaler %s doesn't exist\n", autoscalerName)
 		}
+	} else if c.Args()[0] == "gpujob" {
+		// kubectl describe gpujob gpuJobName
+		// 用来获取特定名称的 gpuJob，需要发送给apiserver的参数为 gpuJobName(string)
+		gpuJobName := c.Args()[1]
+		response := def.GPUJobDetail{}
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/gpuJob/" + gpuJobName).
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		// fmt.Printf("get_gpuJob status is %s\n", status)
+		if status == "200" {
+			if res, err := json.MarshalIndent(response, "", "   "); err == nil {
+				fmt.Printf("get gpuJob successfully and the response is: %v\n", string(res))
+			}
+		} else {
+			fmt.Printf("gpuJob %s doesn't exist\n", gpuJobName)
+		}
+	} else if c.Args()[0] == "function" {
+		// kubectl describe function functionName
+		// 用来获取特定名称的 function，需要发送给apiserver的参数为 functionName(string)
+		functionName := c.Args()[1]
+		response := def.Function{}
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/function/" + functionName).
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		// fmt.Printf("get_function status is %s\n", status)
+		if status == "200" {
+			if res, err := json.MarshalIndent(response, "", "   "); err == nil {
+				fmt.Printf("get function successfully and the response is: %v\n", string(res))
+			}
+		} else {
+			fmt.Printf("function %s doesn't exist\n", functionName)
+		}
+	} else if c.Args()[0] == "statemachine" {
+		// kubectl describe statemachine stateMachineName
+		// 用来获取特定名称的 StateMachine，需要发送给apiserver的参数为 stateMachineName(string)
+		stateMachineName := c.Args()[1]
+		response := def.StateMachine{}
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/stateMachine/" + stateMachineName).
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		// fmt.Printf("get_stateMachine status is %s\n", status)
+		if status == "200" {
+			if res, err := json.MarshalIndent(response, "", "   "); err == nil {
+				fmt.Printf("get stateMachine successfully and the response is: %v\n", string(res))
+			}
+		} else {
+			fmt.Printf("stateMachine %s doesn't exist\n", stateMachineName)
+		}
 	}
-
 }
