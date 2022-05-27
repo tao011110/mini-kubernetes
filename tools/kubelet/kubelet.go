@@ -169,7 +169,7 @@ func checkPodRunning() {
 
 func ResourceMonitoring() {
 	cron2 := cron.New()
-	err := cron2.AddFunc("*/30 * * * * *", recordResource)
+	err := cron2.AddFunc("*/15 * * * * *", recordResource)
 	if err != nil {
 		fmt.Println(err)
 	}
