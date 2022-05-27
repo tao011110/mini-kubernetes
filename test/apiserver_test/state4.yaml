@@ -1,0 +1,5 @@
+kind: activity
+name: state4_function
+function: /home/go/src/mini-kubernetes/presentation/serverless-stateMachine/state4/state4.py
+requirements: /home/go/src/mini-kubernetes/presentation/serverless-stateMachine/state4/requirements.txt
+version: 1

@@ -415,8 +415,8 @@ func TestActiver(t *testing.T) {
 //需要注意的是，返回的 response 会提供一个url，kubectl将它呈现给用户，后续用户可以使用它发送请求
 func testCreateStateMachine(path string) {
 	//TODO: 这里需要注意的是，用户会交给kubectl一个.json文件的路径，kubectl从中json字符串后，将其转为def.StateMachine。
-	//这里并没有关于读文件的操作，kubectl需自己实现
-	stateMachineJson := "{\"Name\": \"test_state_machine\",\"StartAt\": \"State1\",\"States\": {\"State1\": {\"Type\": \"Task\",\"Resource\": \"function_state1\",\"Next\": \"Choice\"},\"Choice\": {\"Type\": \"Choice\",\"Choices\": [{\"Variable\": \"$.type_state1\",\"StringEquals\": \"1\",\"Next\": \"State2\"},{\"Variable\": \"$.type_state1\",\"StringEquals\": \"2\",\"Next\": \"State3\"}]},\"State2\": {\"Type\": \"Task\",\"Resource\": \"function_state2\",\"Next\": \"State4\"},\"State3\": {\"Type\": \"Task\",\"Resource\": \"function_state3\",\"Next\": \"State4\"},\"State4\": {\"Type\": \"Task\",\"Resource\": \"function_state4\",\"End\": true}}}"
+	//这里并没有关于读文件的操作，kubectl需自己实现。所用的json文件，可以参考/presentation/serverless-stateMachine/state_machine.json
+	stateMachineJson := "{\n  \"Name\": \"test_state_machine\",\n  \"StartAt\": \"State1\",\n  \"States\": {\n    \"State1\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"state1_function\",\n      \"Next\": \"Choice\"\n    },\n    \"Choice\": {\n      \"Type\": \"Choice\",\n      \"Choices\": [\n        {\n          \"Variable\": \"$.type_state1\",\n          \"StringEquals\": \"1\",\n          \"Next\": \"State2\"\n        },\n        {\n          \"Variable\": \"$.type_state1\",\n          \"StringEquals\": \"2\",\n          \"Next\": \"State3\"\n        }\n      ]\n    },\n    \"State2\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"state2_function\",\n      \"Next\": \"State4\"\n    },\n    \"State3\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"state3_function\",\n      \"Next\": \"State4\"\n    },\n    \"State4\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"state4_function\",\n      \"End\": true\n    }\n  }\n}\n"
 	stateMachine := def.StateMachine{}
 	_ = json.Unmarshal([]byte(stateMachineJson), &stateMachine)
 	fmt.Println(stateMachine)
@@ -478,6 +478,10 @@ func testGetAllStateMachine() {
 }
 
 func TestStateStateMachine(t *testing.T) {
+	testCreateFunction("./state1.yaml")
+	testCreateFunction("./state2.yaml")
+	testCreateFunction("./state3.yaml")
+	testCreateFunction("./state4.yaml")
 	testCreateStateMachine("./function_test.json")
 
 	testGetStateMachine("test_state_machine")
@@ -487,11 +491,11 @@ func TestStateStateMachine(t *testing.T) {
 func TestStateActiver(t *testing.T) {
 	response := ""
 	stateMachineName := "test_state_machine"
-	type person struct {
-		UserType int `json:"userType"`
+	type Person struct {
+		Type float64 `json:"type"`
 	}
-	request2 := person{
-		UserType: 2,
+	request2 := Person{
+		Type: 1,
 	}
 	body2, _ := json.Marshal(request2)
 	fmt.Println(request2)

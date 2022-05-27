@@ -1,0 +1,5 @@
+kind: activity
+name: state3_function
+function: /home/go/src/mini-kubernetes/presentation/serverless-stateMachine/state3/state3.py
+requirements: /home/go/src/mini-kubernetes/presentation/serverless-stateMachine/state3/requirements.txt
+version: 1

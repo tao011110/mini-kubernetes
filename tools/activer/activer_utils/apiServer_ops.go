@@ -64,6 +64,8 @@ func RemovePodInstance(podName string, num int) {
 func AdjustReplicaNum2Target(etcdClient *clientv3.Client, funcName string, target int) {
 	function := GetFunctionByName(etcdClient, funcName)
 	replicaNameList := GetPodReplicaIDListByPodName(etcdClient, function.PodName)
+	fmt.Println("target size is:   ", target)
+	fmt.Println("len(replicaNameList) is:   ", len(replicaNameList))
 	if len(replicaNameList) < target {
 		AddNPodInstance(function.PodName, target-len(replicaNameList))
 	} else if len(replicaNameList) > target {
