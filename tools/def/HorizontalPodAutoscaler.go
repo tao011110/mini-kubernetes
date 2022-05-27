@@ -4,8 +4,8 @@ import "time"
 
 type ParsedHorizontalPodAutoscaler struct {
 	Name           string    `json:"name"`
-	CPUMinValue    float64   `json:"CPUMinValue"`
-	CPUMaxValue    float64   `json:"CPUMaxValue"`
+	CPUMinValue    string    `json:"CPUMinValue"`
+	CPUMaxValue    string    `json:"CPUMaxValue"`
 	MemoryMinValue string    `json:"memoryMinValue"`
 	MemoryMaxValue string    `json:"memoryMaxValue"`
 	MinReplicas    int       `json:"minReplicas"`

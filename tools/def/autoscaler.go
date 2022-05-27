@@ -12,10 +12,10 @@ type AutoscalerBrief struct {
 
 type AutoscalerDetail struct {
 	Name               string    `json:"name"`
-	CPUMinValue        float64   `json:"CPUMinValue"`
-	CPUMaxValue        float64   `json:"CPUMaxValue"`
-	MemoryMinValue     int64     `json:"memoryMinValue"`
-	MemoryMaxValue     int64     `json:"memoryMaxValue"`
+	CPUMinValue        string    `json:"CPUMinValue"`
+	CPUMaxValue        string    `json:"CPUMaxValue"`
+	MemoryMinValue     string    `json:"memoryMinValue"`
+	MemoryMaxValue     string    `json:"memoryMaxValue"`
 	MinReplicas        int       `json:"minReplicas"`
 	MaxReplicas        int       `json:"maxReplicas"`
 	CurrentReplicasNum int       `json:"replicasNum"`

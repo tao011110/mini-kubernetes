@@ -7,11 +7,11 @@ spec:
   maxReplicas: 10
   metrics:
     CPU:
-      targetMinValue : num/-1
-      targetMaxValue : num/-1
+      targetMinValue : 300
+      targetMaxValue : 600
     memory:
-      targetMinValue: num/-1
-      targetMaxValue: num/-1
+      targetMinValue: 10240000
+      targetMaxValue: 102400000
   template:
     metadata:
       labels:

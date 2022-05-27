@@ -1,5 +1,7 @@
 package controller_utils
 
+import "strconv"
+
 func MemoryToByte(memString string) int {
 	if memString == `0` || memString == `` {
 		return 0
@@ -17,4 +19,10 @@ func MemoryToByte(memString string) int {
 		}
 	}
 	return 0
+}
+
+func CPUToMCore(cpu string) float64 {
+	cpuValue, _ := strconv.ParseFloat(cpu, 64)
+
+	return cpuValue
 }

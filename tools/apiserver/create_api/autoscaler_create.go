@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
-	"strconv"
 	"time"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -15,16 +14,16 @@ func CreateAutoscaler(cli *clientv3.Client, autoscaler def.Autoscaler) {
 	podName := def.GetPodNameOfAutoscaler(autoscaler.Metadata.Name)
 	// Parse autoscaler' meta into ParsedDeployment, and put it into etcd
 	{
-		CPUMaxValue, _ := strconv.ParseFloat(autoscaler.Spec.Metrics.CPU.TargetMaxValue, 64)
-		CPUMinValue, _ := strconv.ParseFloat(autoscaler.Spec.Metrics.CPU.TargetMinValue, 64)
-		memoryMaxValue, _ := strconv.ParseInt(autoscaler.Spec.Metrics.Memory.TargetMaxValue, 10, 64)
-		memoryMinValue, _ := strconv.ParseInt(autoscaler.Spec.Metrics.Memory.TargetMinValue, 10, 64)
+		//CPUMaxValue, _ := strconv.ParseFloat(autoscaler.Spec.Metrics.CPU.TargetMaxValue, 64)
+		//CPUMinValue, _ := strconv.ParseFloat(autoscaler.Spec.Metrics.CPU.TargetMinValue, 64)
+		//memoryMaxValue, _ := strconv.ParseInt(autoscaler.Spec.Metrics.Memory.TargetMaxValue, 10, 64)
+		//memoryMinValue, _ := strconv.ParseInt(autoscaler.Spec.Metrics.Memory.TargetMinValue, 10, 64)
 		parsedAutoscaler := def.ParsedHorizontalPodAutoscaler{
 			Name:           autoscaler.Metadata.Name,
-			CPUMaxValue:    CPUMaxValue,
-			CPUMinValue:    CPUMinValue,
-			MemoryMaxValue: memoryMaxValue,
-			MemoryMinValue: memoryMinValue,
+			CPUMaxValue:    autoscaler.Spec.Metrics.CPU.TargetMaxValue,
+			CPUMinValue:    autoscaler.Spec.Metrics.CPU.TargetMinValue,
+			MemoryMaxValue: autoscaler.Spec.Metrics.Memory.TargetMaxValue,
+			MemoryMinValue: autoscaler.Spec.Metrics.Memory.TargetMinValue,
 			MaxReplicas:    int(autoscaler.Spec.MaxReplicas),
 			MinReplicas:    int(autoscaler.Spec.MinReplicas),
 			PodName:        podName,
