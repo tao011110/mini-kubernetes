@@ -4,6 +4,7 @@ type StateMachine struct {
 	Name    string                 `json:"Name"`
 	StartAt string                 `json:"StartAt"`
 	States  map[string]interface{} `json:"States"`
+	URL     string                 `json:"url"`
 }
 
 type Task struct {

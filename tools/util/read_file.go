@@ -11,7 +11,9 @@ func ReadFile(filePath string) string {
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
 	f, _ := ioutil.ReadAll(file)
 	str := string(f)
 	return str

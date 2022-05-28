@@ -39,7 +39,7 @@ func ReadType(path string) (int, error) {
 	if f, err := os.Open(path); err != nil {
 		return -1, err
 	} else {
-		yaml.NewDecoder(f).Decode(yml_)
+		_ = yaml.NewDecoder(f).Decode(yml_)
 		if (*yml_).Kind == "Pod" {
 			return Pod_t, err
 		} else if (*yml_).Kind == "Service" {
@@ -68,7 +68,7 @@ func ReadTypeAndName(path string) (int, string, error) {
 	if f, err := os.Open(path); err != nil {
 		return -1, "", err
 	} else {
-		yaml.NewDecoder(f).Decode(yml_)
+		_ = yaml.NewDecoder(f).Decode(yml_)
 		if (*yml_).Kind == "Pod" {
 			return Pod_t, (*yml_).Metadata.Name, err
 		} else if (*yml_).Kind == "Service" {

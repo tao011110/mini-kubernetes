@@ -419,10 +419,11 @@ func handleCreateStateMachine(c echo.Context) error {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
+	stateMachine.URL = fmt.Sprintf("http://%s:%d/state_machine/%s", util.GetLocalIP().String(), def.ActiverPort, stateMachine.Name)
 	create_api.CreateStateMachine(cli, stateMachine)
 	fmt.Println("Create stateMachine ", stateMachine.Name)
 
-	return c.String(200, fmt.Sprintf("http://127.0.0.1:%d/state_machine/%s", def.ActiverPort, stateMachine.Name))
+	return c.String(200, stateMachine.URL)
 }
 
 func handleOutputGPUJob(c echo.Context) error {
