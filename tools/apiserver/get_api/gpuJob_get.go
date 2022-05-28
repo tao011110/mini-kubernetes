@@ -50,7 +50,7 @@ func GetGPUJob(cli *clientv3.Client, jobName string) (def.GPUJobDetail, bool) {
 		return jobGet, true
 	}
 	{
-		kv := etcd.Get(cli, def.GetKeyOfPodReplicasNameListByPodName(jobGet.Job.PodName)).Kvs
+		kv := etcd.GetWithPrefix(cli, def.GetKeyOfPodReplicasNameListByPodName(jobGet.Job.PodName)).Kvs
 		value := make([]byte, 0)
 		if len(kv) != 0 {
 			value = kv[0].Value

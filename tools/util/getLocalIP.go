@@ -21,5 +21,10 @@ func GetLocalIP() net.IP {
 	//}
 	//os.Exit(0)
 	//return nil
-	return net.ParseIP(ReadFile(def.IPConfigFilePath))
+	ip := ReadFile(def.IPConfigFilePath)
+	if ip[len(ip)-1] == '\n' {
+		ip = ip[:len(ip)-1]
+	}
+
+	return net.ParseIP(ip)
 }
