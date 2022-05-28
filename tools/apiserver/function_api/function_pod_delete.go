@@ -25,6 +25,11 @@ func DeleteFuncPodInstance(cli *clientv3.Client, podName string) (bool, def.Serv
 		return false, def.Service{}
 	}
 	podInstanceID := instanceIDList[0]
+
+	return FuncDeletePodInstance(cli, podInstanceID)
+}
+
+func FuncDeletePodInstance(cli *clientv3.Client, podInstanceID string) (bool, def.Service) {
 	podInstance := def.PodInstance{}
 	podInstanceValue := etcd.Get(cli, podInstanceID).Kvs[0].Value
 	err := json.Unmarshal(podInstanceValue, &podInstance)
@@ -32,7 +37,12 @@ func DeleteFuncPodInstance(cli *clientv3.Client, podName string) (bool, def.Serv
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	//etcd.Delete(cli, podInstanceID)
+	etcd.Delete(cli, podInstanceID)
+	podName := podInstance.Metadata.Name
+	instanceIDListkey := def.GetKeyOfPodReplicasNameListByPodName(podName)
+	resp := etcd.Get(cli, instanceIDListkey)
+	var instanceIDList []string
+	util.EtcdUnmarshal(resp, &instanceIDList)
 
 	//更新PodInstanceIDList
 	podInstanceIDList := make([]string, 0)
@@ -46,13 +56,14 @@ func DeleteFuncPodInstance(cli *clientv3.Client, podName string) (bool, def.Serv
 			panic(err)
 		}
 	}
-	for _, podInstanceID := range podInstanceIDList {
-		if podInstanceID != podInstance.ID {
-			tmpList = append(tmpList, podInstanceID)
+	for _, id := range podInstanceIDList {
+		fmt.Printf("id is %s,  while podInstance.ID is %s\n", id, podInstance.ID)
+		if id != podInstance.ID {
+			tmpList = append(tmpList, id)
 		}
 	}
 	podInstanceIDList = tmpList
-	podInstanceIDValue, err := json.Marshal(podInstanceIDList)
+	podInstanceIDValue, err := json.Marshal(tmpList)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		panic(err)
@@ -60,7 +71,10 @@ func DeleteFuncPodInstance(cli *clientv3.Client, podName string) (bool, def.Serv
 	etcd.Put(cli, def.PodInstanceListID, string(podInstanceIDValue))
 
 	//更新ReplicasNameList
-	newInstanceIDList := instanceIDList[1:]
+	newInstanceIDList := make([]string, 0)
+	for _, id := range instanceIDList {
+		newInstanceIDList = append(newInstanceIDList, id)
+	}
 	instanceIDListValue, _ := json.Marshal(newInstanceIDList)
 	etcd.Put(cli, instanceIDListkey, string(instanceIDListValue))
 

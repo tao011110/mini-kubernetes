@@ -70,7 +70,7 @@ const (
 )
 
 func GetKeyOfPodReplicasNameListByPodName(podName string) string {
-	return fmt.Sprintf("%s_replicas_name_list", podName)
+	return fmt.Sprintf("/replicas_name_list/%s", podName)
 }
 
 func PodInstanceListKeyOfNode(node *Node) string {

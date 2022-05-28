@@ -55,6 +55,8 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.DELETE("/delete/deployment/:deploymentName", handleDeleteDeployment)
 	e.DELETE("/delete/autoscaler/:autoscalerName", handleDeleteAutoscaler)
 	e.DELETE("/delete/funcPodInstance/:podName", handleDeleteFuncPodInstance)
+	e.DELETE("/delete/function/:funcName", handleDeleteFunction)
+	e.DELETE("/delete/stateMachine/:stateMachineName", handelDeleteStateMachine)
 
 	// handle get-api
 	e.GET("/get_pod/:podInstanceName", handleGetPod)
@@ -375,7 +377,7 @@ func handleCreateFunction(c echo.Context) error {
 		panic(err)
 	}
 	function.URL = fmt.Sprintf("http://%s:%d/function/%s", util.GetLocalIP().String(), def.ActiverPort, function.Name)
-	service := create_api.CreateFunction(cli, function)
+	service := function_api.CreateFunction(cli, function)
 	fmt.Println("Create function ", function.Name)
 
 	// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
@@ -601,13 +603,33 @@ func handleDeleteFuncPodInstance(c echo.Context) error {
 	}
 }
 
-//func tmp(c echo.Context) error {
-//	podInstanceID := c.Param("podInstanceID")
-//	num := c.Param("num")
-//	fmt.Println(podInstanceID)
-//	fmt.Println(num)
-//	return c.String(404, "PodInstance of "+podInstanceID+" doesn't exist")
-//}
+func handleDeleteFunction(c echo.Context) error {
+	funcName := c.Param("funcName")
+	flag, clusterIP := function_api.DeleteFunction(cli, funcName)
+	if flag == true {
+		fmt.Println("Function " + funcName + " has been deleted")
+		nodeList := get_api.GetAllNode(cli)
+		for _, node := range nodeList {
+			fmt.Println("clusterIP is :   ", clusterIP)
+			letProxyDeleteCIRule(clusterIP, node)
+		}
+		return c.String(200, "Function "+funcName+" has been deleted")
+	} else {
+		return c.String(404, "Function "+funcName+" doesn't exist")
+	}
+}
+
+func handelDeleteStateMachine(c echo.Context) error {
+	stateMachineName := c.Param("stateMachineName")
+
+	if delete_api.DeleteStateMachine(cli, stateMachineName) == true {
+		fmt.Println("StateMachine " + stateMachineName + " has been deleted")
+		return c.String(200, "StateMachine "+stateMachineName+" has been deleted")
+	} else {
+		fmt.Println("StateMachine " + stateMachineName + " has been deleted")
+		return c.String(404, "StateMachine "+stateMachineName+" doesn't exist")
+	}
+}
 
 func letProxyDeleteCIRule(clusterIP string, node def.Node) {
 	// 更新所有node的kube-proxy
@@ -792,7 +814,7 @@ func handleGetAllDNS(c echo.Context) error {
 
 func handleGetFunction(c echo.Context) error {
 	functionName := c.Param("functionName")
-	function, flag := get_api.GetFunction(cli, functionName)
+	function, flag := function_api.GetFunction(cli, functionName)
 	fmt.Println(function)
 	if flag == false {
 		return c.JSON(404, function)
@@ -801,7 +823,7 @@ func handleGetFunction(c echo.Context) error {
 }
 
 func handleGetAllFunction(c echo.Context) error {
-	functionList, flag := get_api.GetAllFunction(cli)
+	functionList, flag := function_api.GetAllFunction(cli)
 	if flag == false {
 		return c.JSON(404, functionList)
 	}
