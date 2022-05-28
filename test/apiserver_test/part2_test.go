@@ -334,7 +334,7 @@ func testGetAllFunction() {
 	}
 }
 
-// 用来删除function，需要发送给apiserver的参数为funcName(string)
+// TODO:用来删除function，需要发送给apiserver的参数为funcName(string)
 func testDeleteFunction(funcName string) {
 	response4 := ""
 	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/function/" + funcName).
@@ -499,7 +499,7 @@ func testGetAllStateMachine() {
 	}
 }
 
-// 用来删除stateMachine，需要发送给apiserver的参数为stateMachineName(string)
+// TODO:用来删除stateMachine，需要发送给apiserver的参数为stateMachineName(string)
 func testDeleteStateMachine(stateMachineName string) {
 	response4 := ""
 	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/stateMachine/" + stateMachineName).
