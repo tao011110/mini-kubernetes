@@ -7,7 +7,7 @@ spec:
   template:
     metadata:
       labels:
-        name: pod-hjk
+        name: test-service
     spec:
       containers:
         - name: fileserver
