@@ -67,10 +67,10 @@ func testCreatePod(path string) {
 	fmt.Printf("create_pod is %s and response is: %s\n", status, response2)
 }
 
-func testGetPod(podInstanceID string) {
-	//需要发送给apiserver的参数为 podInstanceID string
+func testGetPod(podName string) {
+	//需要发送给apiserver的参数为 podName string
 	response3 := def.Pod{}
-	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get_pod/" + podInstanceID).
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get_pod/" + podName).
 		ContentType("application/json").
 		GetJson(&response3).
 		Execute()
@@ -80,16 +80,16 @@ func testGetPod(podInstanceID string) {
 	}
 	fmt.Printf("get_pod status is %s\n", status)
 	if status == "200" {
-		fmt.Printf("get pod_ %s successfully and the response is: %v\n", podInstanceID, response3)
+		fmt.Printf("get pod_ %s successfully and the response is: %v\n", podName, response3)
 	} else {
-		fmt.Printf("pod_ %s doesn't exist\n", podInstanceID)
+		fmt.Printf("pod_ %s doesn't exist\n", podName)
 	}
 }
 
-func testDeletePod(podInstanceID string) {
-	//需要发送给apiserver的参数为 podInstanceID string
+func testDeletePod(podName string) {
+	//需要发送给apiserver的参数为 podName string
 	response4 := ""
-	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete_pod/" + podInstanceID).
+	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete_pod/" + podName).
 		ContentType("application/json").
 		GetString(&response4).
 		Execute()
@@ -100,9 +100,9 @@ func testDeletePod(podInstanceID string) {
 
 	fmt.Printf("delete_pod status is %s\n", status)
 	if status == "200" {
-		fmt.Printf("delete pod_ %s successfully and the response is: %v\n", podInstanceID, response4)
+		fmt.Printf("delete pod_ %s successfully and the response is: %v\n", podName, response4)
 	} else {
-		fmt.Printf("pod_ %s doesn't exist\n", podInstanceID)
+		fmt.Printf("pod_ %s doesn't exist\n", podName)
 	}
 }
 
