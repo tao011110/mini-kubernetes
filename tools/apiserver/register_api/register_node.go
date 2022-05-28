@@ -60,7 +60,7 @@ func distributeCniIP(registeredNodeID int) net.IP {
 func GetRegisteredNodeID(cli *clientv3.Client) int {
 	key := "/Persistence/nodeID/"
 	kvs := etcd.Get(cli, key).Kvs
-	nodeID := 0
+	nodeID := 1
 	if len(kvs) != 0 {
 		nodeIDValue := kvs[0].Value
 		err := json.Unmarshal(nodeIDValue, &nodeID)
