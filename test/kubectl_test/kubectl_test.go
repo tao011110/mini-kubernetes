@@ -3,9 +3,10 @@ package kubectl_test
 import (
 	"mini-kubernetes/tools/kubectl"
 	"testing"
+	"time"
 )
 
-func TestCreate(t *testing.T) {
+func TestPod(t *testing.T) {
 	app := kubectl.Initial()
 	// brief introduction of kubectl
 	err := kubectl.ParseArgs(app, "kubectl")
@@ -32,35 +33,7 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-func TestPod(t *testing.T) {
-	app := kubectl.Initial()
-
-	// create pod-1
-	err := kubectl.ParseArgs(app, "kubectl create -f pod-1.yaml")
-	if err != nil {
-		t.Error("test kubectl create fail")
-	}
-
-	// create pod-2
-	err = kubectl.ParseArgs(app, "kubectl create -f pod-2.yaml")
-	if err != nil {
-		t.Error("test kubectl create fail")
-	}
-
-	// test describe pod
-	err = kubectl.ParseArgs(app, "kubectl describe pod test-pod-1")
-	if err != nil {
-		t.Error("test kubectl describe pod fail")
-	}
-
-	// test get pods
-	err = kubectl.ParseArgs(app, "kubectl get pods")
-	if err != nil {
-		t.Error("test kubectl get pods fail")
-	}
-}
-
-func TestService(t *testing.T) {
+func TestServiceAndDNS(t *testing.T) {
 	app := kubectl.Initial()
 
 	// create service-1
@@ -87,34 +60,6 @@ func TestService(t *testing.T) {
 		t.Error("test kubectl get services fail")
 	}
 
-	// test delete service-1
-	err = kubectl.ParseArgs(app, "kubectl delete service service-1")
-	if err != nil {
-		t.Error("test kubectl delete service fail")
-	}
-
-	// test delete service-2
-	err = kubectl.ParseArgs(app, "kubectl delete service service-2")
-	if err != nil {
-		t.Error("test kubectl delete service fail")
-	}
-}
-
-func TestDNS(t *testing.T) {
-	app := kubectl.Initial()
-	
-	// create service-1
-	err := kubectl.ParseArgs(app, "kubectl create -f service-1.yaml")
-	if err != nil {
-		t.Error("test kubectl create fail")
-	}
-
-	// create service-2
-	err = kubectl.ParseArgs(app, "kubectl create -f service-2.yaml")
-	if err != nil {
-		t.Error("test kubectl create fail")
-	}
-	
 	// create dns
 	err = kubectl.ParseArgs(app, "kubectl create -f dns.yaml")
 	if err != nil {
@@ -131,6 +76,18 @@ func TestDNS(t *testing.T) {
 	err = kubectl.ParseArgs(app, "kubectl get dns")
 	if err != nil {
 		t.Error("test kubectl get dns fail")
+	}
+
+	// test delete service-1
+	err = kubectl.ParseArgs(app, "kubectl delete service service-1")
+	if err != nil {
+		t.Error("test kubectl delete service fail")
+	}
+
+	// test delete service-2
+	err = kubectl.ParseArgs(app, "kubectl delete service service-2")
+	if err != nil {
+		t.Error("test kubectl delete service fail")
 	}
 }
 
@@ -189,3 +146,86 @@ func TestAutoscaler(t *testing.T) {
 		t.Error("test kubectl delete autoscaler fail")
 	}
 }
+
+func TestGPU(t *testing.T) {
+	app := kubectl.Initial()
+	
+	// create gpujob
+	err := kubectl.ParseArgs(app, "kubectl create -f ../apiserver_test/gpu_test.yaml")
+	if err != nil {
+		t.Error("test kubectl create fail")
+	}
+
+	time.Sleep(50 * time.Second)
+
+	// test describe gpujob
+	err = kubectl.ParseArgs(app, "kubectl describe gpujob GPUJob-test")
+	if err != nil {
+		t.Error("test kubectl describe gpujob fail")
+	}
+
+	// test get gpujob
+	err = kubectl.ParseArgs(app, "kubectl get gpujob")
+	if err != nil {
+		t.Error("test kubectl get gpujob fail")
+	}
+}
+
+func TestFuncAndState(t *testing.T) {
+	app := kubectl.Initial()
+	
+	// create function
+	err := kubectl.ParseArgs(app, "kubectl create -f ../apiserver_test/state1.yaml")
+	err = kubectl.ParseArgs(app, "kubectl create -f ../apiserver_test/state2.yaml")
+	err = kubectl.ParseArgs(app, "kubectl create -f ../apiserver_test/state3.yaml")
+	err = kubectl.ParseArgs(app, "kubectl create -f ../apiserver_test/state4.yaml")
+	if err != nil {
+		t.Error("test kubectl create function fail")
+	}
+
+	// test describe function
+	err = kubectl.ParseArgs(app, "kubectl describe function state1_function")
+	if err != nil {
+		t.Error("test kubectl describe function fail")
+	}
+
+	// test get function
+	err = kubectl.ParseArgs(app, "kubectl get function")
+	if err != nil {
+		t.Error("test kubectl get function fail")
+	}
+
+	// create statemachine
+	err = kubectl.ParseArgs(app, "kubectl create -f ../yaml_test/workflow.json")
+	if err != nil {
+		t.Error("test kubectl create statemachine fail")
+	}
+
+	// test describe statemachine
+	err = kubectl.ParseArgs(app, "kubectl describe statemachine test_state_machine")
+	if err != nil {
+		t.Error("test kubectl describe statemachine fail")
+	}
+
+	// test get statemachine
+	err = kubectl.ParseArgs(app, "kubectl get statemachine")
+	if err != nil {
+		t.Error("test kubectl get statemachine fail")
+	}
+	
+	// test delete statemachine
+	err = kubectl.ParseArgs(app, "kubectl delete statemachine test_state_machine")
+	if err != nil {
+		t.Error("test kubectl delete statemachine fail")
+	}
+
+	// test delete functions
+	err = kubectl.ParseArgs(app, "kubectl delete function state1_function")
+	err = kubectl.ParseArgs(app, "kubectl delete function state2_function")
+	err = kubectl.ParseArgs(app, "kubectl delete function state3_function")
+	err = kubectl.ParseArgs(app, "kubectl delete function state4_function")
+	if err != nil {
+		t.Error("test kubectl delete function fail")
+	}
+}
+

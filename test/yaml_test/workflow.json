@@ -1,5 +1,5 @@
 {
-    "Name": "test_state_machine1",
+    "Name": "test_state_machine",
     "StartAt": "Check Stock Price",
     "States": {
         "Check Stock Price": {
