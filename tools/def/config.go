@@ -58,6 +58,9 @@ const (
 	GPUJobNameParentDirName                = `/home/`
 	GPUJobNameFileName                     = `job_name`
 	GPUJobUploaderRunArgs                  = `./home/run.sh`
+
+	//IP config
+	IPConfigFilePath = `/home/k8s_config/ip_config`
 )
 
 /********** ETCD key **********/
