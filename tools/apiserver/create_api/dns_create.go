@@ -62,7 +62,7 @@ func CreateDNS(cli *clientv3.Client, dns def.DNS) (def.DNSDetail, string) {
 	// Create Gateway, then put its pod and service into etcd
 	gatewayPod := gateway.GenerateGatewayPod(dnsDetail, def.RgistryAddr+imageName)
 	gatewayPod.Spec.Containers[0].Image = def.RgistryAddr + imageName
-	CreatePod(cli, gatewayPod)
+	podInstance := CreatePod(cli, gatewayPod)
 
-	return dnsDetail, def.GetKeyOfPodInstance(gatewayPod.Metadata.Name)
+	return dnsDetail, podInstance.ID
 }
