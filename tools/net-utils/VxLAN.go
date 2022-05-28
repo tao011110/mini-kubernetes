@@ -121,7 +121,7 @@ func InitVxLAN(node *def.Node) {
 
 func InitOVS() {
 	// install openvswitch
-	cmd := exec.Command("apt", "install", "openvswitch")
+	cmd := exec.Command("apt", "install", "openvswitch-switch")
 	err := cmd.Start()
 	if err != nil {
 		panic(err)
