@@ -67,9 +67,8 @@ func testCreatePod(path string) {
 	fmt.Printf("create_pod is %s and response is: %s\n", status, response2)
 }
 
-func testGetPod() {
+func testGetPod(podName string) {
 	//需要发送给apiserver的参数为 podName string
-	podName := "pod3"
 	response3 := def.Pod{}
 	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get_pod/" + podName).
 		ContentType("application/json").
@@ -87,9 +86,8 @@ func testGetPod() {
 	}
 }
 
-func testDeletePod() {
+func testDeletePod(podName string) {
 	//需要发送给apiserver的参数为 podName string
-	podName := "pod3"
 	response4 := ""
 	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete_pod/" + podName).
 		ContentType("application/json").
@@ -155,14 +153,14 @@ func TestPod(t *testing.T) {
 
 	var path = "./podForService.yaml"
 	testCreatePod(path)
-	//
+
 	//testGetPod()
 	//
 	//testDeletePod()
 	//
 	//testGetAllPod()
-
-	testGetAllPodStatus()
+	//
+	//testGetAllPodStatus()
 }
 
 //TODO: 用来创建clusterIP service，需要发送给apiserver的参数为 service_c  (def.ClusterIPSvc)

@@ -334,6 +334,26 @@ func testGetAllFunction() {
 	}
 }
 
+// TODO:用来删除function，需要发送给apiserver的参数为funcName(string)
+func testDeleteFunction(funcName string) {
+	response4 := ""
+	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/function/" + funcName).
+		ContentType("application/json").
+		GetString(&response4).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+
+	fmt.Printf("delete function status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("delete function %s successfully and the response is: %v\n", funcName, response4)
+	} else {
+		fmt.Printf("function %s doesn't exist\n", funcName)
+	}
+}
+
 //该函数不需要加入到kubectl里面
 func testCreateFuncPodInstance(podName string) {
 	request2 := podName
@@ -372,10 +392,12 @@ func testDeleteFuncPodInstance(podName string) {
 }
 
 func TestFunction(t *testing.T) {
-	testCreateFunction("./function_test.yaml")
+	//testCreateFunction("./function_test.yaml")
+	//
+	//testGetFunction("function_test")
+	//testGetAllFunction()
 
-	testGetFunction("function_test")
-	testGetAllFunction()
+	testDeleteFunction("function_test")
 
 	//testCreateFuncPodInstance("pod_functional_function_test_1_57cb853e-a6fb-460f-a24a-c2a9b0753d8a")
 	//testDeleteFuncPodInstance("pod_functional_function_test_1_57cb853e-a6fb-460f-a24a-c2a9b0753d8a")
@@ -477,15 +499,38 @@ func testGetAllStateMachine() {
 	}
 }
 
-func TestStateStateMachine(t *testing.T) {
-	testCreateFunction("./state1.yaml")
-	testCreateFunction("./state2.yaml")
-	testCreateFunction("./state3.yaml")
-	testCreateFunction("./state4.yaml")
-	testCreateStateMachine("./function_test.json")
+// TODO:用来删除stateMachine，需要发送给apiserver的参数为stateMachineName(string)
+func testDeleteStateMachine(stateMachineName string) {
+	response4 := ""
+	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/stateMachine/" + stateMachineName).
+		ContentType("application/json").
+		GetString(&response4).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
 
+	fmt.Printf("delete stateMachine status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("delete stateMachine %s successfully and the response is: %v\n", stateMachineName, response4)
+	} else {
+		fmt.Printf("stateMachinen %s doesn't exist\n", stateMachineName)
+	}
+}
+
+func TestStateStateMachine(t *testing.T) {
+	//testCreateFunction("./state1.yaml")
+	//testCreateFunction("./state2.yaml")
+	//testCreateFunction("./state3.yaml")
+	//testCreateFunction("./state4.yaml")
+	//testCreateStateMachine("./function_test.json")
+	//
+	//testGetStateMachine("test_state_machine")
+	//testGetAllStateMachine()
+
+	testDeleteStateMachine("test_state_machine")
 	testGetStateMachine("test_state_machine")
-	testGetAllStateMachine()
 }
 
 func TestStateActiver(t *testing.T) {

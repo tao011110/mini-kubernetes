@@ -1,4 +1,4 @@
-package get_api
+package function_api
 
 import (
 	"encoding/json"

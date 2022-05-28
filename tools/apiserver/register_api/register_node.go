@@ -11,10 +11,8 @@ import (
 	"time"
 )
 
-var registeredNodeID = 0
-
 func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpAndPort string) (int, net.IP) {
-	registeredNodeID++
+	registeredNodeID := GetRegisteredNodeID(cli)
 
 	//将新加入集群的node写入到etcd当中
 	newFollower := def.Node{}
@@ -25,7 +23,7 @@ func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpA
 	newFollower.LocalPort = request.LocalPort
 	newFollower.ProxyPort = request.ProxyPort
 	newFollower.LastHeartbeatSuccessTime = time.Now().Unix()
-	newFollower.CniIP = distributeCniIP()
+	newFollower.CniIP = distributeCniIP(registeredNodeID)
 	nodeValue, _ := json.Marshal(newFollower)
 	etcd.Put(cli, "/node/"+strconv.Itoa(registeredNodeID), string(nodeValue))
 
@@ -53,8 +51,31 @@ func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpA
 	return registeredNodeID, newFollower.CniIP
 }
 
-func distributeCniIP() net.IP {
+func distributeCniIP(registeredNodeID int) net.IP {
 	cniIP := net.IPv4(10, 24, byte(registeredNodeID), 0)
 
 	return cniIP
+}
+
+func GetRegisteredNodeID(cli *clientv3.Client) int {
+	key := "/Persistence/nodeID/"
+	kvs := etcd.Get(cli, key).Kvs
+	nodeID := 0
+	if len(kvs) != 0 {
+		nodeIDValue := kvs[0].Value
+		err := json.Unmarshal(nodeIDValue, &nodeID)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			panic(err)
+		}
+	}
+	newNodeID := nodeID + 1
+	newNodeIDValue, err := json.Marshal(newNodeID)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	etcd.Put(cli, key, string(newNodeIDValue))
+
+	return nodeID
 }

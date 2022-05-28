@@ -55,6 +55,8 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.DELETE("/delete/deployment/:deploymentName", handleDeleteDeployment)
 	e.DELETE("/delete/autoscaler/:autoscalerName", handleDeleteAutoscaler)
 	e.DELETE("/delete/funcPodInstance/:podName", handleDeleteFuncPodInstance)
+	e.DELETE("/delete/function/:funcName", handleDeleteFunction)
+	e.DELETE("/delete/stateMachine/:stateMachineName", handelDeleteStateMachine)
 
 	// handle get-api
 	e.GET("/get_pod/:podInstanceName", handleGetPod)
@@ -122,6 +124,10 @@ func handleCreatePod(c echo.Context) error {
 		panic(err)
 	}
 
+	_, flag := get_api.GetPodInstance(cli, pod_.Metadata.Name)
+	if flag == true {
+		return c.String(409, "Pod "+pod_.Metadata.Name+" has already existed")
+	}
 	podInstance := create_api.CreatePod(cli, pod_)
 	fmt.Println("Pod " + pod_.Metadata.Name + " has been created")
 
@@ -170,7 +176,7 @@ func handleCreatePod(c echo.Context) error {
 		}
 	}(podInstance.ID)
 
-	return c.String(200, "Pod "+pod_.Metadata.Name+" has been created at node "+strconv.Itoa(podInstance.NodeID))
+	return c.String(200, "Pod "+pod_.Metadata.Name+" has been created")
 }
 
 func handleCreateClusterIPService(c echo.Context) error {
@@ -188,6 +194,10 @@ func handleCreateClusterIPService(c echo.Context) error {
 		panic(err)
 	}
 
+	_, flag := get_api.GetService(cli, service_c.Metadata.Name)
+	if flag == true {
+		return c.String(409, "ClusterIPService "+service_c.Metadata.Name+" has already existed")
+	}
 	service := create_api.CreateClusterIPService(cli, service_c)
 	fmt.Println("Service " + service.Name)
 
@@ -215,6 +225,10 @@ func handleCreateNodePortService(c echo.Context) error {
 		panic(err)
 	}
 
+	_, flag := get_api.GetService(cli, service_n.Metadata.Name)
+	if flag == true {
+		return c.String(409, "NodePortService "+service_n.Metadata.Name+" has already existed")
+	}
 	service := create_api.CreateNodePortService(cli, service_n)
 	fmt.Println("Service " + service.Name)
 
@@ -240,6 +254,11 @@ func handleCreateDeployment(c echo.Context) error {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
+
+	_, flag := get_api.GetDeployment(cli, deployment.Metadata.Name)
+	if flag == true {
+		return c.String(409, "Deployment "+deployment.Metadata.Name+" has already existed")
+	}
 	create_api.CreateDeployment(cli, deployment)
 	fmt.Println("Create deployment ", deployment.Metadata.Name)
 
@@ -258,6 +277,11 @@ func handleCreateAutoscaler(c echo.Context) error {
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		panic(err)
+	}
+
+	_, flag := get_api.GetAutoscaler(cli, autoscaler.Metadata.Name)
+	if flag == true {
+		return c.String(409, "Autoscaler "+autoscaler.Metadata.Name+" has already existed")
 	}
 	create_api.CreateAutoscaler(cli, autoscaler)
 	fmt.Println("Create autoscaler ", autoscaler.Metadata.Name)
@@ -278,6 +302,11 @@ func handleCreateDNS(c echo.Context) error {
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		panic(err)
+	}
+
+	_, flag := get_api.GetDNS(cli, dns.Name)
+	if flag == true {
+		return c.String(409, "DNS "+dns.Name+" has already existed")
 	}
 	dnsDetail, gatewayID := create_api.CreateDNS(cli, dns)
 	go func(gatewayID string) {
@@ -374,8 +403,13 @@ func handleCreateFunction(c echo.Context) error {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
+
+	_, flag := function_api.GetFunction(cli, function.Name)
+	if flag == true {
+		return c.String(409, "Function "+function.Name+" has already existed")
+	}
 	function.URL = fmt.Sprintf("http://%s:%d/function/%s", util.GetLocalIP().String(), def.ActiverPort, function.Name)
-	service := create_api.CreateFunction(cli, function)
+	service := function_api.CreateFunction(cli, function)
 	fmt.Println("Create function ", function.Name)
 
 	// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
@@ -400,6 +434,11 @@ func handleCreateGPUJob(c echo.Context) error {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
+
+	_, flag := get_api.GetGPUJob(cli, job.Name)
+	if flag == true {
+		return c.String(409, "GPUJob "+job.Name+" has already existed")
+	}
 	create_api.CreateGPUJobUploader(cli, job)
 	fmt.Println("Create job ", job.Name)
 
@@ -418,6 +457,11 @@ func handleCreateStateMachine(c echo.Context) error {
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		panic(err)
+	}
+
+	_, flag := get_api.GetStateMachine(cli, stateMachine.Name)
+	if flag == true {
+		return c.String(409, "StateMachine "+stateMachine.Name+" has already existed")
 	}
 	stateMachine.URL = fmt.Sprintf("http://%s:%d/state_machine/%s", util.GetLocalIP().String(), def.ActiverPort, stateMachine.Name)
 	create_api.CreateStateMachine(cli, stateMachine)
@@ -601,13 +645,33 @@ func handleDeleteFuncPodInstance(c echo.Context) error {
 	}
 }
 
-//func tmp(c echo.Context) error {
-//	podInstanceID := c.Param("podInstanceID")
-//	num := c.Param("num")
-//	fmt.Println(podInstanceID)
-//	fmt.Println(num)
-//	return c.String(404, "PodInstance of "+podInstanceID+" doesn't exist")
-//}
+func handleDeleteFunction(c echo.Context) error {
+	funcName := c.Param("funcName")
+	flag, clusterIP := function_api.DeleteFunction(cli, funcName)
+	if flag == true {
+		fmt.Println("Function " + funcName + " has been deleted")
+		nodeList := get_api.GetAllNode(cli)
+		for _, node := range nodeList {
+			fmt.Println("clusterIP is :   ", clusterIP)
+			letProxyDeleteCIRule(clusterIP, node)
+		}
+		return c.String(200, "Function "+funcName+" has been deleted")
+	} else {
+		return c.String(404, "Function "+funcName+" doesn't exist")
+	}
+}
+
+func handelDeleteStateMachine(c echo.Context) error {
+	stateMachineName := c.Param("stateMachineName")
+
+	if delete_api.DeleteStateMachine(cli, stateMachineName) == true {
+		fmt.Println("StateMachine " + stateMachineName + " has been deleted")
+		return c.String(200, "StateMachine "+stateMachineName+" has been deleted")
+	} else {
+		fmt.Println("StateMachine " + stateMachineName + " has been deleted")
+		return c.String(404, "StateMachine "+stateMachineName+" doesn't exist")
+	}
+}
 
 func letProxyDeleteCIRule(clusterIP string, node def.Node) {
 	// 更新所有node的kube-proxy
@@ -792,7 +856,7 @@ func handleGetAllDNS(c echo.Context) error {
 
 func handleGetFunction(c echo.Context) error {
 	functionName := c.Param("functionName")
-	function, flag := get_api.GetFunction(cli, functionName)
+	function, flag := function_api.GetFunction(cli, functionName)
 	fmt.Println(function)
 	if flag == false {
 		return c.JSON(404, function)
@@ -801,7 +865,7 @@ func handleGetFunction(c echo.Context) error {
 }
 
 func handleGetAllFunction(c echo.Context) error {
-	functionList, flag := get_api.GetAllFunction(cli)
+	functionList, flag := function_api.GetAllFunction(cli)
 	if flag == false {
 		return c.JSON(404, functionList)
 	}
