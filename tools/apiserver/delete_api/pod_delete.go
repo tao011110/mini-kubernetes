@@ -43,12 +43,12 @@ func DeletePod(cli *clientv3.Client, podInstanceName string) (bool, def.PodInsta
 		}
 	}
 	podInstanceIDList = tmpList
-	podInstanceIDValue, err := json.Marshal(podInstanceIDList)
+	podInstanceIDListValue, err := json.Marshal(podInstanceIDList)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	etcd.Put(cli, def.PodInstanceListID, string(podInstanceIDValue))
+	etcd.Put(cli, def.PodInstanceListID, string(podInstanceIDListValue))
 
 	//更新相应node中的PodInstances列表
 	//nodeKey := "/node/" + strconv.Itoa(int(podInstance.NodeID))
