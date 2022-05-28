@@ -57,6 +57,29 @@ func deleteFunc(c *cli.Context) {
 			src_type = yaml.Autoscaler_t
 			src_name = c.Args()[1]
 			fmt.Printf("Delete autoscaler whose name is : %s\n", src_name)
+		} else if c.Args()[0] == "function" {
+			src_type = yaml.Activity_t
+			src_name = c.Args()[1]
+			fmt.Printf("Delete function whose name is : %s\n", src_name)
+		} else if c.Args()[0] == "statemachine" {
+			// 不能根据yaml文件删除
+			src_name = c.Args()[1]
+			fmt.Printf("Delete statemachine whose name is : %s\n", src_name)
+			response := ""
+			err, status := httpget.DELETE("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/stateMachine/" + src_name).
+				ContentType("application/json").
+				GetString(&response).
+				Execute()
+			if err != nil {
+				fmt.Println("[Fault] " + err.Error())
+			}
+			// fmt.Printf("delete stateMachine status is %s\n", status)
+			if status == "200" {
+				fmt.Printf("delete stateMachine %s successfully and the response is: %v\n", src_name, response)
+			} else {
+				fmt.Printf("stateMachinen %s doesn't exist\n", src_name)
+			}
+			return 
 		}
 	}
 
@@ -122,14 +145,30 @@ func deleteFunc(c *cli.Context) {
 			if err != nil {
 				fmt.Println("[Fault] " + err.Error())
 			}
-			fmt.Printf("delete autoscaler status is %s\n", status)
+			// fmt.Printf("delete autoscaler status is %s\n", status)
 			if status == "200" {
 				fmt.Printf("delete autoscaler %s successfully and the response is: %v\n", src_name, response)
 			} else {
 				fmt.Printf("autoscaler %s doesn't exist\n", src_name)
 			}
+		} else if src_type == yaml.Activity_t {
+			// 用来删除function，需要发送给apiserver的参数为funcName(string)
+			response := ""
+			err, status := httpget.DELETE("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/function/" + src_name).
+				ContentType("application/json").
+				GetString(&response).
+				Execute()
+			if err != nil {
+				fmt.Println("[Fault] " + err.Error())
+			}
+			// fmt.Printf("delete function status is %s\n", status)
+			if status == "200" {
+				fmt.Printf("delete function %s successfully and the response is: %v\n", src_name, response)
+			} else {
+				fmt.Printf("function %s doesn't exist\n", src_name)
+			}
 		} else {
-			fmt.Println("Now delete only support pod/service/deployment/autoscaler")
+			fmt.Println("Now delete only support pod/service/deployment/autoscaler/function/statemachine")
 		}
 	}
 

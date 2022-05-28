@@ -245,8 +245,23 @@ func getFunc(c *cli.Context) {
 		// fmt.Printf("get_all_gpuJob status is %s\n", status)
 		if status == "200" {
 			fmt.Println("All gpuJobs' information is as follows")
-			for _, gpuJobDetail := range response {
-				fmt.Printf("%v\n", gpuJobDetail)
+			max := 15
+			num := 10
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+strconv.Itoa(num)+"s %-"+
+							strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+				"NAME",
+				"POD-NODE",
+				"POD-STATUS",
+				"POD-ID",
+				"POD-STIME")
+			for _, gpu := range response {
+				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+strconv.Itoa(num)+"s %-"+
+								strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+					gpu.Job.Name,
+					strconv.Itoa(gpu.PodInstance.NodeID),
+					strconv.Itoa(int(gpu.PodInstance.Status)),
+					gpu.PodInstance.ID,
+					gpu.PodInstance.StartTime,)
 			}
 		} else {
 			fmt.Printf("No gpuJob exists\n")
@@ -264,8 +279,17 @@ func getFunc(c *cli.Context) {
 		// fmt.Printf("get_all_function status is %s\n", status)
 		if status == "200" {
 			fmt.Println("All functions' information is as follows")
+			max := 20
+			num := 12
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n",
+				"NAME",
+				"VERSION",
+				"URL")
 			for _, function := range response {
-				fmt.Printf("%v\n", function)
+				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+strconv.Itoa(max)+"s\n",
+					function.Name,
+					strconv.Itoa(function.Version),
+					function.URL)
 			}
 		} else {
 			fmt.Printf("No function exists\n")
@@ -283,8 +307,16 @@ func getFunc(c *cli.Context) {
 		// fmt.Printf("get_all_stateMachine status is %s\n", status)
 		if status == "200" {
 			fmt.Println("All stateMachines' information is as follows")
+			max := 20
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+				"NAME",
+				"STARTAT",
+				"URL")
 			for _, stateMachine := range response {
-				fmt.Printf("%v\n", stateMachine)
+				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+					stateMachine.Name,
+					stateMachine.StartAt,
+					stateMachine.URL)
 			}
 		} else {
 			fmt.Printf("No stateMachine exists\n")

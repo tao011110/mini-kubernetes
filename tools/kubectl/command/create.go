@@ -38,7 +38,8 @@ func createFunc(c *cli.Context) {
 		// 直接读取文件
 		file, err := os.Open(dir)
 		if err != nil {
-			panic(err)
+			fmt.Println("[Fault] " + err.Error())
+			return;
 		}
 		defer func(file *os.File) {
 			_ = file.Close()
