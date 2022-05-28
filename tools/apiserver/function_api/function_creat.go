@@ -1,8 +1,9 @@
-package create_api
+package function_api
 
 import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/apiserver/apiserver_utils"
+	"mini-kubernetes/tools/apiserver/create_api"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/functional"
 	"net"
@@ -19,7 +20,7 @@ func CreateFunction(cli *clientv3.Client, function def.Function) def.Service {
 	apiserver_utils.PersistPod(cli, pod) //NOTE: 只存储不创建
 	apiserver_utils.PersistFunction(cli, function)
 	apiserver_utils.AddFunctionNameToList(cli, function.Name)
-	service := CreateClusterIPService(cli, ciService)
+	service := create_api.CreateClusterIPService(cli, ciService)
 
 	return service
 }

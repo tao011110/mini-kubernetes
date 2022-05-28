@@ -103,9 +103,9 @@ func TriggerFunction(funcName string, parames map[string]string, body interface{
 	service := activer_utils.GetServiceByName(activerMeta.EtcdClient, function.ServiceName)
 	if len(podReplicaNameList) == 0 {
 		activer_utils.AddNPodInstance(function.PodName, 1)
+		time.Sleep(20 * time.Second)
 		//activer_utils.StartService(function.ServiceName)
 	}
-	time.Sleep(10 * time.Second)
 	uri := fmt.Sprintf("http://%s:80", service.ClusterIP)
 	//uri = fmt.Sprintf("http://10.24.1.2:80")
 	fmt.Println(uri)
@@ -238,7 +238,7 @@ func ExpandAndShrink() {
 	oldRecorder := activerMeta.AccessRecorder
 	activerMeta.AccessRecorder = newRecorder
 	for _, name := range activerMeta.FunctionsNameList {
-		targetReplicaNum := int(math.Floor(float64(oldRecorder[name]) / 100))
+		targetReplicaNum := int(math.Ceil(float64(oldRecorder[name]) / 100))
 		activer_utils.AdjustReplicaNum2Target(activerMeta.EtcdClient, name, targetReplicaNum)
 	}
 }
