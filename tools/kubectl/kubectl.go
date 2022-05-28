@@ -38,7 +38,7 @@ func Kubectl() {
 			if cmdStr == "quit" {
 				return
 			} else {
-				ParseArgs(app, cmdStr)
+				_ = ParseArgs(app, cmdStr)
 			}
 		}
 	}

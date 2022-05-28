@@ -40,7 +40,9 @@ func createFunc(c *cli.Context) {
 		if err != nil {
 			panic(err)
 		}
-		defer file.Close()
+		defer func(file *os.File) {
+			_ = file.Close()
+		}(file)
 		body, _ := ioutil.ReadAll(file)
 
 		response := ""
