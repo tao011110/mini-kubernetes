@@ -100,14 +100,14 @@ func parseArgs(nodeName *string, masterIPAndPort *string, localPort *int) {
 
 func registerToMaster(node *def.Node) error {
 	response := def.RegisterToMasterResponse{}
-	request := def.RegisterToMasterRequest{
+	request_ := def.RegisterToMasterRequest{
 		NodeName:  node.NodeName,
 		LocalIP:   node.NodeIP,
 		LocalPort: node.LocalPort,
 		ProxyPort: node.ProxyPort,
 	}
 
-	body, _ := json.Marshal(request)
+	body, _ := json.Marshal(request_)
 	err, _ := httpget.Post("http://" + node.MasterIpAndPort + "/register_node").
 		ContentType("application/json").
 		Body(bytes.NewReader(body)).
