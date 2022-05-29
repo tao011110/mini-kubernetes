@@ -59,6 +59,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.DELETE("/delete/stateMachine/:stateMachineName", handelDeleteStateMachine)
 
 	// handle get-api
+	e.GET("/get/all/node", handleGetAllNode)
 	e.GET("/get_pod/:podInstanceName", handleGetPod)
 	e.GET("/get/all/pod", handleGetAllPod)
 	e.GET("/get/all/podStatus", handleGetAllPodStatus)
@@ -723,6 +724,13 @@ func letProxyDeleteNPRule(clusterIP string, node def.Node) {
 		fmt.Printf("%s failed to delete service %s\n", target, clusterIP)
 	}
 	//}(target)
+}
+
+func handleGetAllNode(c echo.Context) error {
+	nodeList := get_api.GetAllNode(cli)
+	fmt.Println("nodeList:  ", nodeList)
+
+	return c.JSON(200, nodeList)
 }
 
 func handleGetPod(c echo.Context) error {

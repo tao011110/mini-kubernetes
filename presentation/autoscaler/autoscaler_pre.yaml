@@ -1,13 +1,21 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
 metadata:
-  name: test-deployment
+  name: test-autoscaler
 spec:
-  replicas: 6
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    CPU:
+      targetMinValue : 0
+      targetMaxValue : 600000000
+    memory:
+      targetMinValue: 40M
+      targetMaxValue: 100M
   template:
     metadata:
       labels:
-        name: test-service
+        name: pod-hjk
     spec:
       containers:
         - name: fileserver

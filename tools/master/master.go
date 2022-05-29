@@ -1,4 +1,4 @@
-package master
+package main
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"mini-kubernetes/tools/util"
 )
 
-func Start() {
+func main() {
 	//创建etcd client
 	cli, err := etcd.Start(def.EtcdDir, def.EtcdPort)
 	if err != nil {

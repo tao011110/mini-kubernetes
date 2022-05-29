@@ -73,7 +73,7 @@ func main() {
 
 /*
 	command format:./kubelet -name `nodeName` -master `masterIP:port` -port `localPort`
-	for example: ./kubelet -name node1 -master 192.168.55.184:80 -port 80
+	for example: ./kubelet -name node1 -master 10.119.11.140:8000 -port 100
 */
 func parseArgs(nodeName *string, masterIPAndPort *string, localPort *int) {
 	flag.StringVar(nodeName, "name", "undefined", "name of the node, `node+nodeIP` by default")

@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test-deployment
+  name: test-deployment2
 spec:
-  replicas: 6
+  replicas: 2
   template:
     metadata:
       labels:
-        name: test-service
+        name: test-service2
     spec:
       containers:
         - name: fileserver
@@ -36,8 +36,8 @@ spec:
       volumes:
         - name: fileserver-volume
           hostPath:
-            path: /home/hjk
+            path: /home/app/volume3
 
         - name: downloader-volume
           hostPath:
-            path: /home/hjk
+            path: /home/app/volume3

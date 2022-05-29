@@ -1,4 +1,4 @@
-package kubeproxy
+package main
 
 import (
 	"bytes"
@@ -22,7 +22,7 @@ type nodePortDetail struct {
 
 var nodePortMap = make(map[string][]nodePortDetail)
 
-func Proxy() {
+func main() {
 	newIpt, err := iptables.New()
 	if err != nil {
 		panic(fmt.Sprintf("New failed: %v", err))
