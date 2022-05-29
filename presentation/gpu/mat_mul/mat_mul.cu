@@ -22,7 +22,9 @@ void matrix_mul_gpu(int *M, int* N, int* P, int width)
     }
     P[j*width+i] = sum;
 }
+void print_matrix(){
 
+}
 int main()
 {
     struct timeval start, end;
