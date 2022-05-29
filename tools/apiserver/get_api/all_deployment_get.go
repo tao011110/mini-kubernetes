@@ -28,10 +28,14 @@ func GetAllDeployment(cli *clientv3.Client) ([]def.DeploymentBrief, bool) {
 			}
 			fmt.Println("parsedDeployment.Name is " + parsedDeployment.Name)
 			instancelist := controller_utils.GetReplicaNameListByPodName(cli, parsedDeployment.PodName)
+			fmt.Println("podName is:  ", parsedDeployment.PodName)
+			fmt.Println("instancelist is:  ", instancelist)
 			health := 0
 			ready := 0
 			for _, instanceID := range instancelist {
+				fmt.Println("instanceID is :   ", instanceID)
 				podInstance := util.GetPodInstance(instanceID, cli)
+				fmt.Println("status is :   ", podInstance.Status)
 				if podInstance.Status != def.FAILED {
 					health++
 					if podInstance.Status == def.RUNNING {

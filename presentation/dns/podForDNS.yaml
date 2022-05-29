@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod3-dns
+  label: dns-test
+
+spec:
+  containers:
+    - name: ghost3
+      image: ghost
+      command:
+      args:
+      workingDir:
+      volumeMounts:
+        - name: volume1
+          mountPath: /vpath
+
+      ports:
+        - name: http1
+          containerPort: 300
+          protocol: TCP
+
+    - name: nginx3
+      image: nginx:latest
+      command:
+      args:
+      workingDir: /home/app
+      volumeMounts:
+        - name: volume2
+          mountPath: /vpath
+
+      ports:
+        - name: http2
+          containerPort: 80
+          protocol: TCP
+
+  volumes:
+    - name: volume1
+      hostPath: /home/app/volume1
+    - name: volume2
+      hostPath: /home/app/volume2

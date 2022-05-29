@@ -14,7 +14,7 @@ import (
 	"mini-kubernetes/tools/apiserver/get_api"
 	"mini-kubernetes/tools/apiserver/gpu_job_api"
 	"mini-kubernetes/tools/apiserver/register_api"
-	"mini-kubernetes/tools/coredns"
+	"mini-kubernetes/tools/coredns/coredns_utils"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/httpget"
@@ -323,7 +323,7 @@ func handleCreateDNS(c echo.Context) error {
 						panic(err)
 					}
 					if change.IP != "" {
-						coredns.AddItem(cli, dnsDetail.Host+":80", change.IP, 80)
+						coredns_utils.AddItem(cli, dnsDetail.Host+":80", change.IP, 80)
 						fmt.Println("find add")
 					}
 				} else {
@@ -334,7 +334,7 @@ func handleCreateDNS(c echo.Context) error {
 							panic(err)
 						}
 						if change.IP != "" {
-							coredns.DeleteItem(cli, dnsDetail.Host+":80")
+							coredns_utils.DeleteItem(cli, dnsDetail.Host+":80")
 							fmt.Println("find delete")
 							return
 						}

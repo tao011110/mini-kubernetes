@@ -73,7 +73,10 @@ func FuncDeletePodInstance(cli *clientv3.Client, podInstanceID string) (bool, de
 	//更新ReplicasNameList
 	newInstanceIDList := make([]string, 0)
 	for _, id := range instanceIDList {
-		newInstanceIDList = append(newInstanceIDList, id)
+		fmt.Printf("in instanceIDList, id is %s,  while podInstance.ID is %s\n", id, podInstance.ID)
+		if id != podInstance.ID {
+			newInstanceIDList = append(newInstanceIDList, id)
+		}
 	}
 	instanceIDListValue, _ := json.Marshal(newInstanceIDList)
 	etcd.Put(cli, instanceIDListkey, string(instanceIDListValue))

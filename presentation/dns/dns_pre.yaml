@@ -1,0 +1,14 @@
+kind: DNS
+name: dns-test
+host: www.minik8s.com
+paths:
+  - path: /route1
+    service: test-service-for-dns
+    port: 300
+  - path: /route2
+    service: test-service-for-dns
+    port: 80
+  - path: /route3
+      service: test-service-for-dns2
+      port: 80
+

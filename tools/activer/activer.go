@@ -103,7 +103,7 @@ func TriggerFunction(funcName string, parames map[string]string, body interface{
 	service := activer_utils.GetServiceByName(activerMeta.EtcdClient, function.ServiceName)
 	if len(podReplicaNameList) == 0 {
 		activer_utils.AddNPodInstance(function.PodName, 1)
-		time.Sleep(20 * time.Second)
+		time.Sleep(30 * time.Second)
 		//activer_utils.StartService(function.ServiceName)
 	}
 	uri := fmt.Sprintf("http://%s:80", service.ClusterIP)
