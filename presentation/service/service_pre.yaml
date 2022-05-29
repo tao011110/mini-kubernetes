@@ -4,7 +4,7 @@ metadata:                                 #资源对象的元数据定义
   name: test-service-for-deployment                      #service名称
 spec:                                     #资源对象的详细定义，持久化到etcd中保存
   type: ClusterIP                         #Service类型，ClusterIP供kubernates集群内部pod访问
-  clusterIP: 192.168.40.40                #Service的IP地址，当type为ClusterIP时，可手动指定，若不指定，系统将自行分配；当type为LoadBalancer时，则需要指定
+  clusterIP: 192.168.40.30                #Service的IP地址，当type为ClusterIP时，可手动指定，若不指定，系统将自行分配；当type为LoadBalancer时，则需要指定
   ports:                                  #暴露的端口列表
     - port:  6800                          #Service监听的端口，对应ClusterIP，即ClusterIP+ServicePort供集群内部pod访问的
       targetPort:  6800                    #对应pod中容器的端口
