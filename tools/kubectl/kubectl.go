@@ -1,4 +1,4 @@
-package kubectl
+package main
 
 import (
 	"bufio"
@@ -28,7 +28,7 @@ func Initial() *cli.App {
 	return app
 }
 
-func Kubectl() {
+func main() {
 	app := Initial()
 	for {
 		fmt.Printf(">")

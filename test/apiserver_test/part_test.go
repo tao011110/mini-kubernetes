@@ -10,7 +10,6 @@ import (
 	"mini-kubernetes/tools/yaml"
 	"net"
 	"testing"
-	"time"
 )
 
 var node = def.Node{
@@ -147,12 +146,29 @@ func testGetAllPodStatus() {
 		fmt.Printf("No pod exists\n")
 	}
 }
+func testGetAllNode() {
+	response5 := make([]def.Node, 0)
+	err, status := httpget.Get("http://" + node.MasterIpAndPort + "/get/all/node").
+		ContentType("application/json").
+		GetJson(&response5).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("get_all_node status is %s\n", status)
+	fmt.Println("All nodes' brief information is as follows")
+	for _, node := range response5 {
+		fmt.Printf("%v\n", node)
+	}
+}
 
 func TestPod(t *testing.T) {
 	//testRegisterNode()
 
-	var path = "./podForService.yaml"
-	testCreatePod(path)
+	testGetAllNode()
+	//var path = "./podForService.yaml"
+	//testCreatePod(path)
 
 	//testGetPod()
 	//
@@ -334,18 +350,17 @@ func testGetAllDNS() {
 }
 
 func TestUpdateIptablesRule(t *testing.T) {
-	//testRegisterNode()
 	path := "./podForService.yaml"
-	testCreatePod(path)
+	//testCreatePod(path)
 
-	time.Sleep(20 * time.Second)
-	path = "./podForService2.yaml"
-	testCreatePod(path)
+	//time.Sleep(20 * time.Second)
+	//path = "./podForService2.yaml"
+	//testCreatePod(path)
 	//time.Sleep(10 * time.Second)
 	//
-	//path = "./clusterIPService_test.yaml"
-	//testCreateCIService(path)
-	//testGetAllService()
+	path = "./CIServiceForDeployment.yaml"
+	testCreateCIService(path)
+	testGetAllService()
 
 	//time.Sleep(5 * time.Second)
 	//path = "./podForService.yaml"
