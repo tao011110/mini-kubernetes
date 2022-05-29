@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/monaco-io/request"
 	"github.com/robfig/cron"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/docker"
@@ -20,6 +21,7 @@ import (
 	"mini-kubernetes/tools/util"
 	"os"
 	"strconv"
+	"time"
 )
 
 var node = def.Node{}
@@ -64,6 +66,7 @@ func main() {
 	go kubelet_routines.NodesWatch(node.NodeID, node.EtcdClient)
 	go ResourceMonitoring()
 	go ContainerCheck()
+	go HeartBeatSender()
 
 	e.Logger.Fatal(e.Start(":" + strconv.Itoa(node.LocalPort)))
 
@@ -221,4 +224,32 @@ func handlePodInstancesChange(instances []string) {
 		pod.CreateAndStartPod(&podInstance, &node)
 		node.PodInstances = append(node.PodInstances, &podInstance)
 	}
+}
+
+func HeartBeatSender() {
+	cron2 := cron.New()
+	err := cron2.AddFunc("*/60 * * * * *", SendHeartBeat)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	cron2.Start()
+	defer cron2.Stop()
+	for {
+		if node.ShouldStop {
+			break
+		}
+	}
+}
+
+func SendHeartBeat() {
+	c := request.Client{
+		URL:    fmt.Sprintf("http://%s/heartbeat", node.MasterIpAndPort),
+		Method: "POST",
+		JSON: def.HeartBeat{
+			NodeID:    node.NodeID,
+			TimeStamp: time.Now(),
+		},
+	}
+	_ = c.Send()
 }
