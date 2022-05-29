@@ -59,7 +59,7 @@ func getFunc(c *cli.Context) {
 				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
 					podInstanceBrief.Name,
 					podInstanceBrief.Ready,
-					strconv.Itoa(int(podInstanceBrief.Status)),
+					def.PodStateToString(podInstanceBrief.Status),
 					strconv.Itoa(int(podInstanceBrief.Restarts)),
 					podInstanceBrief.Age)
 			}
@@ -99,26 +99,31 @@ func getFunc(c *cli.Context) {
 		// fmt.Printf("get_all_service status is %s\n", status)
 		if status == "200" {
 			fmt.Println("All services' information is as follows")
-			max := 12
-			ip := 15
-			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(ip)+"s %-"+
-				strconv.Itoa(ip)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+			max := 15
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+
+				strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
 				"NAME",
 				"TYPE",
 				"CLUSTER-IP",
-				"EXTERNAL-IP",
 				"PORT(S)",
 				"AGE")
 			for _, service := range response {
 				t := time.Now()                                  // 用于获取当前时间
 				var Age time.Duration = t.Sub(service.StartTime) //进行计算，得到AGE
+				var s_name string = service.Name
+				var s_type string = service.Type
+				var s_ip string = service.ClusterIP
 				for i := range service.PortsBindings {
-					fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(ip)+"s %-"+
-						strconv.Itoa(ip)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
-						service.Name,
-						service.Type,
-						service.ClusterIP,
-						"<none>",
+					if i == 1 {
+						s_name = ""
+						s_type = ""
+						s_ip = ""
+					}
+					fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+
+						strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+						s_name,
+						s_type,
+						s_ip,
 						strconv.Itoa(int(service.PortsBindings[i].Ports.Port))+"/"+strings.ToUpper(service.PortsBindings[i].Ports.Protocol),
 						Age)
 				}
