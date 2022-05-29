@@ -37,8 +37,6 @@ func GetAllDeployment(cli *clientv3.Client) ([]def.DeploymentBrief, bool) {
 					if podInstance.Status == def.RUNNING {
 						ready++
 					}
-				} else {
-					controller_utils.RemovePodInstance(cli, &podInstance)
 				}
 			}
 
