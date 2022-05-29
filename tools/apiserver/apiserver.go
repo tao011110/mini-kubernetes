@@ -20,14 +20,23 @@ import (
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/util"
 	"strconv"
+	"time"
 )
 
 var IpAndPort string
 var cli *clientv3.Client
+var HeartBeatMap map[int]time.Time
 
 func Start(masterIp string, port string, client *clientv3.Client) {
 	IpAndPort = masterIp + ":" + port
 	cli = client
+
+	//Initialize heartbeat map
+	HeartBeatMap = make(map[int]time.Time)
+	nodeIDList := apiserver_utils.GetNodeList(client)
+	for _, id := range nodeIDList {
+		HeartBeatMap[id] = time.Now()
+	}
 
 	e := echo.New()
 	e.Use(middleware.Logger())

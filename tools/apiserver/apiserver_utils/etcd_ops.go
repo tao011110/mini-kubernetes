@@ -118,3 +118,9 @@ func AddPodInstanceIDToList(li *clientv3.Client, id string) {
 	}
 	etcd.Put(li, key, string(value))
 }
+
+func GetNodeList(li *clientv3.Client) []int {
+	var list []int
+	util.EtcdUnmarshal(etcd.Get(li, def.NodeListID), &list)
+	return list
+}
