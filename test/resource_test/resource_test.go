@@ -33,22 +33,8 @@ func Test(t *testing.T) {
 func printResourceInfo() {
 	//info, _ := client_.MachineInfo()
 	//fmt.Printf("%+v\n", info)
-	infos := resource.GetAllContainersInfo(client_)
-	for _, info := range infos {
-		id := info.Id
-		name := info.Name
-		cpuInfo := info.Stats[len(info.Stats)-1].Cpu.Usage.Total
-		memInfo := info.Stats[len(info.Stats)-1].Memory.Usage
-		mem := float64(memInfo) / (1024 * 1024)
-		cpuUsage := float64(cpuInfo) / (1000 * 1000 * 1000)
-		fmt.Printf("id: %s,\nname: %s,\nTotal memoryUsage: %f,\ncpuUasge: %fs\n\n", id, name, mem, cpuUsage)
-		fmt.Println(info.Stats[len(info.Stats)-1].Timestamp)
-		fmt.Println(info.Stats[len(info.Stats)-1].Timestamp.Second())
-		fmt.Println(info.Stats[len(info.Stats)-1].Timestamp.Hour())
-		fmt.Println(info.Stats[len(info.Stats)-1].Timestamp.Day())
-		fmt.Println(info.Stats[len(info.Stats)-2].Timestamp)
-		fmt.Println(info.Stats[len(info.Stats)-2].Timestamp.Second())
-		fmt.Println(info.Stats[len(info.Stats)-2].Timestamp.Hour())
-		fmt.Println(info.Stats[len(info.Stats)-2].Timestamp.Day())
+	infos := resource.GetAllContainersInfo(client_)[0].Stats
+	for index, info := range infos {
+		fmt.Println("time: ", info.Timestamp, " index: ", index)
 	}
 }

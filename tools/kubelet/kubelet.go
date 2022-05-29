@@ -13,12 +13,13 @@ import (
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/kubelet/kubelet_routines"
+	"mini-kubernetes/tools/kubelet/kubelet_utils"
 	net_utils "mini-kubernetes/tools/net-utils"
+	"mini-kubernetes/tools/pod"
 	"mini-kubernetes/tools/resource"
 	"mini-kubernetes/tools/util"
 	"os"
 	"strconv"
-	"time"
 )
 
 var node = def.Node{}
@@ -61,14 +62,25 @@ func main() {
 
 	//Create initial VxLANs
 	net_utils.InitVxLAN(&node)
-
-	go kubelet_routines.EtcdWatcher(&node)
-	go kubelet_routines.NodesWatch(&node)
+	KubeletInitialize()
+	go EtcdWatcher()
+	go kubelet_routines.NodesWatch(node.NodeID, node.EtcdClient)
 	go ResourceMonitoring()
 	go ContainerCheck()
 
 	e.Logger.Fatal(e.Start(":" + strconv.Itoa(node.LocalPort)))
 
+}
+
+func KubeletInitialize() {
+	currentPodInstanceList := kubelet_utils.GetAllPodInstancesOfANode(node.NodeID, node.EtcdClient)
+	for _, instanceID := range currentPodInstanceList {
+		instance := util.GetPodInstance(instanceID, node.EtcdClient)
+		if instance.Status == def.RUNNING || instance.Status == def.FAILED || instance.Status == def.SUCCEEDED {
+			node.PodInstances = append(node.PodInstances, &instance)
+		}
+	}
+	handlePodInstancesChange(currentPodInstanceList)
 }
 
 /*
@@ -136,15 +148,6 @@ func ContainerCheck() {
 	}
 }
 
-func IsStrInList(str string, list []string) bool {
-	for _, str_in := range list {
-		if str_in == str {
-			return true
-		}
-	}
-	return false
-}
-
 func checkPodRunning() {
 	infos := resource.GetAllContainersInfo(node.CadvisorClient)
 
@@ -156,7 +159,7 @@ func checkPodRunning() {
 	fmt.Println("running container ids: ", runningContainerIDs)
 	for _, instance := range node.PodInstances {
 		for _, container := range instance.ContainerSpec {
-			if !IsStrInList(container.ID, runningContainerIDs) {
+			if !kubelet_utils.IsStrInList(container.ID, runningContainerIDs) {
 				instance.Status = def.FAILED
 				//pod.StopAndRemovePod(instance, &node)
 				fmt.Println(container.ID, "fail")
@@ -186,47 +189,44 @@ func ResourceMonitoring() {
 // cadvisor
 func recordResource() {
 	for _, podInstance := range node.PodInstances {
-		if podInstance.Status != def.RUNNING {
+		kubelet_utils.RecordPodInstanceResource(*podInstance, node.CadvisorClient, node.EtcdClient)
+	}
+	kubelet_utils.RecordNodeResource(node.NodeID, node.EtcdClient)
+}
+
+func EtcdWatcher() {
+	key := def.GetKeyOfPodInstanceListKeyOfNodeByID(node.NodeID)
+	watch := etcd.Watch(node.EtcdClient, key)
+	for wc := range watch {
+		for _, w := range wc.Events {
+			var instances []string
+			_ = json.Unmarshal(w.Kv.Value, &instances)
+			handlePodInstancesChange(instances)
+		}
+	}
+}
+
+func handlePodInstancesChange(instances []string) {
+	var instancesCurrent []string
+	for _, instance := range node.PodInstances {
+		instancesCurrent = append(instancesCurrent, instance.ID)
+	}
+	adds, deletedIDs := util.DifferTwoStringList(instancesCurrent, instances)
+	for _, delete_ := range deletedIDs {
+		for index, instance := range node.PodInstances {
+			if delete_ == instance.ID && instance.Status == def.RUNNING {
+				pod.StopAndRemovePod(node.PodInstances[index], &node)
+				break
+			}
+		}
+	}
+	for _, add := range adds {
+		fmt.Println("add:   ", add)
+		podInstance := util.GetPodInstance(add, node.EtcdClient)
+		if podInstance.Status != def.PENDING {
 			continue
 		}
-		memoryUsage := uint64(0)
-		cpuLoadAverage := int32(0)
-		for _, container := range podInstance.ContainerSpec {
-			fmt.Println("container.ID is " + container.ID)
-			info := resource.GetContainerInfoByID(node.CadvisorClient, container.ID)
-			fmt.Println(info)
-			if len(info.Stats) < 2 {
-				continue
-			}
-			memoryUsage += info.Stats[len(info.Stats)-1].Memory.Usage
-			time1 := info.Stats[len(info.Stats)-1].Timestamp
-			time2 := info.Stats[len(info.Stats)-2].Timestamp
-			timeLenth := time1.Unix() - time2.Unix()
-			cpuTime1 := info.Stats[len(info.Stats)-1].Cpu.Usage.Total
-			cpuTime2 := info.Stats[len(info.Stats)-2].Cpu.Usage.Total
-			cpuusageLenth := cpuTime1 - cpuTime2
-			cpuNum := (cpuusageLenth * 1000) / uint64(timeLenth) / 1000000
-			fmt.Printf("time length is %ds, cpu usage is%dnano\n", timeLenth, cpuusageLenth)
-			cpuLoadAverage += int32(cpuNum)
-		}
-		key := def.GetKeyOfResourceUsageByPodInstanceID(podInstance.ID)
-		resourceUsage := def.ResourceUsage{
-			CPULoad:     cpuLoadAverage,
-			MemoryUsage: memoryUsage,
-			Time:        time.Now(),
-		}
-		byts, _ := json.Marshal(resourceUsage)
-		etcd.Put(node.EtcdClient, key, string(byts))
+		pod.CreateAndStartPod(&podInstance, &node)
+		node.PodInstances = append(node.PodInstances, &podInstance)
 	}
-	key := def.KeyNodeResourceUsage(node.NodeID)
-	nodeResource := resource.GetNodeResourceInfo()
-	resourceUsage := def.ResourceUsage{
-		CPULoad:     int32(nodeResource.TotalCPUPercent * 1000),
-		MemoryUsage: nodeResource.MemoryInfo.Used,
-		MemoryTotal: nodeResource.MemoryInfo.Total,
-		Time:        time.Now(),
-		CPUNum:      len(nodeResource.PerCPUPercent),
-	}
-	byts, _ := json.Marshal(resourceUsage)
-	etcd.Put(node.EtcdClient, key, string(byts))
 }

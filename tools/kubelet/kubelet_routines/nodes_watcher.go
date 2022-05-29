@@ -9,10 +9,10 @@ import (
 	net_utils "mini-kubernetes/tools/net-utils"
 )
 
-func NodesWatch(node *def.Node) {
+func NodesWatch(nodeID int, etcdClient *clientv3.Client) {
 	fmt.Printf("NodesWatch changes\n")
 	prefix := "/node/"
-	watchResult := etcd.WatchWithPrefix(node.EtcdClient, prefix)
+	watchResult := etcd.WatchWithPrefix(etcdClient, prefix)
 	for wc := range watchResult {
 		//changes := make([]def.Node, 0)
 		change := def.Node{}
@@ -26,7 +26,7 @@ func NodesWatch(node *def.Node) {
 					fmt.Println(err)
 					panic(err)
 				}
-				if change.NodeID != node.NodeID {
+				if change.NodeID != nodeID {
 					// 避免修改node相关参数时，重复PUT导致多次建立隧道而出错
 					flag := true
 					for _, tmp := range net_utils.NodesList {
@@ -53,7 +53,7 @@ func NodesWatch(node *def.Node) {
 					fmt.Printf("nodeID is %v\n", nodeID)
 					nodeList := make([]def.Node, 0)
 					for _, tmp := range net_utils.NodesList {
-						if tmp.NodeID == nodeID && nodeID != node.NodeID {
+						if tmp.NodeID == nodeID && nodeID != nodeID {
 							deleted = append(deleted, tmp)
 						} else {
 							nodeList = append(nodeList, tmp)

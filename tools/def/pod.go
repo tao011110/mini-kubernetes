@@ -108,6 +108,25 @@ const (
 	RESTARTING uint8 = 5
 )
 
+func PodStateToString(s uint8) string {
+	switch s {
+	case PENDING:
+		return "PENDING"
+	case RUNNING:
+		return "RUNNING"
+	case SUCCEEDED:
+		return "SUCCEEDED"
+	case FAILED:
+		return "FAILED"
+	case UNKNOWN:
+		return "UNKNOWN"
+	case RESTARTING:
+		return "RESTARTING"
+	default:
+		return "NONE"
+	}
+}
+
 type ContainerStatus struct {
 	ID     string `json:"ID"`
 	Status uint8  `json:"status"`
