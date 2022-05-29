@@ -253,19 +253,17 @@ func getFunc(c *cli.Context) {
 			max := 15
 			num := 10
 			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+strconv.Itoa(num)+"s %-"+
-							strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+							strconv.Itoa(max)+"s\n",
 				"NAME",
 				"POD-NODE",
 				"POD-STATUS",
-				"POD-ID",
 				"POD-STIME")
 			for _, gpu := range response {
 				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+strconv.Itoa(num)+"s %-"+
-								strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+								strconv.Itoa(max)+"s\n",
 					gpu.Job.Name,
 					strconv.Itoa(gpu.PodInstance.NodeID),
 					strconv.Itoa(int(gpu.PodInstance.Status)),
-					gpu.PodInstance.ID,
 					gpu.PodInstance.StartTime,)
 			}
 		} else {

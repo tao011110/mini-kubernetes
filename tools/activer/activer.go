@@ -216,7 +216,7 @@ func TriggerStateMachine(stateMachineName string, parames map[string]string, bod
 }
 func AutoExpanderAndShrinker() {
 	cron2 := cron.New()
-	err := cron2.AddFunc("*/60 * * * * *", ExpandAndShrink)
+	err := cron2.AddFunc("*/180 * * * * *", ExpandAndShrink)
 	if err != nil {
 		fmt.Println(err)
 	}
