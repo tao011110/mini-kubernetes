@@ -5,4 +5,6 @@
 #apt-get update
 #apt-get install curl
 #curl localhost 80
-
+./kubectl delete pod pod1
+./kubectl get pods
+#docker ps -a 发现确实删除了

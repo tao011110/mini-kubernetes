@@ -4,7 +4,7 @@
 #查看iptables 所有规则: sudo iptables -vL -t nat
 ./kubectl create -f /home/go/src/mini-kubernetes/presentation/dns/dns_pre.yaml
 ./kubectl get dns
-./kubectl describe dns dns-test
+./kubectl describe dns dns-test2
 #然后进入ghost容器，尝试curl localhost 80
 #apt-get update
 #apt-get install curl

@@ -1,5 +1,5 @@
 kind: DNS
-name: dns-test
+name: dns-test2
 host: www.minik8s.com
 paths:
   - path: /route1
@@ -9,6 +9,6 @@ paths:
     service: test-service-for-dns
     port: 80
   - path: /route3
-      service: test-service-for-dns2
-      port: 80
+    service: test-service-for-dns2
+    port: 80
 
