@@ -46,7 +46,8 @@ func RecordPodInstanceResource(podInstance def.PodInstance, cadvisorClient *clie
 		cpuTime2 := info.Stats[len(info.Stats)-2].Cpu.Usage.Total
 		cpuusageLenth := cpuTime1 - cpuTime2
 		cpuNum := (cpuusageLenth * 1000) / uint64(timeLenth) / 1000000
-		fmt.Printf("time length is %ds, cpu usage is%dnano\n, memory is %d", timeLenth, cpuusageLenth)
+		fmt.Printf("time length is %ds, cpu usage is%dnano\n, memory is %d, last record %s",
+			timeLenth, cpuusageLenth, memoryUsage, info.Stats[len(info.Stats)-1].Timestamp.String())
 		cpuLoadAverage += int32(cpuNum)
 	}
 	key := def.GetKeyOfResourceUsageByPodInstanceID(podInstance.ID)
