@@ -28,7 +28,7 @@ func CreateFunction(cli *clientv3.Client, function def.Function) def.Service {
 func GetRegisteredNodeID(cli *clientv3.Client) int {
 	key := "/Persistence/funcServiceID/"
 	kvs := etcd.Get(cli, key).Kvs
-	funcServiceID := 0
+	funcServiceID := 1
 	if len(kvs) != 0 {
 		funcServiceIDValue := kvs[0].Value
 		err := json.Unmarshal(funcServiceIDValue, &funcServiceID)

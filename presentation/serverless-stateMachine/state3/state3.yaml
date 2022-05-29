@@ -1,5 +1,5 @@
 kind: activity
 name: state3_function
-function: <.py文件路径>
-requirements: <requirements.txt文件路径>
+function: /home/go/src/mini-kubernetes/presentation/serverless-stateMachine/state3/state3.py
+requirements: /home/go/src/mini-kubernetes/presentation/serverless-stateMachine/state3/requirements.txt
 version: 1
