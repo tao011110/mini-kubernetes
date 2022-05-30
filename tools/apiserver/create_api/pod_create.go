@@ -114,10 +114,10 @@ func CreatePod(cli *clientv3.Client, pod_ def.Pod) def.PodInstance {
 func CheckAddInService(cli *clientv3.Client, podInstance def.PodInstance) []def.Service {
 	servicePrefix := "/service/"
 	kvs := etcd.GetWithPrefix(cli, servicePrefix).Kvs
-	service := def.Service{}
-	serviceValue := make([]byte, 0)
 	serviceList := make([]def.Service, 0)
 	for _, kv := range kvs {
+		service := def.Service{}
+		serviceValue := make([]byte, 0)
 		serviceValue = kv.Value
 		err := json.Unmarshal(serviceValue, &service)
 		if err != nil {

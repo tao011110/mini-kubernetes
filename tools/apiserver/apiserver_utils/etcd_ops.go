@@ -140,3 +140,17 @@ func PersistNode(li *clientv3.Client, node def.Node) {
 	}
 	etcd.Put(li, def.GetKeyOgNodeByNodeID(node.NodeID), string(value))
 }
+
+func GetFunctionByName(li *clientv3.Client, functionName string) def.Function {
+	key := def.GetKeyOfFunction(functionName)
+	function := def.Function{}
+	util.EtcdUnmarshal(etcd.Get(li, key), &function)
+	return function
+}
+
+func GetPodByName(li *clientv3.Client, podName string) def.Pod {
+	key := def.GetKeyOfPod(podName)
+	pod_ := def.Pod{}
+	util.EtcdUnmarshal(etcd.Get(li, key), &pod_)
+	return pod_
+}

@@ -14,16 +14,6 @@ func DeleteFunction(cli *clientv3.Client, functionName string) (bool, string) {
 	podName := fmt.Sprintf("pod_%s", idPrefix)
 	serviceName := fmt.Sprintf("service_%s", idPrefix)
 
-	// 删除function
-	{
-		functionKey := def.GetKeyOfFunction(functionName)
-		resp := etcd.Get(cli, functionKey)
-		if len(resp.Kvs) == 0 {
-			//return false, ""
-		}
-		etcd.Delete(cli, functionKey)
-	}
-
 	// 从function_name_list中删除该function
 	{
 		var functionList []string
@@ -40,6 +30,16 @@ func DeleteFunction(cli *clientv3.Client, functionName string) (bool, string) {
 			panic(err)
 		}
 		etcd.Put(cli, def.FunctionNameListKey, string(value))
+	}
+
+	// 删除function
+	{
+		functionKey := def.GetKeyOfFunction(functionName)
+		resp := etcd.Get(cli, functionKey)
+		if len(resp.Kvs) == 0 {
+			//return false, ""
+		}
+		etcd.Delete(cli, functionKey)
 	}
 
 	{ // 删除之前创建的functionPodInstance

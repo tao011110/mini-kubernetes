@@ -14,6 +14,7 @@ import (
 	"mini-kubernetes/tools/apiserver/function_api"
 	"mini-kubernetes/tools/apiserver/get_api"
 	"mini-kubernetes/tools/apiserver/gpu_job_api"
+	"mini-kubernetes/tools/apiserver/heartbeat_api"
 	"mini-kubernetes/tools/apiserver/register_api"
 	"mini-kubernetes/tools/coredns/coredns_utils"
 	"mini-kubernetes/tools/def"
@@ -62,6 +63,9 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.POST("/gpu_job_result", handleOutputGPUJob)
 	e.POST("/create/funcPodInstance", handleCreateFuncPodInstance)
 
+	e.PUT("/update/soft/function", handleSoftUpdateFunction)
+	e.PUT("/update/hard/function", handleHardUpdateFunction)
+
 	// handle delete-api
 	e.DELETE("/delete_pod/:podInstanceName", handleDeletePod)
 	e.DELETE("/delete/service/:serviceName", handleDeleteService)
@@ -91,6 +95,9 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.GET("/get/all/function", handleGetAllFunction)
 	e.GET("/get/stateMachine/:stateMachineName", handleGetStateMachine)
 	e.GET("/get/all/stateMachine", handleGetAllStateMachine)
+
+	// handle heartbeat-api
+	e.POST("/heartbeat", HandleHeartbeat)
 
 	e.Logger.Fatal(e.Start(":" + port))
 }
@@ -606,6 +613,57 @@ func handleDeletePod(c echo.Context) error {
 	}
 }
 
+func handleSoftUpdateFunction(c echo.Context) error {
+	function := def.Function{}
+	requestBody := new(bytes.Buffer)
+	_, err := requestBody.ReadFrom(c.Request().Body)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+
+	err = json.Unmarshal(requestBody.Bytes(), &function)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+
+	_, flag := function_api.GetFunction(cli, function.Name)
+	if flag == false {
+		return c.JSON(404, "Function "+function.Name+" does not exist")
+	}
+	//soft update
+	function_api.SoftUpdateFunction(cli, function)
+
+	return c.JSON(200, "Function "+function.Name+" has been soft-updated")
+}
+
+func handleHardUpdateFunction(c echo.Context) error {
+	function := def.Function{}
+	requestBody := new(bytes.Buffer)
+	_, err := requestBody.ReadFrom(c.Request().Body)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+
+	err = json.Unmarshal(requestBody.Bytes(), &function)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+
+	_, flag := function_api.GetFunction(cli, function.Name)
+	if flag == false {
+		return c.JSON(404, "Function "+function.Name+" does not exist")
+	}
+
+	//hard update
+	function_api.HardUpdateFunction(cli, function)
+
+	return c.JSON(200, "Function "+function.Name+" has been hard-updated")
+}
+
 func handleDeleteService(c echo.Context) error {
 	serviceName := c.Param("serviceName")
 
@@ -982,4 +1040,25 @@ func CheckNode() {
 			apiserver_utils.PersistNode(cli, node)
 		}
 	}
+}
+
+func HandleHeartbeat(c echo.Context) error {
+	beat := def.HeartBeat{}
+	requestBody := new(bytes.Buffer)
+	_, err := requestBody.ReadFrom(c.Request().Body)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+
+	err = json.Unmarshal(requestBody.Bytes(), &beat)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+
+	heartbeat_api.ReceiveHeartBeat(beat, HeartBeatMap)
+	fmt.Println("Receive from Node ", strconv.Itoa(beat.NodeID), " at ", beat.TimeStamp)
+
+	return c.String(200, "Receive from Node "+strconv.Itoa(beat.NodeID))
 }

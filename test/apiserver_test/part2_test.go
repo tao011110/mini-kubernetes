@@ -391,13 +391,53 @@ func testDeleteFuncPodInstance(podName string) {
 	}
 }
 
+//TODO: 用来软更新function，需要发送给apiserver的参数为 function (def.Function)
+func testSoftUpdateFunction(path string) {
+	function, _ := yaml.ReadFunctionConfig(path)
+	request := *function
+	response := ""
+	body2, _ := json.Marshal(request)
+	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/update/soft/function").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetString(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("soft_update_function is %s and response is: %s\n", status, response)
+}
+
+//TODO: 用来硬更新function，需要发送给apiserver的参数为 function (def.Function)
+func testHardUpdateFunction(path string) {
+	function, _ := yaml.ReadFunctionConfig(path)
+	request := *function
+	response := ""
+	body2, _ := json.Marshal(request)
+	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/update/hard/function").
+		ContentType("application/json").
+		Body(bytes.NewReader(body2)).
+		GetString(&response).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+	fmt.Printf("hard_update_function is %s and response is: %s\n", status, response)
+}
+
 func TestFunction(t *testing.T) {
-	//testCreateFunction("./function_test.yaml")
-	//
-	//testGetFunction("function_test")
-	//testGetAllFunction()
+	testCreateFunction("./function_test.yaml")
+
+	testGetFunction("function_test")
+	testGetAllFunction()
+	testSoftUpdateFunction("./function_test.yaml")
+	testHardUpdateFunction("./function_test.yaml")
 
 	testDeleteFunction("function_test")
+	testSoftUpdateFunction("./function_test.yaml")
+	testHardUpdateFunction("./function_test.yaml")
 
 	//testCreateFuncPodInstance("pod_functional_function_test_1_57cb853e-a6fb-460f-a24a-c2a9b0753d8a")
 	//testDeleteFuncPodInstance("pod_functional_function_test_1_57cb853e-a6fb-460f-a24a-c2a9b0753d8a")

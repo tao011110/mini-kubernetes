@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod3-dns
+  name: pod2-dns
   label: dns-test
 
 spec:
