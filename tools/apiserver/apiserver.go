@@ -70,6 +70,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.DELETE("/delete/funcPodInstance/:podName", handleDeleteFuncPodInstance)
 	e.DELETE("/delete/function/:funcName", handleDeleteFunction)
 	e.DELETE("/delete/stateMachine/:stateMachineName", handelDeleteStateMachine)
+	e.DELETE("/delete/podInstance/:podInstanceID", handleDeletePodInstance)
 
 	// handle get-api
 	e.GET("/get/all/node", handleGetAllNode)
@@ -674,6 +675,23 @@ func handleDeleteFunction(c echo.Context) error {
 		return c.String(200, "Function "+funcName+" has been deleted")
 	} else {
 		return c.String(404, "Function "+funcName+" doesn't exist")
+	}
+}
+
+func handleDeletePodInstance(c echo.Context) error {
+	podInstanceID := c.Param("podInstanceID")
+	flag, service := function_api.FuncDeletePodInstance(cli, podInstanceID)
+	if flag == true {
+		fmt.Println("PodInstance of " + podInstanceID + " has been deleted")
+		nodeList := get_api.GetAllNode(cli)
+		for _, node := range nodeList {
+			fmt.Println("service.ClusterIP is :   ", service.ClusterIP)
+			letProxyDeleteCIRule(service.ClusterIP, node)
+			letProxyCreateCIRule(service, node)
+		}
+		return c.String(200, "PodInstance of "+podInstanceID+" has been deleted")
+	} else {
+		return c.String(404, "PodInstance of "+podInstanceID+" doesn't exist")
 	}
 }
 
