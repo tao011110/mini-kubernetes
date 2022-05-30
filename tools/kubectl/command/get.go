@@ -327,5 +327,34 @@ func getFunc(c *cli.Context) {
 		} else {
 			fmt.Printf("No stateMachine exists\n")
 		}
+	} else if ty == "node" {
+		response := make([]string, 0)
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/pod").
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		// fmt.Printf("get_all_pod status is %s\n", status)
+		if status == "200" {
+			fmt.Println("All pods are as follows")
+			max := 15
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+				"NAME",
+				"IP",
+				"STATUS",
+				"ID")
+			for _, podInstance := range response {
+				pod_status := podInstance.Status == 0 ? "Ready" : "NotReady"
+				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+				podInstance.Name,
+				podInstance.IP,
+				pod_status,
+				podInstance.ID)
+			}
+		} else {
+			fmt.Printf("No pod exists\n")
+		}
 	}
 }
