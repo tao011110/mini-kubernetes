@@ -397,7 +397,7 @@ func testSoftUpdateFunction(path string) {
 	request := *function
 	response := ""
 	body2, _ := json.Marshal(request)
-	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/update/soft/function").
+	err, status := httpget.Put("http://" + node.MasterIpAndPort + "/update/soft/function").
 		ContentType("application/json").
 		Body(bytes.NewReader(body2)).
 		GetString(&response).
@@ -415,7 +415,7 @@ func testHardUpdateFunction(path string) {
 	request := *function
 	response := ""
 	body2, _ := json.Marshal(request)
-	err, status := httpget.Post("http://" + node.MasterIpAndPort + "/update/hard/function").
+	err, status := httpget.Put("http://" + node.MasterIpAndPort + "/update/hard/function").
 		ContentType("application/json").
 		Body(bytes.NewReader(body2)).
 		GetString(&response).

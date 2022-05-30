@@ -29,6 +29,7 @@ type HttpMethod string
 const (
 	httpGet    HttpMethod = "GET"
 	httpPost   HttpMethod = "POST"
+	httpPut    HttpMethod = "PUT"
 	httpDelete HttpMethod = "DELETE"
 )
 
@@ -63,6 +64,22 @@ func Post(rawurl string) *HttpClient {
 	client := CreateDefault()
 	client.method = httpPost
 	client.request, client.Error = http.NewRequest("POST", "", nil)
+	if client.Error != nil {
+		return client
+	}
+
+	rawurl, err := HandleURL(client, rawurl)
+	if err != nil {
+		client.Error = err
+	}
+
+	return client.handle(rawurl)
+}
+
+func Put(rawurl string) *HttpClient {
+	client := CreateDefault()
+	client.method = httpPut
+	client.request, client.Error = http.NewRequest("PUT", "", nil)
 	if client.Error != nil {
 		return client
 	}
