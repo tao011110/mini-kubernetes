@@ -1,0 +1,24 @@
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: autoscaler_cpu
+spec:
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    CPU:
+      targetMinValue : 90
+      targetMaxValue : 200
+    memory:
+      targetMinValue: 0M
+      targetMaxValue: 1000M
+  template:
+    metadata:
+      labels:
+        name: cpu_and_memory_boom_for_autoscaler_cpu
+    spec:
+      containers:
+        - name: cpu_and_memory_boom
+          image: hejingkai/cpu_and_memory_boom
+
+
