@@ -124,3 +124,19 @@ func GetNodeList(li *clientv3.Client) []int {
 	util.EtcdUnmarshal(etcd.Get(li, def.NodeListID), &list)
 	return list
 }
+
+func GetNodeByID(li *clientv3.Client, nodeID int) def.Node {
+	node := def.Node{}
+	key := def.GetKeyOgNodeByNodeID(nodeID)
+	util.EtcdUnmarshal(etcd.Get(li, key), &node)
+	return node
+}
+
+func PersistNode(li *clientv3.Client, node def.Node) {
+	value, err := json.Marshal(node)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	etcd.Put(li, def.GetKeyOgNodeByNodeID(node.NodeID), string(value))
+}

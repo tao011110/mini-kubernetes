@@ -139,3 +139,7 @@ func GetPodNameOfAutoscaler(autoscalerName string) string {
 func GetGPUJobKeyByName(name string) string {
 	return fmt.Sprintf("/gpu_job/%s", name)
 }
+
+func GetKeyOgNodeByNodeID(nodeID int) string {
+	return fmt.Sprintf("/node/%d", nodeID)
+}

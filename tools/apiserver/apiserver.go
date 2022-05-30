@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/robfig/cron"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/apiserver/apiserver_utils"
 	"mini-kubernetes/tools/apiserver/create_api"
@@ -26,10 +27,12 @@ import (
 var IpAndPort string
 var cli *clientv3.Client
 var HeartBeatMap map[int]time.Time
+var ShouldStop bool
 
 func Start(masterIp string, port string, client *clientv3.Client) {
 	IpAndPort = masterIp + ":" + port
 	cli = client
+	ShouldStop = false
 
 	//Initialize heartbeat map
 	HeartBeatMap = make(map[int]time.Time)
@@ -37,6 +40,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	for _, id := range nodeIDList {
 		HeartBeatMap[id] = time.Now()
 	}
+	go NodeChecker()
 
 	e := echo.New()
 	e.Use(middleware.Logger())
@@ -109,6 +113,8 @@ func handleRegisterNode(c echo.Context) error {
 
 	//进行注册
 	nodeID, cniIP := register_api.RegisterNode(cli, request, IpAndPort)
+
+	HeartBeatMap[nodeID] = time.Now()
 
 	//返回节点编号和节点名称
 	response.NodeID = nodeID
@@ -923,4 +929,30 @@ func handleGetAllStateMachine(c echo.Context) error {
 		return c.JSON(404, stateMachineList)
 	}
 	return c.JSON(200, stateMachineList)
+}
+
+func NodeChecker() {
+	cron2 := cron.New()
+	err := cron2.AddFunc("*/180 * * * * *", CheckNode)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	cron2.Start()
+	defer cron2.Stop()
+	for {
+		if ShouldStop {
+			break
+		}
+	}
+}
+
+func CheckNode() {
+	for nodeID, time_ := range HeartBeatMap {
+		if time.Now().Sub(time_).Minutes() > 10 {
+			node := apiserver_utils.GetNodeByID(cli, nodeID)
+			node.Status = def.NotReady
+			apiserver_utils.PersistNode(cli, node)
+		}
+	}
 }
