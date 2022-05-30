@@ -22,7 +22,7 @@ const (
 
 type Node struct {
 	PodInstances             []*PodInstance
-	NodeID                   int
+	NodeID                   int `json:"node_id"`
 	NodeIP                   net.IP
 	NodeName                 string
 	MasterIpAndPort          string
@@ -34,4 +34,30 @@ type Node struct {
 	CadvisorClient           *client.Client
 	ShouldStop               bool
 	Status                   int
+}
+
+type NodeInfo struct {
+	NodeID                   int    `json:"node_id"`
+	NodeIP                   net.IP `json:"node_ip"`
+	NodeName                 string `json:"node_name"`
+	MasterIpAndPort          string `json:"master_ip_and_port"`
+	LocalPort                int    `json:"local_port"`
+	ProxyPort                int    `json:"proxy_port"`
+	LastHeartbeatSuccessTime int64  `json:"last_heartbeat_success_time"`
+	CniIP                    net.IP `json:"cni_ip"`
+	Status                   int    `json:"status"`
+}
+
+func Node2NodeInfo(node Node) NodeInfo {
+	return NodeInfo{
+		NodeID:                   node.NodeID,
+		NodeIP:                   node.NodeIP,
+		NodeName:                 node.NodeName,
+		MasterIpAndPort:          node.MasterIpAndPort,
+		LocalPort:                node.LocalPort,
+		ProxyPort:                node.ProxyPort,
+		LastHeartbeatSuccessTime: node.LastHeartbeatSuccessTime,
+		CniIP:                    node.CniIP,
+		Status:                   node.Status,
+	}
 }

@@ -742,7 +742,7 @@ func letProxyDeleteNPRule(clusterIP string, node def.Node) {
 }
 
 func handleGetAllNode(c echo.Context) error {
-	nodeList := get_api.GetAllNode(cli)
+	nodeList := get_api.GetAllNodeInfo(cli)
 	fmt.Println("nodeList:  ", nodeList)
 
 	return c.JSON(200, nodeList)
