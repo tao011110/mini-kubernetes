@@ -63,6 +63,7 @@ func CreateDNS(cli *clientv3.Client, dns def.DNS) (def.DNSDetail, string) {
 	gatewayPod := gateway.GenerateGatewayPod(dnsDetail, def.RgistryAddr+imageName)
 	gatewayPod.Spec.Containers[0].Image = def.RgistryAddr + imageName
 	podInstance := CreatePod(cli, gatewayPod)
+	fmt.Println("gateway  podInstance.ID is:  ", podInstance.ID)
 
 	return dnsDetail, podInstance.ID
 }

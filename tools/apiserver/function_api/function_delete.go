@@ -31,6 +31,7 @@ func DeleteFunction(cli *clientv3.Client, functionName string) (bool, string) {
 		}
 		etcd.Put(cli, def.FunctionNameListKey, string(value))
 	}
+
 	// 删除function
 	{
 		functionKey := def.GetKeyOfFunction(functionName)

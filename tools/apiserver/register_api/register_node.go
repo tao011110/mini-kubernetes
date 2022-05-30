@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"mini-kubernetes/tools/apiserver/get_api"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 	"net"
@@ -12,6 +13,15 @@ import (
 )
 
 func RegisterNode(cli *clientv3.Client, request def.RegisterToMasterRequest, IpAndPort string) (int, net.IP) {
+	{
+		nodeList := get_api.GetAllNode(cli)
+		for _, node := range nodeList {
+			if node.NodeIP.String() == request.LocalIP.String() {
+				return node.NodeID, node.CniIP
+			}
+		}
+	}
+
 	registeredNodeID := GetRegisteredNodeID(cli)
 
 	//将新加入集群的node写入到etcd当中
