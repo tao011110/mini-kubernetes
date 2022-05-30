@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"mini-kubernetes/tools/apiserver/apiserver_utils"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
 )
@@ -24,6 +25,12 @@ func GetAllPodInstance(cli *clientv3.Client) ([]def.PodInstance, bool) {
 				panic(err)
 			}
 			fmt.Println("podInstance.Metadata.Name is " + podInstance.Metadata.Name)
+
+			// add for heartbeat
+			if apiserver_utils.GetNodeByID(cli, podInstance.NodeID).Status == def.NotReady {
+				podInstance.Status = def.UNKNOWN
+			}
+
 			podInstanceList = append(podInstanceList, podInstance)
 		}
 		flag = true

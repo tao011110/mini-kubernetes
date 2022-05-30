@@ -15,6 +15,11 @@ type NodeResource struct {
 	MemoryInfo      mem.VirtualMemoryStat `json:"memory_info"`
 }
 
+const (
+	Ready    = 0
+	NotReady = 1
+)
+
 type Node struct {
 	PodInstances             []*PodInstance
 	NodeID                   int
@@ -28,4 +33,5 @@ type Node struct {
 	EtcdClient               *clientv3.Client
 	CadvisorClient           *client.Client
 	ShouldStop               bool
+	Status                   int
 }

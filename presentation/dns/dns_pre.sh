@@ -5,8 +5,8 @@
 ./kubectl create -f /home/go/src/mini-kubernetes/presentation/dns/dns_pre.yaml
 ./kubectl get dns
 ./kubectl describe dns dns-test2
-#然后进入ghost容器，尝试curl localhost 80
+#在宿主机尝试curl www.minik8s.com:80/route2, curl www.minik8s.com:80/route3
+#然后进入nginx容器，尝试curl www.minik8s.com:80/route2, curl www.minik8s.com:80/route3
 #apt-get update
 #apt-get install curl
-#curl localhost 80
 

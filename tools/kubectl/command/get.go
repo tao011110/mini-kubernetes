@@ -256,18 +256,18 @@ func getFunc(c *cli.Context) {
 			max := 15
 			num := 10
 			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+strconv.Itoa(num)+"s %-"+
-							strconv.Itoa(max)+"s\n",
+				strconv.Itoa(max)+"s\n",
 				"NAME",
 				"POD-NODE",
 				"POD-STATUS",
 				"POD-STIME")
 			for _, gpu := range response {
 				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(num)+"s %-"+strconv.Itoa(num)+"s %-"+
-								strconv.Itoa(max)+"s\n",
+					strconv.Itoa(max)+"s\n",
 					gpu.Job.Name,
 					strconv.Itoa(gpu.PodInstance.NodeID),
 					strconv.Itoa(int(gpu.PodInstance.Status)),
-					gpu.PodInstance.StartTime,)
+					gpu.PodInstance.StartTime)
 			}
 		} else {
 			fmt.Printf("No gpuJob exists\n")
@@ -326,6 +326,40 @@ func getFunc(c *cli.Context) {
 			}
 		} else {
 			fmt.Printf("No stateMachine exists\n")
+		}
+	} else if ty == "node" {
+		response := make([]def.Node, 0)
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/pod").
+			ContentType("application/json").
+			GetJson(&response).
+			Execute()
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+		}
+		// fmt.Printf("get_all_pod status is %s\n", status)
+		if status == "200" {
+			fmt.Println("All pods are as follows")
+			max := 15
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+				"NAME",
+				"IP",
+				"STATUS",
+				"ID")
+			for _, podInstance := range response {
+				var pod_status string
+				if podInstance.Status == 0 {
+					pod_status = "Ready"
+				} else {
+					pod_status = "NotReady"
+				}
+				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+					podInstance.NodeName,
+					(podInstance.NodeIP).String(),
+					pod_status,
+					strconv.Itoa(podInstance.NodeID))
+			}
+		} else {
+			fmt.Printf("No pod exists\n")
 		}
 	}
 }

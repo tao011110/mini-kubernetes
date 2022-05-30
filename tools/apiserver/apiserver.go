@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/robfig/cron"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/apiserver/apiserver_utils"
 	"mini-kubernetes/tools/apiserver/create_api"
@@ -20,14 +21,26 @@ import (
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/util"
 	"strconv"
+	"time"
 )
 
 var IpAndPort string
 var cli *clientv3.Client
+var HeartBeatMap map[int]time.Time
+var ShouldStop bool
 
 func Start(masterIp string, port string, client *clientv3.Client) {
 	IpAndPort = masterIp + ":" + port
 	cli = client
+	ShouldStop = false
+
+	//Initialize heartbeat map
+	HeartBeatMap = make(map[int]time.Time)
+	nodeIDList := apiserver_utils.GetNodeList(client)
+	for _, id := range nodeIDList {
+		HeartBeatMap[id] = time.Now()
+	}
+	go NodeChecker()
 
 	e := echo.New()
 	e.Use(middleware.Logger())
@@ -101,6 +114,8 @@ func handleRegisterNode(c echo.Context) error {
 	//进行注册
 	nodeID, cniIP := register_api.RegisterNode(cli, request, IpAndPort)
 
+	HeartBeatMap[nodeID] = time.Now()
+
 	//返回节点编号和节点名称
 	response.NodeID = nodeID
 	response.NodeName = request.NodeName
@@ -148,14 +163,23 @@ func handleCreatePod(c echo.Context) error {
 						// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
 						serviceList := create_api.CheckAddInService(cli, change)
 						nodeList := get_api.GetAllNode(cli)
+						fmt.Println("serviceList:   ", serviceList)
 						for _, service := range serviceList {
 							// 需要检验，若原先该IP已存在于service当中，则不再重复添加
+							flag := false
 							for _, bindings := range service.PortsBindings {
 								for _, endPoint := range bindings.Endpoints {
 									if endPoint == change.IP {
-										return
+										flag = true
+										break
 									}
 								}
+								if flag == true {
+									break
+								}
+							}
+							if flag == true {
+								continue
 							}
 							if service.Type == "ClusterIP" {
 								for _, node := range nodeList {
@@ -164,7 +188,7 @@ func handleCreatePod(c echo.Context) error {
 								}
 							} else {
 								for _, node := range nodeList {
-									letProxyDeleteCIRule(service.ClusterIP, node)
+									letProxyDeleteNPRule(service.ClusterIP, node)
 									letProxyCreateNPRule(service, node)
 								}
 							}
@@ -914,4 +938,30 @@ func handleGetAllStateMachine(c echo.Context) error {
 		return c.JSON(404, stateMachineList)
 	}
 	return c.JSON(200, stateMachineList)
+}
+
+func NodeChecker() {
+	cron2 := cron.New()
+	err := cron2.AddFunc("*/180 * * * * *", CheckNode)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	cron2.Start()
+	defer cron2.Stop()
+	for {
+		if ShouldStop {
+			break
+		}
+	}
+}
+
+func CheckNode() {
+	for nodeID, time_ := range HeartBeatMap {
+		if time.Now().Sub(time_).Minutes() > 10 {
+			node := apiserver_utils.GetNodeByID(cli, nodeID)
+			node.Status = def.NotReady
+			apiserver_utils.PersistNode(cli, node)
+		}
+	}
 }
