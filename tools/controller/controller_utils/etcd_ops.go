@@ -35,6 +35,7 @@ func GetHorizontalPodAutoscalerByName(etcdClient *clientv3.Client, horizontalPod
 	return &horizontalPodAutoscaler
 }
 
+// DEPRECATED
 //func AddPodInstance(etcdClient *clientv3.Client, instance *def.PodInstance) {
 //	util.PersistPodInstance(*instance, etcdClient)
 //	{

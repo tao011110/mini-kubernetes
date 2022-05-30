@@ -6,6 +6,7 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/etcd"
+	"mini-kubernetes/tools/util"
 )
 
 func DeleteFunction(cli *clientv3.Client, functionName string) (bool, string) {
@@ -13,33 +14,32 @@ func DeleteFunction(cli *clientv3.Client, functionName string) (bool, string) {
 	podName := fmt.Sprintf("pod_%s", idPrefix)
 	serviceName := fmt.Sprintf("service_%s", idPrefix)
 
-	//// 删除function
-	//{
-	//	functionKey := def.GetKeyOfFunction(functionName)
-	//	resp := etcd.Get(cli, functionKey)
-	//	if len(resp.Kvs) == 0 {
-	//		//return false, ""
-	//	}
-	//	etcd.Delete(cli, functionKey)
-	//}
-	//
-	//// 从function_name_list中删除该function
-	//{
-	//	var functionList []string
-	//	util.EtcdUnmarshal(etcd.Get(cli, def.FunctionNameListKey), &functionList)
-	//	newFunctionList := make([]string, 0)
-	//	for _, function := range functionList {
-	//		if function != functionName {
-	//			newFunctionList = append(newFunctionList, function)
-	//		}
-	//	}
-	//	value, err := json.Marshal(newFunctionList)
-	//	if err != nil {
-	//		fmt.Printf("%v\n", err)
-	//		panic(err)
-	//	}
-	//	etcd.Put(cli, def.FunctionNameListKey, string(value))
-	//}
+	// 从function_name_list中删除该function
+	{
+		var functionList []string
+		util.EtcdUnmarshal(etcd.Get(cli, def.FunctionNameListKey), &functionList)
+		newFunctionList := make([]string, 0)
+		for _, function := range functionList {
+			if function != functionName {
+				newFunctionList = append(newFunctionList, function)
+			}
+		}
+		value, err := json.Marshal(newFunctionList)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			panic(err)
+		}
+		etcd.Put(cli, def.FunctionNameListKey, string(value))
+	}
+	// 删除function
+	{
+		functionKey := def.GetKeyOfFunction(functionName)
+		resp := etcd.Get(cli, functionKey)
+		if len(resp.Kvs) == 0 {
+			//return false, ""
+		}
+		etcd.Delete(cli, functionKey)
+	}
 
 	{ // 删除之前创建的functionPodInstance
 		replicasNameListPrefix := def.GetKeyOfPodReplicasNameListByPodName(podName)
