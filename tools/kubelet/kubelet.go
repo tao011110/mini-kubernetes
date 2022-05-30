@@ -39,9 +39,6 @@ func main() {
 	}
 	docker.CreateNetBridge(node.CniIP.String())
 
-	/*
-		creat echo instance
-	*/
 	e := echo.New()
 
 	e.Use(middleware.Logger())
@@ -92,18 +89,12 @@ func parseArgs(nodeName *string, masterIPAndPort *string, localPort *int) {
 	flag.StringVar(masterIPAndPort, "master", "undefined", "name of the node, `node+nodeIP` by default")
 	flag.IntVar(localPort, "port", 100, "local port to communicate with master")
 	flag.Parse()
-	/*
-		TODO: Check ClusterIP format legality
-	*/
 	if *masterIPAndPort == "undefined" {
 		fmt.Println("Master Ip And Port Error!")
 		os.Exit(0)
 	}
 }
 
-/*
-	register node to master, using http post
-*/
 func registerToMaster(node *def.Node) error {
 	response := def.RegisterToMasterResponse{}
 	request := def.RegisterToMasterRequest{
@@ -150,7 +141,6 @@ func ContainerCheck() {
 
 func checkPodRunning() {
 	infos := resource.GetAllContainersInfo(node.CadvisorClient)
-
 	var runningContainerIDs []string
 	fmt.Println("infos:  ", infos)
 	for _, info := range infos {
@@ -158,6 +148,9 @@ func checkPodRunning() {
 	}
 	fmt.Println("running container ids: ", runningContainerIDs)
 	for _, instance := range node.PodInstances {
+		if instance.Status != def.RUNNING {
+			continue
+		}
 		for _, container := range instance.ContainerSpec {
 			if !kubelet_utils.IsStrInList(container.ID, runningContainerIDs) {
 				instance.Status = def.FAILED
@@ -186,7 +179,6 @@ func ResourceMonitoring() {
 	}
 }
 
-// cadvisor
 func recordResource() {
 	for _, podInstance := range node.PodInstances {
 		kubelet_utils.RecordPodInstanceResource(*podInstance, node.CadvisorClient, node.EtcdClient)

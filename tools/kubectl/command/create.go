@@ -58,7 +58,11 @@ func createFunc(c *cli.Context) {
 		fmt.Printf("create_stateMachine is %s and response is: %s\n", status, response)
 
 	} else if last4 == "yaml" {
-		ty, _ := yaml.ReadType(dir)
+		ty, err := yaml.ReadType(dir)
+		if err != nil {
+			fmt.Println("[Fault] " + err.Error())
+			return
+		}
 		switch ty {
 		case yaml.Pod_t:
 			// create_pod

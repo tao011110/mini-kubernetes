@@ -100,7 +100,8 @@ func getFunc(c *cli.Context) {
 		if status == "200" {
 			fmt.Println("All services' information is as follows")
 			max := 15
-			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+
+			name_long := 25
+			fmt.Printf("%-"+strconv.Itoa(name_long)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+
 				strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
 				"NAME",
 				"TYPE",
@@ -110,6 +111,7 @@ func getFunc(c *cli.Context) {
 			for _, service := range response {
 				t := time.Now()                                  // 用于获取当前时间
 				var Age time.Duration = t.Sub(service.StartTime) //进行计算，得到AGE
+				var s_age string = Age.String()
 				var s_name string = service.Name
 				var s_type string = service.Type
 				var s_ip string = service.ClusterIP
@@ -118,14 +120,15 @@ func getFunc(c *cli.Context) {
 						s_name = ""
 						s_type = ""
 						s_ip = ""
+						s_age = ""
 					}
-					fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+
+					fmt.Printf("%-"+strconv.Itoa(name_long)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+
 						strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
 						s_name,
 						s_type,
 						s_ip,
 						strconv.Itoa(int(service.PortsBindings[i].Ports.Port))+"/"+strings.ToUpper(service.PortsBindings[i].Ports.Protocol),
-						Age)
+						s_age)
 				}
 			}
 		} else {

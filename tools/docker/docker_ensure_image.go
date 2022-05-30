@@ -31,6 +31,6 @@ func ImageEnsure(targetImage string) {
 	}
 	if !isImageExist {
 		fmt.Printf("Image %s doesn't exist locally, try to pull it now\n", targetImage)
-		PullImage(targetImage)
 	}
+	PullImage(targetImage)
 }

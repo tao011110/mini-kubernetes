@@ -13,7 +13,9 @@ func DockerExec(containerID string, commands []string) {
 		fmt.Printf("%v\n", err)
 		panic(err)
 	}
-	defer cli.Close()
+	defer func(cli *client.Client) {
+		_ = cli.Close()
+	}(cli)
 	copyfiletoBin, err := cli.ContainerExecCreate(context.Background(), containerID, types.ExecConfig{
 		Tty:          true,
 		Cmd:          commands,
@@ -28,4 +30,10 @@ func DockerExec(containerID string, commands []string) {
 	err = cli.ContainerExecStart(context.Background(), copyfiletoBin.ID, types.ExecStartCheck{
 		Tty: true,
 	})
+	for {
+		inspect, _ := cli.ContainerExecInspect(context.Background(), copyfiletoBin.ID)
+		if !inspect.Running {
+			return
+		}
+	}
 }
