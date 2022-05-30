@@ -4,6 +4,7 @@ import (
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"math"
+	"mini-kubernetes/tools/apiserver/apiserver_utils"
 	"mini-kubernetes/tools/def"
 )
 
@@ -67,6 +68,10 @@ func ChooseNode(etcdClient *clientv3.Client, nodes []int, allNodesInfo []*def.No
 	var chose int
 	minInstances := math.MaxInt
 	for _, node := range nodes {
+		// TODO: 测试正确性
+		if apiserver_utils.GetNodeByID(etcdClient, allNodesInfo[node].NodeID).Status == def.NotReady {
+			continue
+		}
 		instances := len(GetPodInstanceIDListOfNode(etcdClient, allNodesInfo[node].NodeID))
 		if instances < minInstances {
 			minInstances = instances
