@@ -54,7 +54,8 @@ func GetDeployment(cli *clientv3.Client, deploymentName string) (*def.Deployment
 					ready++
 				}
 			} else {
-				controller_utils.RemovePodInstance(cli, &podInstance)
+				//controller_utils.RemovePodInstance(cli, &podInstance)
+				util.RemovePodInstanceByID(podInstance.ID)
 			}
 		}
 		deploymentDetail.ReplicasState = def.ReplicasState{

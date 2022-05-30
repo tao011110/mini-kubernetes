@@ -71,7 +71,8 @@ func HandleDeploymentListChange(deploymentList []string) {
 		fmt.Println("deployment.Name:  ", deployment.Name)
 		controllerMeta.ParsedDeployments = append(controllerMeta.ParsedDeployments, deployment)
 		controller_utils.NewReplicaNameListByPodName(controllerMeta.EtcdClient, deployment.PodName)
-		controller_utils.NewNPodInstance(controllerMeta.EtcdClient, deployment.PodName, deployment.ReplicasNum)
+		//controller_utils.NewNPodInstance(controllerMeta.EtcdClient, deployment.PodName, deployment.ReplicasNum)
+		util.AddNPodInstance(deployment.PodName, deployment.ReplicasNum)
 	}
 	for _, name := range deleted {
 		DeleteADeployment(name)
@@ -90,7 +91,7 @@ func HandleHorizontalPodAutoscalerListChange(horizontalPodAutoscalerList []strin
 		horizontalPodAutoscaler := controller_utils.GetHorizontalPodAutoscalerByName(controllerMeta.EtcdClient, name)
 		controllerMeta.ParsedHorizontalPodAutoscalers = append(controllerMeta.ParsedHorizontalPodAutoscalers, horizontalPodAutoscaler)
 		controller_utils.NewReplicaNameListByPodName(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName)
-		controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, horizontalPodAutoscaler.MinReplicas)
+		//controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, horizontalPodAutoscaler.MinReplicas)
 	}
 	for _, name := range deleted {
 		DeleteAHorizontalPodAutoscaler(name)
@@ -185,12 +186,14 @@ func CheckAllReplicas() {
 			if podInstance.Status != def.FAILED {
 				health++
 			} else {
-				controller_utils.RemovePodInstance(controllerMeta.EtcdClient, &podInstance)
+				//controller_utils.RemovePodInstance(controllerMeta.EtcdClient, &podInstance)
+				util.RemovePodInstanceByID(podInstance.ID)
 			}
 		}
 		fmt.Printf("[controller replica checker]%s has %d health, %d health", deployment.PodName, len(instancelist), health)
 		if health < deployment.ReplicasNum {
-			controller_utils.NewNPodInstance(controllerMeta.EtcdClient, pod.Metadata.Name, deployment.ReplicasNum-health)
+			//controller_utils.NewNPodInstance(controllerMeta.EtcdClient, pod.Metadata.Name, deployment.ReplicasNum-health)
+			util.AddNPodInstance(pod.Metadata.Name, deployment.ReplicasNum-health)
 		}
 	}
 }
@@ -204,9 +207,9 @@ func CheckAllHorizontalPodAutoscalers() {
 		instancelist := controller_utils.GetReplicaNameListByPodName(controllerMeta.EtcdClient, pod.Metadata.Name)
 		cpu := float64(0)
 		memory := int64(0)
-		minCPUUsagePodInstance := def.PodInstance{}
+		minCPUUsagePodInstanceID := ""
 		minCPUUsage := math.MaxFloat64
-		minMemoryUsagePodInstance := def.PodInstance{}
+		minMemoryUsagePodInstanceID := ""
 		minMemoryUsage := int64(math.MaxInt64)
 		activeNum := 0
 		tooShort := false
@@ -216,6 +219,7 @@ func CheckAllHorizontalPodAutoscalers() {
 			if podInstance.Status == def.FAILED {
 				fmt.Println(podInstance)
 				fmt.Println(podInstance.ID, "is failed")
+				util.RemovePodInstanceByID(podInstance.ID)
 				continue
 			} else if util.TimeToSecond(time.Now())-util.TimeToSecond(podInstance.StartTime) < 15 {
 				tooShort = true
@@ -229,14 +233,14 @@ func CheckAllHorizontalPodAutoscalers() {
 				cpu += instanceCPUUsage
 				if instanceCPUUsage < minCPUUsage {
 					minCPUUsage = instanceCPUUsage
-					minCPUUsagePodInstance = podInstance
+					minCPUUsagePodInstanceID = podInstance.ID
 				}
 
 				instanceMemoryUsage := int64(podInstanceResourceUsage.MemoryUsage)
 				memory += instanceMemoryUsage
 				if instanceMemoryUsage < minMemoryUsage {
 					minMemoryUsage = instanceMemoryUsage
-					minMemoryUsagePodInstance = podInstance
+					minMemoryUsagePodInstanceID = podInstance.ID
 				}
 			}
 			//}
@@ -246,30 +250,40 @@ func CheckAllHorizontalPodAutoscalers() {
 		}
 		fmt.Println("activeNum is ", activeNum, " cpu is ", cpu, " memory is ", memory)
 		//calculate avg
-		cpuAvg := float64(cpu) / float64(activeNum)
-		memAvg := float64(memory) / float64(activeNum)
 
 		if activeNum < horizontalPodAutoscaler.MinReplicas {
-			controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, horizontalPodAutoscaler.MinReplicas-activeNum)
-		} else if cpuAvg < 0.8*controller_utils.CPUToMCore(horizontalPodAutoscaler.CPUMinValue) {
-			//CPU平均值过小, 需要缩容
-			if activeNum > horizontalPodAutoscaler.MinReplicas {
-				controller_utils.RemovePodInstance(controllerMeta.EtcdClient, &minCPUUsagePodInstance)
+			//controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, horizontalPodAutoscaler.MinReplicas-activeNum)
+			util.AddNPodInstance(horizontalPodAutoscaler.PodName, 1)
+		} else {
+			if activeNum == 0 {
+				return
 			}
-		} else if memAvg < 0.8*float64(controller_utils.MemoryToByte(horizontalPodAutoscaler.MemoryMinValue)) {
-			//mem平均值过小, 需要缩容
-			if activeNum > horizontalPodAutoscaler.MinReplicas {
-				controller_utils.RemovePodInstance(controllerMeta.EtcdClient, &minMemoryUsagePodInstance)
-			}
-		} else if cpuAvg > 1.2*controller_utils.CPUToMCore(horizontalPodAutoscaler.CPUMaxValue) {
-			//CPU平均值过大, 需要扩容
-			if activeNum < horizontalPodAutoscaler.MaxReplicas {
-				controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, 1)
-			}
-		} else if memAvg > 1.2*float64(controller_utils.MemoryToByte(horizontalPodAutoscaler.MemoryMaxValue)) {
-			//memory平均值过大, 需要扩容
-			if activeNum < horizontalPodAutoscaler.MaxReplicas {
-				controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, 1)
+			cpuAvg := cpu / float64(activeNum)
+			memAvg := float64(memory) / float64(activeNum)
+			if cpuAvg < 0.8*controller_utils.CPUToMCore(horizontalPodAutoscaler.CPUMinValue) {
+				//CPU平均值过小, 需要缩容
+				if activeNum > horizontalPodAutoscaler.MinReplicas {
+					//controller_utils.RemovePodInstance(controllerMeta.EtcdClient, &minCPUUsagePodInstance)
+					util.RemovePodInstanceByID(minCPUUsagePodInstanceID)
+				}
+			} else if memAvg < 0.8*float64(controller_utils.MemoryToByte(horizontalPodAutoscaler.MemoryMinValue)) {
+				//mem平均值过小, 需要缩容
+				if activeNum > horizontalPodAutoscaler.MinReplicas {
+					//controller_utils.RemovePodInstance(controllerMeta.EtcdClient, &minMemoryUsagePodInstance)
+					util.RemovePodInstanceByID(minMemoryUsagePodInstanceID)
+				}
+			} else if cpuAvg > 1.2*controller_utils.CPUToMCore(horizontalPodAutoscaler.CPUMaxValue) {
+				//CPU平均值过大, 需要扩容
+				if activeNum < horizontalPodAutoscaler.MaxReplicas {
+					//controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, 1)
+					util.AddNPodInstance(horizontalPodAutoscaler.PodName, 1)
+				}
+			} else if memAvg > 1.2*float64(controller_utils.MemoryToByte(horizontalPodAutoscaler.MemoryMaxValue)) {
+				//memory平均值过大, 需要扩容
+				if activeNum < horizontalPodAutoscaler.MaxReplicas {
+					//controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, 1)
+					util.AddNPodInstance(horizontalPodAutoscaler.PodName, 1)
+				}
 			}
 		}
 

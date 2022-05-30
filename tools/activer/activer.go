@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/monaco-io/request"
@@ -102,7 +103,7 @@ func TriggerFunction(funcName string, parames map[string]string, body interface{
 	podReplicaNameList := activer_utils.GetPodReplicaIDListByPodName(activerMeta.EtcdClient, function.PodName)
 	service := activer_utils.GetServiceByName(activerMeta.EtcdClient, function.ServiceName)
 	if len(podReplicaNameList) == 0 {
-		activer_utils.AddNPodInstance(function.PodName, 1)
+		util.AddNPodInstance(function.PodName, 1)
 		time.Sleep(30 * time.Second)
 		//activer_utils.StartService(function.ServiceName)
 	}

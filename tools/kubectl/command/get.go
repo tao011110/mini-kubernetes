@@ -328,38 +328,38 @@ func getFunc(c *cli.Context) {
 			fmt.Printf("No stateMachine exists\n")
 		}
 	} else if ty == "node" {
-		response := make([]def.Node, 0)
-		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/pod").
+		response := make([]def.NodeInfo, 0)
+		err, status := httpget.Get("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/get/all/node").
 			ContentType("application/json").
 			GetJson(&response).
 			Execute()
 		if err != nil {
 			fmt.Println("[Fault] " + err.Error())
 		}
-		// fmt.Printf("get_all_pod status is %s\n", status)
+		// fmt.Printf("get_all_node status is %s\n", status)
 		if status == "200" {
-			fmt.Println("All pods are as follows")
-			max := 15
+			fmt.Println("All nodes are as follows")
+			max := 20
 			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
 				"NAME",
 				"IP",
 				"STATUS",
 				"ID")
-			for _, podInstance := range response {
-				var pod_status string
-				if podInstance.Status == 0 {
-					pod_status = "Ready"
+			for _, node := range response {
+				var node_status string
+				if node.Status == 0 {
+					node_status = "Ready"
 				} else {
-					pod_status = "NotReady"
+					node_status = "NotReady"
 				}
 				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
-					podInstance.NodeName,
-					(podInstance.NodeIP).String(),
-					pod_status,
-					strconv.Itoa(podInstance.NodeID))
+					node.NodeName,
+					(node.NodeIP).String(),
+					node_status,
+					strconv.Itoa(node.NodeID))
 			}
 		} else {
-			fmt.Printf("No pod exists\n")
+			fmt.Printf("No node exists\n")
 		}
 	}
 }
