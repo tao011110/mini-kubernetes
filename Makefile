@@ -65,5 +65,5 @@ proxy:
 	$(GO_BUILD) -o ./bin/$(TARGET_PROXY) ./tools/kubeproxy/proxy.go
 
 cadvisor:
-	make build -C ./third_party/cadvisor
+	make -C ./third_party/cadvisor
 	mv ./third_party/cadvisor/cadvisor ./bin
