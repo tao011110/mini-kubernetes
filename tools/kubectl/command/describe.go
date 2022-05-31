@@ -24,10 +24,10 @@ func NewDescribeCommand() cli.Command {
 
 func describeFunc(c *cli.Context) {
 	if len(c.Args()) == 0 {
-		fmt.Println("You need to specify pod name")
+		wrong("Unavailable command!")
 		return
 	} else if len(c.Args()) < 2 {
-		fmt.Println("Unavailable command!")
+		wrong("You need to specify resource name")
 		return
 	}
 
@@ -40,7 +40,8 @@ func describeFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_pod status is %s\n", status)
 		if status == "200" {
@@ -60,7 +61,8 @@ func describeFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_service status is %s\n", status)
 		if status == "200" {
@@ -81,7 +83,8 @@ func describeFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_dns status is %s\n", status)
 		if status == "200" {
@@ -102,7 +105,8 @@ func describeFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_deployment status is %s\n", status)
 		if status == "200" {
@@ -122,7 +126,8 @@ func describeFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_autoscaler status is %s\n", status)
 		if status == "200" {
@@ -142,7 +147,8 @@ func describeFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_gpuJob status is %s\n", status)
 		if status == "200" {
@@ -162,7 +168,8 @@ func describeFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_function status is %s\n", status)
 		if status == "200" {
@@ -182,7 +189,8 @@ func describeFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_stateMachine status is %s\n", status)
 		if status == "200" {
@@ -192,5 +200,7 @@ func describeFunc(c *cli.Context) {
 		} else {
 			fmt.Printf("stateMachine %s doesn't exist\n", stateMachineName)
 		}
+	} else {
+		wrong("Wrong resource type or name")
 	}
 }

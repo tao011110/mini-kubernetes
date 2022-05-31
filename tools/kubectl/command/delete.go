@@ -37,7 +37,7 @@ func deleteFunc(c *cli.Context) {
 	} else {
 		// 根据名称来删除资源
 		if len(c.Args()) == 0 {
-			fmt.Println("You need to specify pod or service")
+			wrong("You need to specify directory")
 			return
 		}
 		if c.Args()[0] == "pod" {
@@ -71,7 +71,8 @@ func deleteFunc(c *cli.Context) {
 				GetString(&response).
 				Execute()
 			if err != nil {
-				fmt.Println("[Fault] " + err.Error())
+				wrong(err.Error())
+				return
 			}
 			// fmt.Printf("delete stateMachine status is %s\n", status)
 			if status == "200" {
@@ -93,7 +94,8 @@ func deleteFunc(c *cli.Context) {
 				GetString(&response).
 				Execute()
 			if err != nil {
-				fmt.Println("[Fault] " + err.Error())
+				wrong(err.Error())
+				return
 			} else {
 				// fmt.Printf("get_pod status is %s\n", status)
 				if status == "200" {
@@ -111,7 +113,8 @@ func deleteFunc(c *cli.Context) {
 				GetString(&response).
 				Execute()
 			if err != nil {
-				fmt.Println("[Fault] " + err.Error())
+				wrong(err.Error())
+				return
 			}
 			// fmt.Printf("delete clusterIPService status is %s\n", status)
 			if status == "200" {
@@ -128,7 +131,8 @@ func deleteFunc(c *cli.Context) {
 				GetString(&response).
 				Execute()
 			if err != nil {
-				fmt.Println("[Fault] " + err.Error())
+				wrong(err.Error())
+				return
 			}
 			// fmt.Printf("delete deployment status is %s\n", status)
 			if status == "200" {
@@ -143,7 +147,8 @@ func deleteFunc(c *cli.Context) {
 				GetString(&response).
 				Execute()
 			if err != nil {
-				fmt.Println("[Fault] " + err.Error())
+				wrong(err.Error())
+				return
 			}
 			// fmt.Printf("delete autoscaler status is %s\n", status)
 			if status == "200" {
@@ -159,7 +164,8 @@ func deleteFunc(c *cli.Context) {
 				GetString(&response).
 				Execute()
 			if err != nil {
-				fmt.Println("[Fault] " + err.Error())
+				wrong(err.Error())
+				return
 			}
 			// fmt.Printf("delete function status is %s\n", status)
 			if status == "200" {
@@ -167,9 +173,9 @@ func deleteFunc(c *cli.Context) {
 			} else {
 				fmt.Printf("function %s doesn't exist\n", src_name)
 			}
-		} else {
-			fmt.Println("Now delete only support pod/service/deployment/autoscaler/function/statemachine")
 		}
+	} else {
+		wrong("Wrong resource type or name")
 	}
 
 }

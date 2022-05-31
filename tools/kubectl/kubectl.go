@@ -34,13 +34,12 @@ func main() {
 	for {
 		fmt.Printf(">")
 		cmdReader := bufio.NewReader(os.Stdin)
-		if cmdStr, err := cmdReader.ReadString('\n'); err == nil {
-			cmdStr = strings.Trim(cmdStr, "\r\n")
-			if cmdStr == "quit" {
-				return
-			} else {
-				_ = ParseArgs(app, cmdStr)
-			}
+		cmdStr, _ := cmdReader.ReadString('\n')
+		cmdStr = strings.Trim(cmdStr, "\r\n")
+		if cmdStr == "quit" || cmdStr == "exit" {
+			return
+		} else {
+			_ = ParseArgs(app, cmdStr)
 		}
 	}
 }

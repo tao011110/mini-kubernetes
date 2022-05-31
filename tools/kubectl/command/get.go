@@ -43,7 +43,8 @@ func getFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_all_pod status is %s\n", status)
 		if status == "200" {
@@ -54,16 +55,16 @@ func getFunc(c *cli.Context) {
 				"READY",
 				"STATUS",
 				"RESTARTS",
-				"AGE",
-				"NODEID")
+				"NODEID",
+				"AGE")
 			for _, podInstanceBrief := range response {
 				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
 					podInstanceBrief.Name,
 					podInstanceBrief.Ready,
 					def.PodStateToString(podInstanceBrief.Status),
 					strconv.Itoa(int(podInstanceBrief.Restarts)),
-					podInstanceBrief.Age,
-					strconv.Itoa(podInstanceBrief.NodeID))
+					strconv.Itoa(podInstanceBrief.NodeID),
+					podInstanceBrief.Age)
 			}
 		} else {
 			fmt.Printf("No pod exists\n")
@@ -76,7 +77,8 @@ func getFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_all_pod status is %s\n", status)
 		if status == "200" {
@@ -96,7 +98,8 @@ func getFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_all_service status is %s\n", status)
 		if status == "200" {
@@ -145,7 +148,8 @@ func getFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_all_dns status is %s\n", status)
 		if status == "200" {
@@ -181,7 +185,8 @@ func getFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_all_deployment status is %s\n", status)
 		if status == "200" {
@@ -216,7 +221,8 @@ func getFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_all_autoscaler status is %s\n", status)
 		if status == "200" {
@@ -250,7 +256,8 @@ func getFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_all_gpuJob status is %s\n", status)
 		if status == "200" {
@@ -282,7 +289,8 @@ func getFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_all_function status is %s\n", status)
 		if status == "200" {
@@ -310,7 +318,8 @@ func getFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_all_stateMachine status is %s\n", status)
 		if status == "200" {
@@ -336,7 +345,8 @@ func getFunc(c *cli.Context) {
 			GetJson(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
+			return
 		}
 		// fmt.Printf("get_all_node status is %s\n", status)
 		if status == "200" {
@@ -363,5 +373,7 @@ func getFunc(c *cli.Context) {
 		} else {
 			fmt.Printf("No node exists\n")
 		}
+	} else {
+		wrong("Wrong resource type")
 	}
 }

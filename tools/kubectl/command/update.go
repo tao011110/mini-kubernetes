@@ -29,13 +29,17 @@ func NewUpdateCommand() cli.Command {
 func updateFunc(c *cli.Context) {
 
 	dir := c.String("file")
+	if dir == "" {
+		wrong("You need to specify directory")
+		return
+	}
 
 	if c.Args()[0] == "soft" {
 		// 用来软更新function，需要发送给apiserver的参数为 function (def.Function)
 		fmt.Printf("Using dir: %s\n", dir)
 		function, err := yaml.ReadFunctionConfig(dir)
 		if function == nil || err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
 			return
 		}
 		request := *function
@@ -47,7 +51,7 @@ func updateFunc(c *cli.Context) {
 			GetString(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
 		}
 		fmt.Printf("soft update function is %s and response is: %s\n", status, response)
 
@@ -56,7 +60,7 @@ func updateFunc(c *cli.Context) {
 		fmt.Printf("Using dir: %s\n", dir)
 		function, err := yaml.ReadFunctionConfig(dir)
 		if function == nil || err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
 			return
 		}
 		request := *function
@@ -68,8 +72,10 @@ func updateFunc(c *cli.Context) {
 			GetString(&response).
 			Execute()
 		if err != nil {
-			fmt.Println("[Fault] " + err.Error())
+			wrong(err.Error())
 		}
 		fmt.Printf("hard update function is %s and response is: %s\n", status, response)
+	} else {
+		wrong("Wrong update type")
 	}
 }
