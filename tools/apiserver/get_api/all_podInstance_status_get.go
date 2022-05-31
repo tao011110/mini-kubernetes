@@ -17,6 +17,7 @@ func GetAllPodInstanceStatus(cli *clientv3.Client) ([]def.PodInstanceBrief, bool
 				Name:     podInstance.ID[13:],
 				Status:   podInstance.Status,
 				Restarts: podInstance.RestartCount,
+				NodeID:   podInstance.NodeID,
 			}
 			containers := podInstance.ContainerSpec
 			count := 0

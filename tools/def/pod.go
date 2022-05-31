@@ -158,4 +158,5 @@ type PodInstanceBrief struct {
 	Status   uint8         `json:"status"`
 	Restarts uint64        `json:"restarts"`
 	Age      time.Duration `json:"age"`
+	NodeID   int           `json:"nodeID"`
 }

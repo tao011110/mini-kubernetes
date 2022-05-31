@@ -39,11 +39,13 @@ func CreateAndStartPod(podInstance *def.PodInstance, node *def.Node) {
 	fmt.Println(pauserDetail.NetworkSettings.Networks["miniK8S-bridge"])
 	fmt.Printf("podInstance.ClusterIP is %s\n", podInstance.IP)
 
+	fmt.Println("podInstance.Spec.Volumes:  ", podInstance.Spec.Volumes)
+
 	for index, con := range containers {
 		config := docker.GenerateConfig(con)
 
 		containerMode := "container:" + pauseContainerID
-		hostConfig := docker.GenerateHostConfig(con, containerMode)
+		hostConfig := docker.GenerateHostConfig(con, containerMode, podInstance.Spec.Volumes)
 
 		tmpCons := make([]def.Container, 0)
 		tmpCons = append(tmpCons, con)

@@ -148,7 +148,16 @@ func handleCreatePod(c echo.Context) error {
 		panic(err)
 	}
 
-	_, flag := get_api.GetPodInstance(cli, pod_.Metadata.Name)
+	tmp, flag := get_api.GetPodInstance(cli, pod_.Metadata.Name)
+	if flag == true {
+		flag = false
+		for _, con := range tmp.ContainerSpec {
+			if con.Status != def.SUCCEEDED {
+				flag = true
+				break
+			}
+		}
+	}
 	if flag == true {
 		return c.String(409, "Pod "+pod_.Metadata.Name+" has already existed")
 	}
