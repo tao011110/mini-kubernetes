@@ -78,9 +78,6 @@ func createFunc(c *cli.Context) {
 			if err != nil {
 				wrong(err.Error())
 				return
-			} else if pod_ == nil {
-				wrong("Wrong yaml config")
-				return
 			} 
 			request := *pod_
 			response := ""
@@ -238,8 +235,6 @@ func createFunc(c *cli.Context) {
 				return
 			}
 			fmt.Printf("create_function is %s and response is: %s\n", status, response)
-		default:
-			wrong("Wrong resource type")
 		}
 	} else {
 		wrong("You need to enter right directory")
