@@ -34,7 +34,7 @@ all: test master node
 
 master: kubectl apiServer controller scheduler activer
 
-node: kubelet proxy cadvisor
+node: kubelet proxy
 
 default: master node
 
@@ -67,3 +67,9 @@ proxy:
 cadvisor:
 	make -C ./third_party/cadvisor
 	mv ./third_party/cadvisor/cadvisor ./bin
+
+run_node:
+	echo run_node
+
+run_master:
+	echo run_master

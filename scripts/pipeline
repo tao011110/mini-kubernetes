@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+    stages{
+　　　　stage ('Prepare'){
+            steps{
+                sh 'rm -rf /home/cicd/mini-kubernetes'
+            }
+       }
+
+       stage ('Checkout'){
+            steps{
+               dir("/home/cicd/"){
+                    git credentialsId: '616bb9a1-e388-4238-b337-677b76a03094', url: 'https://gitee.com/jkhe/mini-kubernetes'
+               }
+            }
+       }
+
+       stage ('Build'){
+        　　steps{
+                dir("/home/cicd/mini-kubernetes/"){
+        　　　　　   sh 'make master'
+                    sh 'make node'
+                }
+            }
+       }
+
+    　　stage ('Deploy'){
+        　　steps{
+           　　　dir("/home/cicd/mini-kubernetes/"){
+                    sh 'make run_master'
+                    sh 'make run_node'
+                }
+           }
+        }
+
+    　　stage ('Test'){
+        　　steps{
+                 dir("/home/cicd/mini-kubernetes/"){
+            　　　sh 'make test'
+            }
+            }
+        }
+    }
+}
