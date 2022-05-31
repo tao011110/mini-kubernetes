@@ -119,6 +119,12 @@ func HandlePodInstanceChange(news []string) {
 					found = true
 					scheduler_utils.DeletePodInstanceFromNode(schedulerMeta.EtcdClient, node.NodeID, deleted)
 					DeletePodInstanceFromSchedulerCache(node.NodeID, deleted)
+					for index, instanceID := range schedulerMeta.ScheduledPodInstancesName {
+						if instanceID == deleted {
+							schedulerMeta.ScheduledPodInstancesName = append(schedulerMeta.ScheduledPodInstancesName[:index], schedulerMeta.ScheduledPodInstancesName[index+1:]...)
+							break
+						}
+					}
 					break
 				}
 			}
@@ -130,12 +136,12 @@ func HandlePodInstanceChange(news []string) {
 	for _, added := range addeds {
 		success, nodeID, podInstance := SchedulePodInstanceToNode(added)
 		if success {
-			fmt.Printf("success\n")
+			fmt.Printf("[scheduler]success\n")
 			scheduler_utils.AddPodInstanceToNode(schedulerMeta.EtcdClient, nodeID, podInstance)
 			AddPodInstanceFromSchedulerCache(nodeID, podInstance)
 			schedulerMeta.ScheduledPodInstancesName = append(schedulerMeta.ScheduledPodInstancesName, added)
 		} else {
-			fmt.Printf("failed\n")
+			fmt.Printf("[scheduler]failed\n")
 			schedulerMeta.CannotSchedule = append(schedulerMeta.CannotSchedule, added)
 		}
 	}
@@ -231,10 +237,12 @@ func ReSchedulerCannotScheduleInstance() {
 	for _, instanceName := range schedulerMeta.CannotSchedule {
 		success, nodeID, podInstance := SchedulePodInstanceToNode(instanceName)
 		if success {
+			fmt.Printf("[ReScheduler]success\n")
 			scheduler_utils.AddPodInstanceToNode(schedulerMeta.EtcdClient, nodeID, podInstance)
 			AddPodInstanceFromSchedulerCache(nodeID, podInstance)
 			schedulerMeta.ScheduledPodInstancesName = append(schedulerMeta.ScheduledPodInstancesName, instanceName)
 		} else {
+			fmt.Printf("[ReScheduler]failed\n")
 			newFailReSchedule = append(newFailReSchedule, instanceName)
 		}
 	}

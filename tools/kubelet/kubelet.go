@@ -211,6 +211,7 @@ func handlePodInstancesChange(instances []string) {
 		for index, instance := range node.PodInstances {
 			if delete_ == instance.ID && instance.Status == def.RUNNING {
 				pod.StopAndRemovePod(node.PodInstances[index], &node)
+				node.PodInstances = append(node.PodInstances[:index], node.PodInstances[index+1:]...)
 				break
 			}
 		}
