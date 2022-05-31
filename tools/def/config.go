@@ -12,7 +12,7 @@ const (
 
 /********** HTTP ports **********/
 const (
-	CadvisorPort   = 8080
+	CadvisorPort   = 8090
 	EtcdPort       = 2379
 	ProxyPort      = 3000
 	SchedulerPort  = 9200

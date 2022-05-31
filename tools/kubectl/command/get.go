@@ -49,19 +49,21 @@ func getFunc(c *cli.Context) {
 		if status == "200" {
 			fmt.Println("All pods' brief information is as follows")
 			max := 12
-			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
 				"NAME",
 				"READY",
 				"STATUS",
 				"RESTARTS",
-				"AGE")
+				"AGE",
+				"NODEID")
 			for _, podInstanceBrief := range response {
-				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
+				fmt.Printf("%-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s %-"+strconv.Itoa(max)+"s\n",
 					podInstanceBrief.Name,
 					podInstanceBrief.Ready,
 					def.PodStateToString(podInstanceBrief.Status),
 					strconv.Itoa(int(podInstanceBrief.Restarts)),
-					podInstanceBrief.Age)
+					podInstanceBrief.Age,
+					strconv.Itoa(podInstanceBrief.NodeID))
 			}
 		} else {
 			fmt.Printf("No pod exists\n")
