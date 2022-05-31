@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod2
+  name: pod_pre2
   label: test
 nodeSelector:
-  with: pod1
+  notWith: pod_pre1
 
 spec:
   containers:
@@ -14,30 +14,38 @@ spec:
       args:
       workingDir:
       volumeMounts:
-        - name: volume
+        - name: volume_test1
           mountPath: /vpath
 
       ports:
         - name: http1
-          containerPort: 320
-          hostPort: 320
+          containerPort: 300
           protocol: TCP
+
+      resources:
+        limits:
+          cpu: 500m
+          memory: 500Mi
 
     - name: nginx3
       image: nginx:latest
       command:
       args:
-      workingDir: /home/app/
+      workingDir:
       volumeMounts:
-        - name: volume
+        - name: volume_test1
           mountPath: /vpath
 
       ports:
         - name: http2
-          containerPort: 100
-          hostPort: 100
+          containerPort: 80
           protocol: TCP
 
+      resources:
+        limits:
+          cpu: 500m
+          memory: 500Mi
+
   volumes:
-    - name: config
-      hostPath: cpath
+    - name: volume_test1
+      hostPath: /home/mount_test

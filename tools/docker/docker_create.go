@@ -72,7 +72,7 @@ func GenerateConfig(con def.Container) *container.Config {
 }
 
 // generate HostConfig
-func GenerateHostConfig(con def.Container, containerMode string) *container.HostConfig {
+func GenerateHostConfig(con def.Container, containerMode string, volumes []def.Volume) *container.HostConfig {
 	resourcesConfig := container.Resources{}
 
 	limits := con.Resources.ResourceLimit
@@ -129,10 +129,21 @@ func GenerateHostConfig(con def.Container, containerMode string) *container.Host
 
 	// get the mounted volumes
 	mounts := make([]mount.Mount, 0)
-	volumes := con.VolumeMounts
-	for _, volume := range volumes {
+	conVolumes := make([]def.VolumeMount, 0)
+	for _, cv := range con.VolumeMounts {
+		for _, it := range volumes {
+			if cv.Name == it.Name {
+				conVolumes = append(conVolumes, def.VolumeMount{
+					Name:      it.HostPath,
+					MountPath: cv.MountPath,
+				})
+			}
+		}
+	}
+	fmt.Println(conVolumes)
+	for _, volume := range conVolumes {
 		mountVolume := mount.Mount{
-			Type:   "volume",
+			Type:   "bind",
 			Source: volume.Name,
 			Target: volume.MountPath,
 		}
