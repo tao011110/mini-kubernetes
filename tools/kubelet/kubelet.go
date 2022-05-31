@@ -145,7 +145,7 @@ func ContainerCheck() {
 func checkPodRunning() {
 	infos := resource.GetAllContainersInfo(node.CadvisorClient)
 	var runningContainerIDs []string
-	fmt.Println("infos:  ", infos)
+	//fmt.Println("infos:  ", infos)
 	for _, info := range infos {
 		runningContainerIDs = append(runningContainerIDs, info.Id)
 	}

@@ -62,6 +62,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.POST("/create/gpuJob", handleCreateGPUJob)
 	e.POST("/gpu_job_result", handleOutputGPUJob)
 	e.POST("/create/funcPodInstance", handleCreateFuncPodInstance)
+	e.POST("/create/replicasPodInstance", handleCreateReplicasPodInstance)
 
 	e.PUT("/update/soft/function", handleSoftUpdateFunction)
 	e.PUT("/update/hard/function", handleHardUpdateFunction)
@@ -75,6 +76,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.DELETE("/delete/function/:funcName", handleDeleteFunction)
 	e.DELETE("/delete/stateMachine/:stateMachineName", handelDeleteStateMachine)
 	e.DELETE("/delete/podInstance/:podInstanceID", handleDeletePodInstance)
+	e.DELETE("/delete/replicasPodInstance/:podName", handleDeleteReplicasPodInstance)
 
 	// handle get-api
 	e.GET("/get/all/node", handleGetAllNode)
@@ -532,6 +534,72 @@ func handleOutputGPUJob(c echo.Context) error {
 	return c.String(200, "gpuJobResponse "+gpuJobResponse.JobName+" has been output")
 }
 
+func handleCreateReplicasPodInstance(c echo.Context) error {
+	podName := ""
+	requestBody := new(bytes.Buffer)
+	_, err := requestBody.ReadFrom(c.Request().Body)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	err = json.Unmarshal(requestBody.Bytes(), &podName)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		panic(err)
+	}
+	podInstance := function_api.CreateFuncPodInstance(cli, podName)
+	fmt.Println("Replicas " + podName + " has been created")
+
+	go func(podInstanceID string) {
+		fmt.Println("Start to watch ", podInstanceID)
+		watchResult := etcd.Watch(cli, podInstanceID)
+		for wc := range watchResult {
+			change := def.PodInstance{}
+			for _, w := range wc.Events {
+				if w.Type == clientv3.EventTypePut {
+					err := json.Unmarshal(w.Kv.Value, &change)
+					if err != nil {
+						fmt.Println(err)
+						panic(err)
+					}
+					if change.IP != "" {
+						// 创建携程告知所有node上的kube-proxy，使得正在处理的http请求可以立即返回
+						serviceList := create_api.CheckAddInService(cli, change)
+						nodeList := get_api.GetAllNode(cli)
+						fmt.Println("serviceList:   ", serviceList)
+						for _, service := range serviceList {
+							// 需要检验，若原先该IP已存在于service当中，则不再重复添加
+							flag := false
+							for _, bindings := range service.PortsBindings {
+								for _, endPoint := range bindings.Endpoints {
+									if endPoint == change.IP {
+										flag = true
+										break
+									}
+								}
+								if flag == true {
+									break
+								}
+							}
+							if flag == true {
+								continue
+							}
+							for _, node := range nodeList {
+								letProxyDeleteCIRule(service.ClusterIP, node)
+								letProxyCreateCIRule(service, node)
+							}
+						}
+						fmt.Println("end watch")
+						return
+					}
+				}
+			}
+		}
+	}(podInstance.ID)
+
+	return c.String(200, "Replicas of "+podName+" has been created")
+}
+
 func handleCreateFuncPodInstance(c echo.Context) error {
 	podName := ""
 	requestBody := new(bytes.Buffer)
@@ -721,9 +789,30 @@ func handleDeleteAutoscaler(c echo.Context) error {
 	}
 }
 
+func handleDeleteReplicasPodInstance(c echo.Context) error {
+	podInstanceID := c.Param("podName")
+	flag, _, podInstance := function_api.DeleteFuncPodInstance(cli, podInstanceID)
+	if flag == true {
+		fmt.Println("PodInstance of " + podInstanceID + " has been deleted")
+		nodeList := get_api.GetAllNode(cli)
+		serviceList := delete_api.CheckDeleteInService(cli, podInstance)
+		fmt.Println("serviceList:   ", serviceList)
+		for _, service := range serviceList {
+			for _, node := range nodeList {
+				fmt.Println("service.ClusterIP is :   ", service.ClusterIP)
+				letProxyDeleteCIRule(service.ClusterIP, node)
+				letProxyCreateCIRule(service, node)
+			}
+		}
+		return c.String(200, "PodInstance of "+podInstanceID+" has been deleted")
+	} else {
+		return c.String(404, "PodInstance of "+podInstanceID+" doesn't exist")
+	}
+}
+
 func handleDeleteFuncPodInstance(c echo.Context) error {
 	podInstanceID := c.Param("podName")
-	flag, service := function_api.DeleteFuncPodInstance(cli, podInstanceID)
+	flag, service, _ := function_api.DeleteFuncPodInstance(cli, podInstanceID)
 	if flag == true {
 		fmt.Println("PodInstance of " + podInstanceID + " has been deleted")
 		nodeList := get_api.GetAllNode(cli)
@@ -756,7 +845,7 @@ func handleDeleteFunction(c echo.Context) error {
 
 func handleDeletePodInstance(c echo.Context) error {
 	podInstanceID := c.Param("podInstanceID")
-	flag, service := function_api.FuncDeletePodInstance(cli, podInstanceID)
+	flag, service, _ := function_api.FuncDeletePodInstance(cli, podInstanceID)
 	if flag == true {
 		fmt.Println("PodInstance of " + podInstanceID + " has been deleted")
 		nodeList := get_api.GetAllNode(cli)

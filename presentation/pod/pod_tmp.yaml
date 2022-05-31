@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod_tmp5
+  label: test
+
+spec:
+  containers:
+    - name: cpu_and_memory_boom
+      image: hejingkai/cpu_and_memory_boom
+      command:
+      args:
+      workingDir:
