@@ -13,21 +13,21 @@ TARGET_PROXY=proxy
 TARGET_CADVISOR=cadvisor
 .DEFAULT_GOAL := default
 
-GO_TEST_PATH= './test/apiserver_test' \
-			'./test/application_yaml_config_test' \
-			'./test/django_test' \
-			'./test/dns_test' \
-			'./test/docker_test' \
-			'./test/echo_test' \
-			'./test/etcd_test' \
-			'./test/image_factory_test' \
-			'./test/kubectl_test' \
-			'./test/kubeproxy_test' \
-			'./test/master_test' \
-			'./test/net_utils_test' \
-			'./test/resource_test' \
-			'./test/slurmGenrator_test' \
-			'./test/yaml_test'
+GO_TEST_PATH= './test/yaml_test'
+#			'./test/application_yaml_config_test' \
+#			'./test/django_test' \
+#			'./test/dns_test' \
+#			'./test/docker_test' \
+#			'./test/echo_test' \
+#			'./test/etcd_test' \
+#			'./test/image_factory_test' \
+#			'./test/kubectl_test' \
+#			'./test/kubeproxy_test' \
+#			'./test/master_test' \
+#			'./test/net_utils_test' \
+#			'./test/resource_test' \
+#			'./test/slurmGenrator_test' \
+			''./test/apiserver_test''
 .PHONY:test
 
 all: test master node
