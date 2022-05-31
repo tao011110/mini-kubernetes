@@ -262,26 +262,34 @@ func CheckAllHorizontalPodAutoscalers() {
 			memAvg := float64(memory) / float64(activeNum)
 			if cpuAvg < 0.8*controller_utils.CPUToMCore(horizontalPodAutoscaler.CPUMinValue) {
 				//CPU平均值过小, 需要缩容
+				fmt.Println("cpu avg too small")
 				if activeNum > horizontalPodAutoscaler.MinReplicas {
 					//controller_utils.RemovePodInstance(controllerMeta.EtcdClient, &minCPUUsagePodInstance)
+					fmt.Println("cpu avg too small, shrink")
 					util.RemovePodInstanceByID(minCPUUsagePodInstanceID)
 				}
 			} else if memAvg < 0.8*float64(controller_utils.MemoryToByte(horizontalPodAutoscaler.MemoryMinValue)) {
 				//mem平均值过小, 需要缩容
+				fmt.Println("mem avg too small")
 				if activeNum > horizontalPodAutoscaler.MinReplicas {
 					//controller_utils.RemovePodInstance(controllerMeta.EtcdClient, &minMemoryUsagePodInstance)
+					fmt.Println("mem avg too small, shrink")
 					util.RemovePodInstanceByID(minMemoryUsagePodInstanceID)
 				}
 			} else if cpuAvg > 1.2*controller_utils.CPUToMCore(horizontalPodAutoscaler.CPUMaxValue) {
 				//CPU平均值过大, 需要扩容
+				fmt.Println("cpu avg too large")
 				if activeNum < horizontalPodAutoscaler.MaxReplicas {
 					//controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, 1)
+					fmt.Println("cpu avg too large, expand")
 					util.AddNPodInstance(horizontalPodAutoscaler.PodName, 1)
 				}
 			} else if memAvg > 1.2*float64(controller_utils.MemoryToByte(horizontalPodAutoscaler.MemoryMaxValue)) {
 				//memory平均值过大, 需要扩容
+				fmt.Println("mem avg too large")
 				if activeNum < horizontalPodAutoscaler.MaxReplicas {
 					//controller_utils.NewNPodInstance(controllerMeta.EtcdClient, horizontalPodAutoscaler.PodName, 1)
+					fmt.Println("mem avg too large, expand")
 					util.AddNPodInstance(horizontalPodAutoscaler.PodName, 1)
 				}
 			}
