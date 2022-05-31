@@ -4,7 +4,6 @@ import (
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
-	"strconv"
 	"time"
 )
 
@@ -19,6 +18,7 @@ func GetAllPodInstanceStatus(cli *clientv3.Client) ([]def.PodInstanceBrief, bool
 				Restarts: podInstance.RestartCount,
 				NodeID:   podInstance.NodeID,
 			}
+			fmt.Println("podInstance.NodeID,  ", podInstance.NodeID)
 			containers := podInstance.ContainerSpec
 			count := 0
 			for _, container := range containers {
@@ -29,13 +29,18 @@ func GetAllPodInstanceStatus(cli *clientv3.Client) ([]def.PodInstanceBrief, bool
 					fmt.Println(container.Status)
 				}
 			}
-			brief.Ready = strconv.Itoa(count) + "/" + strconv.Itoa(len(containers))
 			t := time.Now()
 			brief.Age = t.Sub(podInstance.StartTime)
+			fmt.Println("brief.Age:   ", brief.Age)
+			if brief.Age > 31536000*1e9 {
+				fmt.Println("brief.Age is too large   ")
+				brief.Age = 0
+			}
 
 			resultList = append(resultList, brief)
 		}
 	}
+	fmt.Println("resultList:   ", resultList)
 
 	return resultList, flag
 }

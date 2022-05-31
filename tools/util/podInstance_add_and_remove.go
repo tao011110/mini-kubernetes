@@ -22,7 +22,7 @@ func AddNPodInstance(podName string, num int) {
 		request2 := podName
 		response2 := ""
 		body2, _ := json.Marshal(request2)
-		err, status := httpget.Post("http://" + GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/create/funcPodInstance").
+		err, status := httpget.Post("http://" + GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/create/replicasPodInstance").
 			ContentType("application/json").
 			Body(bytes.NewReader(body2)).
 			GetString(&response2).
@@ -39,7 +39,7 @@ func RemovePodInstance(podName string, num int) {
 	//apiServer delete a podInstance
 	for i := 0; i < num; i++ {
 		response4 := ""
-		err, status := httpget.DELETE("http://" + GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/funcPodInstance/" + podName).
+		err, status := httpget.DELETE("http://" + GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/replicasPodInstance/" + podName).
 			ContentType("application/json").
 			GetString(&response4).
 			Execute()

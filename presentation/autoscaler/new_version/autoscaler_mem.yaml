@@ -21,4 +21,14 @@ spec:
         - name: cpu_and_memory_boom
           image: hejingkai/cpu_and_memory_boom
 
+        - name: nginx3
+          image: nginx:latest
+          command:
+          args:
+          workingDir:
+          ports:
+            - name: http2
+              containerPort: 80
+              protocol: TCP
+
 
