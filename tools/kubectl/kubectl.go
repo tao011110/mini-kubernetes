@@ -24,6 +24,7 @@ func Initial() *cli.App {
 		command.NewGetCommand(),
 		command.NewDeleteCommand(),
 		command.NewDescribeCommand(),
+		command.NewUpdateCommand(),
 	}
 	return app
 }
