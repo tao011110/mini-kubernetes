@@ -1,12 +1,12 @@
 package command
 
 import (
-	"fmt"
 	"bytes"
 	"encoding/json"
-	"mini-kubernetes/tools/util"
+	"fmt"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
+	"mini-kubernetes/tools/util"
 	"mini-kubernetes/tools/yaml"
 
 	"github.com/urfave/cli"
@@ -31,7 +31,7 @@ func updateFunc(c *cli.Context) {
 
 	dir_s := c.String("soft")
 	dir_h := c.String("hard")
-	
+
 	if dir_s != "" && dir_h == "" {
 		// 用来软更新function，需要发送给apiserver的参数为 function (def.Function)
 		fmt.Printf("Using dir: %s\n", dir_s)
