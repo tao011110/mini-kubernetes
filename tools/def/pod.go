@@ -130,7 +130,7 @@ func PodStateToString(s uint8) string {
 type ContainerStatus struct {
 	ID     string `json:"ID"`
 	Status uint8  `json:"status"`
-	Name   string `json:"name"`
+	//Name   string `json:"name"`
 }
 
 //type InstanceSpec struct {
@@ -142,13 +142,14 @@ type ContainerStatus struct {
 
 type PodInstance struct {
 	Pod
-	ID            string            `json:"ID"`
-	IP            string            `json:"ip"`
-	NodeID        int               `json:"nodeID"`
-	StartTime     time.Time         `json:"startTime"`
-	Status        uint8             `json:"status"`
-	ContainerSpec []ContainerStatus `json:"containerStatus"`
-	RestartCount  uint64            `json:"restartCount"`
+	ID             string            `json:"ID"`
+	IP             string            `json:"ip"`
+	NodeID         int               `json:"nodeID"`
+	StartTime      time.Time         `json:"startTime"`
+	Status         uint8             `json:"status"`
+	ContainerSpec  []ContainerStatus `json:"containerStatus"`
+	RestartCount   uint64            `json:"restartCount"`
+	PauseContainer ContainerStatus   `json:"pauseContainer"`
 	//PodInstanceStatus InstanceSpec      `json:"podInstanceStatus"`
 }
 

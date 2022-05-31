@@ -15,4 +15,8 @@ func StopAndRemovePod(podInstance *def.PodInstance, node *def.Node) {
 		podInstance.ContainerSpec[index].Status = def.SUCCEEDED
 		util.PersistPodInstance(*podInstance, node.EtcdClient)
 	}
+	docker.StopContainer(podInstance.PauseContainer.ID)
+	_, _ = docker.RemoveContainer(podInstance.PauseContainer.ID)
+	podInstance.PauseContainer.Status = def.SUCCEEDED
+	util.PersistPodInstance(*podInstance, node.EtcdClient)
 }

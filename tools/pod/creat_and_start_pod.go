@@ -35,6 +35,9 @@ func CreateAndStartPod(podInstance *def.PodInstance, node *def.Node) {
 	pauseContainerID := docker.CreatePauseContainer(cli, containers, podInstance.ID, networkID)
 	pauserDetail, _ := docker.InspectContainer(pauseContainerID)
 	podInstance.IP = pauserDetail.NetworkSettings.Networks["miniK8S-bridge"].IPAddress
+
+	podInstance.PauseContainer = def.ContainerStatus{Status: def.RUNNING, ID: pauseContainerID}
+
 	fmt.Println(pauserDetail.NetworkSettings)
 	fmt.Println(pauserDetail.NetworkSettings.Networks["miniK8S-bridge"])
 	fmt.Printf("podInstance.ClusterIP is %s\n", podInstance.IP)
@@ -81,7 +84,6 @@ func CreateAndStartPod(podInstance *def.PodInstance, node *def.Node) {
 		docker.StartContainer(body.ID)
 		podInstance.ContainerSpec[index].Status = def.RUNNING
 		podInstance.ContainerSpec[index].ID = body.ID
-		podInstance.ContainerSpec[index].Name = name
 		util.PersistPodInstance(*podInstance, node.EtcdClient)
 	}
 	podInstance.Status = def.RUNNING
