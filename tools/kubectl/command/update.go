@@ -17,8 +17,7 @@ func NewUpdateCommand() cli.Command {
 		Name:  "update",
 		Usage: "Update function",
 		Flags: []cli.Flag{
-			cli.StringFlag{Name: "soft, s", Value: "", Usage: "Soft update function"},
-			cli.StringFlag{Name: "hard, h", Value: "", Usage: "Hard update function"},
+			cli.StringFlag{Name: "file, f", Value: "", Usage: "File path to the config"},
 		},
 		Action: func(c *cli.Context) error {
 			updateFunc(c)
@@ -29,13 +28,12 @@ func NewUpdateCommand() cli.Command {
 
 func updateFunc(c *cli.Context) {
 
-	dir_s := c.String("soft")
-	dir_h := c.String("hard")
+	dir := c.String("file")
 
-	if dir_s != "" && dir_h == "" {
+	if c.Args()[0] == "soft" {
 		// 用来软更新function，需要发送给apiserver的参数为 function (def.Function)
-		fmt.Printf("Using dir: %s\n", dir_s)
-		function, err := yaml.ReadFunctionConfig(dir_s)
+		fmt.Printf("Using dir: %s\n", dir)
+		function, err := yaml.ReadFunctionConfig(dir)
 		if function == nil || err != nil {
 			fmt.Println("[Fault] " + err.Error())
 			return
@@ -53,10 +51,10 @@ func updateFunc(c *cli.Context) {
 		}
 		fmt.Printf("soft update function is %s and response is: %s\n", status, response)
 
-	} else if dir_s == "" && dir_h != "" {
+	} else if c.Args()[0] == "hard" {
 		// 用来硬更新function，需要发送给apiserver的参数为 function (def.Function)
-		fmt.Printf("Using dir: %s\n", dir_h)
-		function, err := yaml.ReadFunctionConfig(dir_h)
+		fmt.Printf("Using dir: %s\n", dir)
+		function, err := yaml.ReadFunctionConfig(dir)
 		if function == nil || err != nil {
 			fmt.Println("[Fault] " + err.Error())
 			return
