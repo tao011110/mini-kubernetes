@@ -6,8 +6,8 @@ metadata:
 
 spec:
   containers:
-    - name: ghost3
-      image: ghost
+    - name: ghost1
+      image: hejingkai/ghost
       command:
       args:
       workingDir:
@@ -18,6 +18,25 @@ spec:
       ports:
         - name: http1
           containerPort: 300
+          protocol: TCP
+
+      resources:
+        limits:
+          cpu: 500m
+          memory: 500Mi
+
+    - name: nginx1
+      image: nginx:latest
+      command:
+      args:
+      workingDir:
+      volumeMounts:
+        - name: volume_test1
+          mountPath: /vpath
+
+      ports:
+        - name: http2
+          containerPort: 80
           protocol: TCP
 
       resources:

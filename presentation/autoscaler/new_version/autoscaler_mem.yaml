@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: cpu_and_memory_boom
-          image: hejingkai/cpu_and_memory_boom
+            image: hejingkai/cpu_and_memory_boom
 
         - name: nginx3
           image: nginx:latest

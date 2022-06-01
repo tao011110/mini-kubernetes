@@ -9,7 +9,7 @@ nodeSelector:
 spec:
   containers:
     - name: ghost3
-      image: ghost
+      image: hejingkai/ghost
       command:
       args:
       workingDir:
