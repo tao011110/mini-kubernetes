@@ -22,9 +22,16 @@ void matrix_mul_gpu(int *M, int* N, int* P, int width)
     }
     P[j*width+i] = sum;
 }
-void print_matrix(){
 
+void printMatrix(int* mat, int nBytes){
+  printf("matrix mul cuda result is(1024*1024):\n");
+  for(int i=0; i < nBytes; i++){
+    printf("%d ", mat[i]);
+    if(i!=0 && i%1023 == 0)
+      printf("\n");
+  }
 }
+
 int main()
 {
     struct timeval start, end;
@@ -48,11 +55,12 @@ int main()
     cudaMemcpy(d_dataB, B, sizeof(int) * Row * Col, cudaMemcpyHostToDevice);
     dim3 threadPerBlock(16, 16);
     dim3 blockNumber((Col+threadPerBlock.x-1)/ threadPerBlock.x, (Row+threadPerBlock.y-1)/ threadPerBlock.y );
-    printf("Block(%d,%d)   Grid(%d,%d).\n", threadPerBlock.x, threadPerBlock.y, blockNumber.x, blockNumber.y);
+
     matrix_mul_gpu << <blockNumber, threadPerBlock >> > (d_dataA, d_dataB, d_dataC, Col);
     //拷贝计算数据-一级数据指针
     cudaMemcpy(C, d_dataC, sizeof(int) * Row * Col, cudaMemcpyDeviceToHost);
 
+    printMatrix(C, Row * Col);
     //释放内存
     free(A);
     free(B);

@@ -1,10 +1,10 @@
-name: mat_add_test
+name: mat_mul_test
 kind: GPUJob
 sourceCodePath: /home/go/src/mini-kubernetes/tools/gpu_job_uploader_image/home/gpu/cuda_mat_add.cu
 MakefilePath: /home/go/src/mini-kubernetes/tools/gpu_job_uploader_image/home/gpu/Makefile
 ResultPath: /home/go/src/mini-kubernetes/tools/gpu_job_uploader_image/home/result/
 slurm:
-  jobName: mat_add_test
+  jobName: mat_mul_test
   partition: a100
   cpusPerTask: 16
   ntasksPerNode: 1

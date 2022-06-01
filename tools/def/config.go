@@ -48,7 +48,7 @@ const (
 	//for gpu job uploader image
 	GPUJobUploaderImage                    = `hejingkai/gpu_job_uploader`
 	GPUJobSourceCodeParentDirPath          = `/home/gpu/`
-	GPUJobSourceCodeFileName               = `cuda_mat_add.cu`
+	GPUJobSourceCodeFileName               = `job.cu`
 	GPUJOBMakefileParentDirPath            = `/home/gpu/`
 	GPUJOBMakefileFileName                 = `Makefile`
 	GPUSlurmScriptParentDirPath            = `/home/gpu/`
