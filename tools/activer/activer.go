@@ -217,7 +217,7 @@ func TriggerStateMachine(stateMachineName string, parames map[string]string, bod
 }
 func AutoExpanderAndShrinker() {
 	cron2 := cron.New()
-	err := cron2.AddFunc("*/120 * * * * *", ExpandAndShrink)
+	err := cron2.AddFunc("*/90 * * * * *", ExpandAndShrink)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -239,7 +239,7 @@ func ExpandAndShrink() {
 	oldRecorder := activerMeta.AccessRecorder
 	activerMeta.AccessRecorder = newRecorder
 	for _, name := range activerMeta.FunctionsNameList {
-		targetReplicaNum := int(math.Ceil(float64(oldRecorder[name]) / 10))
+		targetReplicaNum := int(math.Ceil(float64(oldRecorder[name]) / 5))
 		activer_utils.AdjustReplicaNum2Target(activerMeta.EtcdClient, name, targetReplicaNum)
 	}
 }
