@@ -60,7 +60,7 @@ func main() {
 	node.CadvisorClient = cadvisorClient
 
 	//Create initial VxLANs
-	net_utils.InitVxLAN(&node)
+	//net_utils.InitVxLAN(&node)
 	KubeletInitialize()
 	go EtcdWatcher()
 	go kubelet_routines.NodesWatch(node.NodeID, node.EtcdClient)
