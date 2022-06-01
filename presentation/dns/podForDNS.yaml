@@ -24,18 +24,9 @@ spec:
       image: nginx:latest
       command:
       args:
-      workingDir: /home/app
-      volumeMounts:
-        - name: volume2
-          mountPath: /vpath
+      workingDir:
 
       ports:
         - name: http2
           containerPort: 80
           protocol: TCP
-
-  volumes:
-    - name: volume1
-      hostPath: /home/app/volume1
-    - name: volume2
-      hostPath: /home/app/volume2

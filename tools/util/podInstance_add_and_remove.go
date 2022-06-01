@@ -39,7 +39,7 @@ func RemovePodInstance(podName string, num int) {
 	//apiServer delete a podInstance
 	for i := 0; i < num; i++ {
 		response4 := ""
-		err, status := httpget.DELETE("http://" + GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/replicasPodInstance/" + podName).
+		err, status := httpget.DELETE("http://" + GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/funcPodInstance/" + podName).
 			ContentType("application/json").
 			GetString(&response4).
 			Execute()
@@ -60,7 +60,7 @@ func RemovePodInstance(podName string, num int) {
 func RemovePodInstanceByID(podInstanceID string) {
 	//apiServer delete a podInstance
 	response4 := ""
-	err, status := httpget.DELETE("http://" + GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/podInstance/" + podInstanceID).
+	err, status := httpget.DELETE("http://" + GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/replicasPodInstance/" + podInstanceID).
 		ContentType("application/json").
 		GetString(&response4).
 		Execute()
