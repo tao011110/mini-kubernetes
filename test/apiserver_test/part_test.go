@@ -389,3 +389,31 @@ func TestDNSAndGateway(t *testing.T) {
 	testGetDNS("dns-name")
 	testGetAllDNS()
 }
+
+//TODO: 用来删除node结点
+func testDeleteNode(nodeID string) {
+	//需要发送给apiserver的参数为 nodeID string
+	response4 := ""
+	err, status := httpget.DELETE("http://" + node.MasterIpAndPort + "/delete/node/" + nodeID).
+		ContentType("application/json").
+		GetString(&response4).
+		Execute()
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+	}
+
+	fmt.Printf("delete_node status is %s\n", status)
+	if status == "200" {
+		fmt.Printf("delete node %s successfully and the response is: %v\n", nodeID, response4)
+	} else {
+		fmt.Printf("node %s doesn't exist\n", nodeID)
+	}
+}
+
+func TestNodeChange(t *testing.T) {
+	testGetAllNode()
+	testDeleteNode("5")
+	testDeleteNode("3")
+	testGetAllNode()
+}

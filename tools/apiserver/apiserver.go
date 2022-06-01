@@ -77,6 +77,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.DELETE("/delete/stateMachine/:stateMachineName", handelDeleteStateMachine)
 	e.DELETE("/delete/podInstance/:podInstanceID", handleDeletePodInstance)
 	e.DELETE("/delete/replicasPodInstance/:podInstanceID", handleDeleteReplicasPodInstance)
+	e.DELETE("/delete/node/:nodeID", handleDeleteNode)
 
 	// handle get-api
 	e.GET("/get/all/node", handleGetAllNode)
@@ -841,6 +842,18 @@ func handleDeleteReplicasPodInstance(c echo.Context) error {
 		return c.String(200, "PodInstance of "+podInstanceID+" has been deleted")
 	} else {
 		return c.String(404, "PodInstance of "+podInstanceID+" doesn't exist")
+	}
+}
+
+func handleDeleteNode(c echo.Context) error {
+	param := c.Param("nodeID")
+	nodeID, _ := strconv.Atoi(param)
+	flag := delete_api.DeleteNode(cli, nodeID)
+	if flag == true {
+		fmt.Println("Node " + param + " has been deleted")
+		return c.String(200, "Node "+param+" has been deleted")
+	} else {
+		return c.String(404, "Node "+param+" doesn't exist")
 	}
 }
 
