@@ -7,16 +7,23 @@ import (
 )
 
 func StopAndRemovePod(podInstance *def.PodInstance, node *def.Node) {
-	podInstance.Status = def.SUCCEEDED
+	if podInstance.Status == def.RUNNING {
+		podInstance.Status = def.SUCCEEDED
+	}
 	util.PersistPodInstance(*podInstance, node.EtcdClient)
 	for index, container := range podInstance.ContainerSpec {
+		if podInstance.ContainerSpec[index].Status == def.RUNNING {
+			podInstance.ContainerSpec[index].Status = def.SUCCEEDED
+		}
 		docker.StopContainer(container.ID)
 		_, _ = docker.RemoveContainer(container.ID)
-		podInstance.ContainerSpec[index].Status = def.SUCCEEDED
 		util.PersistPodInstance(*podInstance, node.EtcdClient)
 	}
 	docker.StopContainer(podInstance.PauseContainer.ID)
 	_, _ = docker.RemoveContainer(podInstance.PauseContainer.ID)
-	podInstance.PauseContainer.Status = def.SUCCEEDED
+
+	if podInstance.PauseContainer.Status == def.RUNNING {
+		podInstance.PauseContainer.Status = def.SUCCEEDED
+	}
 	util.PersistPodInstance(*podInstance, node.EtcdClient)
 }

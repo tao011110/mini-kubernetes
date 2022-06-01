@@ -209,7 +209,7 @@ func handlePodInstancesChange(instances []string) {
 	adds, deletedIDs := util.DifferTwoStringList(instancesCurrent, instances)
 	for _, delete_ := range deletedIDs {
 		for index, instance := range node.PodInstances {
-			if delete_ == instance.ID && instance.Status == def.RUNNING {
+			if delete_ == instance.ID { //&& instance.Status == def.RUNNING
 				pod.StopAndRemovePod(node.PodInstances[index], &node)
 				node.PodInstances = append(node.PodInstances[:index], node.PodInstances[index+1:]...)
 				break

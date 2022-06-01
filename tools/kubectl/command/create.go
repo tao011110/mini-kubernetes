@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/urfave/cli"
 	"io/ioutil"
 	"mini-kubernetes/tools/def"
 	"mini-kubernetes/tools/httpget"
 	"mini-kubernetes/tools/util"
 	"mini-kubernetes/tools/yaml"
 	"os"
-	"github.com/urfave/cli"
 )
 
 func NewCreateCommand() cli.Command {
@@ -33,7 +33,7 @@ func createFunc(c *cli.Context) {
 	if dir == "" {
 		wrong("You need to specify directory")
 		return
-	} else if len(dir) <= 5{
+	} else if len(dir) <= 5 {
 		wrong("You need to enter right directory")
 		return
 	}
@@ -61,7 +61,7 @@ func createFunc(c *cli.Context) {
 		if err != nil {
 			wrong(err.Error())
 			return
-		}		
+		}
 		fmt.Printf("create_stateMachine is %s and response is: %s\n", status, response)
 
 	} else if last4 == "yaml" {
@@ -78,7 +78,7 @@ func createFunc(c *cli.Context) {
 			if err != nil {
 				wrong(err.Error())
 				return
-			} 
+			}
 			request := *pod_
 			response := ""
 			body, _ := json.Marshal(request)
