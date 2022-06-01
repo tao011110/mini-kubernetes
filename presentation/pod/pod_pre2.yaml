@@ -8,8 +8,8 @@ nodeSelector:
 
 spec:
   containers:
-    - name: ghost3
-      image: ghost
+    - name: ghost2
+      image: hejingkai/ghost
       command:
       args:
       workingDir:
@@ -27,7 +27,7 @@ spec:
           cpu: 500m
           memory: 500Mi
 
-    - name: nginx3
+    - name: nginx2
       image: nginx:latest
       command:
       args:

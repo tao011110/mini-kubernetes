@@ -4,6 +4,7 @@ import (
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"mini-kubernetes/tools/def"
+	"strconv"
 	"time"
 )
 
@@ -29,6 +30,7 @@ func GetAllPodInstanceStatus(cli *clientv3.Client) ([]def.PodInstanceBrief, bool
 					fmt.Println(container.Status)
 				}
 			}
+			brief.Ready = strconv.Itoa(count) + "/" + strconv.Itoa(len(containers))
 			t := time.Now()
 			brief.Age = t.Sub(podInstance.StartTime)
 			fmt.Println("brief.Age:   ", brief.Age)
