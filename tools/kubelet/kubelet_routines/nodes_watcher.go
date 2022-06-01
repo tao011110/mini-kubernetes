@@ -63,7 +63,7 @@ func NodesWatch(nodeID int, etcdClient *clientv3.Client) {
 				}
 			}
 		}
-		handleNodesChange(added, deleted)
+		//handleNodesChange(added, deleted)
 	}
 }
 
