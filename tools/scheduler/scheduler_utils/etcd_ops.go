@@ -50,11 +50,11 @@ func DeletePodInstanceFromNode(etcdClient *clientv3.Client, nodeID int, instance
 	PersistPodInstanceListOfNode(etcdClient, replicaNameList, nodeID)
 }
 func AddPodInstanceToNode(etcdClient *clientv3.Client, nodeID int, instance *def.PodInstance) {
+	instance.NodeID = nodeID
+	util.PersistPodInstance(*instance, etcdClient)
 	replicaNameList := GetAllPodInstancesOfANode(nodeID, etcdClient)
 	replicaNameList = append(replicaNameList, instance.ID)
 	PersistPodInstanceListOfNode(etcdClient, replicaNameList, nodeID)
-	instance.NodeID = nodeID
-	util.PersistPodInstance(*instance, etcdClient)
 }
 
 func PersistPodInstanceListOfNode(etcdClient *clientv3.Client, replicaNameList []string, nodeID int) {
