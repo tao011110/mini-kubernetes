@@ -61,6 +61,25 @@ func deleteFunc(c *cli.Context) {
 			src_type = yaml.Activity_t
 			src_name = c.Args()[1]
 			fmt.Printf("Delete function whose name is : %s\n", src_name)
+		} else if c.Args()[0] == "node" {
+			// 不能根据yaml文件，而是直接根据名字删除node结点
+			src_name = c.Args()[1]
+			response := ""
+			err, status := httpget.DELETE("http://" + util.GetLocalIP().String() + ":" + fmt.Sprintf("%d", def.MasterPort) + "/delete/node/" + src_name).
+				ContentType("application/json").
+				GetString(&response).
+				Execute()
+			if err != nil {
+				wrong(err.Error())
+				return
+			}
+			// fmt.Printf("delete_node status is %s\n", status)
+			if status == "200" {
+				fmt.Printf("delete node %s successfully and the response is: %v\n", src_name, response)
+			} else {
+				fmt.Printf("node %s doesn't exist\n", src_name)
+			}
+			return
 		} else if c.Args()[0] == "statemachine" {
 			// 不能根据yaml文件删除
 			src_name = c.Args()[1]
