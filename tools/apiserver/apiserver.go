@@ -736,6 +736,7 @@ func handleHardUpdateFunction(c echo.Context) error {
 	}
 
 	//hard update
+	function.URL = fmt.Sprintf("http://%s:%d/function/%s", util.GetLocalIP().String(), def.ActiverPort, function.Name)
 	function_api.HardUpdateFunction(cli, function)
 
 	return c.JSON(200, "Function "+function.Name+" has been hard-updated")
