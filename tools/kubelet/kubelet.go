@@ -154,6 +154,9 @@ func checkPodRunning() {
 		if instance.Status != def.RUNNING {
 			continue
 		}
+		if time.Now().Sub(instance.StartTime).Seconds() < 60 {
+			continue
+		}
 		for _, container := range instance.ContainerSpec {
 			if !kubelet_utils.IsStrInList(container.ID, runningContainerIDs) {
 				instance.Status = def.FAILED
