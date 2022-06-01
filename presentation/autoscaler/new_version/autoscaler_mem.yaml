@@ -4,13 +4,13 @@ metadata:
   name: autoscaler_mem
 spec:
   minReplicas: 2
-  maxReplicas: 10
+  maxReplicas: 6
   metrics:
     CPU:
       targetMinValue : 0
       targetMaxValue : 600000000
     memory:
-      targetMinValue: 10M
+      targetMinValue: 15M
       targetMaxValue: 30M
   template:
     metadata:
@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: cpu_and_memory_boom
-            image: hejingkai/cpu_and_memory_boom
+          image: hejingkai/cpu_and_memory_boom
 
         - name: nginx3
           image: nginx:latest

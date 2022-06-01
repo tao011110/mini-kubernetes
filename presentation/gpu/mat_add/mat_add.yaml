@@ -1,8 +1,8 @@
-name: mat_add_test
+name: mat_add_test2
 kind: GPUJob
-sourceCodePath: /home/go/src/mini-kubernetes/tools/gpu_job_uploader_image/home/gpu/cuda_mat_add.cu
-MakefilePath: /home/go/src/mini-kubernetes/tools/gpu_job_uploader_image/home/gpu/Makefile
-ResultPath: /home/go/src/mini-kubernetes/tools/gpu_job_uploader_image/home/result/
+sourceCodePath: /home/go/src/mini-kubernetes/presentation/gpu/mat_add/job.cu
+MakefilePath: /home/go/src/mini-kubernetes/presentation/gpu/mat_add/Makefile
+ResultPath: /home/go/src/mini-kubernetes/presentation/gpu/mat_add/
 slurm:
   jobName: mat_add_test
   partition: a100

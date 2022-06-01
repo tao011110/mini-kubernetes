@@ -76,7 +76,7 @@ func Start(masterIp string, port string, client *clientv3.Client) {
 	e.DELETE("/delete/function/:funcName", handleDeleteFunction)
 	e.DELETE("/delete/stateMachine/:stateMachineName", handelDeleteStateMachine)
 	e.DELETE("/delete/podInstance/:podInstanceID", handleDeletePodInstance)
-	e.DELETE("/delete/replicasPodInstance/:podName", handleDeleteReplicasPodInstance)
+	e.DELETE("/delete/replicasPodInstance/:podInstanceID", handleDeleteReplicasPodInstance)
 
 	// handle get-api
 	e.GET("/get/all/node", handleGetAllNode)
@@ -789,27 +789,6 @@ func handleDeleteAutoscaler(c echo.Context) error {
 	}
 }
 
-func handleDeleteReplicasPodInstance(c echo.Context) error {
-	podInstanceID := c.Param("podName")
-	flag, _, podInstance := function_api.DeleteFuncPodInstance(cli, podInstanceID)
-	if flag == true {
-		fmt.Println("PodInstance of " + podInstanceID + " has been deleted")
-		nodeList := get_api.GetAllNode(cli)
-		serviceList := delete_api.CheckDeleteInService(cli, podInstance)
-		fmt.Println("serviceList:   ", serviceList)
-		for _, service := range serviceList {
-			for _, node := range nodeList {
-				fmt.Println("service.ClusterIP is :   ", service.ClusterIP)
-				letProxyDeleteCIRule(service.ClusterIP, node)
-				letProxyCreateCIRule(service, node)
-			}
-		}
-		return c.String(200, "PodInstance of "+podInstanceID+" has been deleted")
-	} else {
-		return c.String(404, "PodInstance of "+podInstanceID+" doesn't exist")
-	}
-}
-
 func handleDeleteFuncPodInstance(c echo.Context) error {
 	podInstanceID := c.Param("podName")
 	flag, service, _ := function_api.DeleteFuncPodInstance(cli, podInstanceID)
@@ -840,6 +819,27 @@ func handleDeleteFunction(c echo.Context) error {
 		return c.String(200, "Function "+funcName+" has been deleted")
 	} else {
 		return c.String(404, "Function "+funcName+" doesn't exist")
+	}
+}
+
+func handleDeleteReplicasPodInstance(c echo.Context) error {
+	podInstanceID := c.Param("podInstanceID")
+	flag, _, podInstance := function_api.FuncDeletePodInstance(cli, podInstanceID)
+	if flag == true {
+		fmt.Println("PodInstance of " + podInstanceID + " has been deleted")
+		nodeList := get_api.GetAllNode(cli)
+		serviceList := delete_api.CheckDeleteInService(cli, podInstance)
+		fmt.Println("serviceList:   ", serviceList)
+		for _, service := range serviceList {
+			for _, node := range nodeList {
+				fmt.Println("service.ClusterIP is :   ", service.ClusterIP)
+				letProxyDeleteCIRule(service.ClusterIP, node)
+				letProxyCreateCIRule(service, node)
+			}
+		}
+		return c.String(200, "PodInstance of "+podInstanceID+" has been deleted")
+	} else {
+		return c.String(404, "PodInstance of "+podInstanceID+" doesn't exist")
 	}
 }
 

@@ -4,14 +4,14 @@ metadata:
   name: autoscaler_cpu
 spec:
   minReplicas: 2
-  maxReplicas: 10
+  maxReplicas: 6
   metrics:
     CPU:
       targetMinValue : 90
       targetMaxValue : 200
     memory:
       targetMinValue: 0M
-      targetMaxValue: 1000M
+      targetMaxValue: 10000M
   template:
     metadata:
       labels:
