@@ -8,7 +8,6 @@ nodeSelector:
     with: pod-name
     notwith: pod-name
 
-
 spec:
   containers:
     - name: string

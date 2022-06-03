@@ -14,8 +14,7 @@ void matrix_mul_gpu(int *M, int* N, int* P, int width)
     int j = threadIdx.y + blockDim.y * blockIdx.y;
 
     int sum = 0;
-    for(int k=0;k<width;k++)
-    {
+    for(int k=0;k<width;k++){
         int a = M[j*width+k];
         int b = N[k*width+i];
         sum += a*b;
