@@ -97,23 +97,21 @@ func DeleteVxLan(remoteIp string) {
 }
 
 func InitVxLAN(node *def.Node) {
-	nodeKey := "/node/"
-	kvs := etcd.GetWithPrefix(node.EtcdClient, nodeKey).Kvs
+	nodeKey := "/node/1"
+	kvs := etcd.Get(node.EtcdClient, nodeKey).Kvs
 	nodeValue := make([]byte, 0)
 	nodeList := make([]def.Node, 0)
 	if len(kvs) != 0 {
-		for _, kv := range kvs {
-			tmp := def.Node{}
-			nodeValue = kv.Value
-			err := json.Unmarshal(nodeValue, &tmp)
-			if err != nil {
-				fmt.Printf("%v\n", err)
-				panic(err)
-			}
-			if tmp.NodeIP.String() != node.NodeIP.String() {
-				CreateVxLan(tmp)
-				nodeList = append(nodeList, tmp)
-			}
+		tmp := def.Node{}
+		nodeValue = kvs[0].Value
+		err := json.Unmarshal(nodeValue, &tmp)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			panic(err)
+		}
+		if tmp.NodeIP.String() != node.NodeIP.String() {
+			CreateVxLan(tmp)
+			nodeList = append(nodeList, tmp)
 		}
 	}
 	NodesList = nodeList

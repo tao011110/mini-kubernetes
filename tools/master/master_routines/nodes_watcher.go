@@ -1,4 +1,4 @@
-package kubelet_routines
+package master_routines
 
 import (
 	"encoding/json"
@@ -63,7 +63,7 @@ func NodesWatch(nodeID int, etcdClient *clientv3.Client) {
 				}
 			}
 		}
-		//handleNodesChange(added, deleted)
+		handleNodesChange(added, deleted)
 	}
 }
 

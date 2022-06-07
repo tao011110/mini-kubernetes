@@ -13,7 +13,6 @@ import (
 	"mini-kubernetes/tools/docker"
 	"mini-kubernetes/tools/etcd"
 	"mini-kubernetes/tools/httpget"
-	"mini-kubernetes/tools/kubelet/kubelet_routines"
 	"mini-kubernetes/tools/kubelet/kubelet_utils"
 	net_utils "mini-kubernetes/tools/net-utils"
 	"mini-kubernetes/tools/pod"
@@ -60,10 +59,9 @@ func main() {
 	node.CadvisorClient = cadvisorClient
 
 	//Create initial VxLANs
-	//net_utils.InitVxLAN(&node)
+	net_utils.InitVxLAN(&node)
 	KubeletInitialize()
 	go EtcdWatcher()
-	go kubelet_routines.NodesWatch(node.NodeID, node.EtcdClient)
 	go ResourceMonitoring()
 	go ContainerCheck()
 	go HeartBeatSender()
