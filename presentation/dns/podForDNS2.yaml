@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod3-dns
+  label: dns-test
+
+spec:
+  containers:
+    - name: downloader
+      image: dplsming/aria2ng-downloader:1.0
+      ports:
+        - name: downloader6800
+          containerPort: 6800
+          protocol: TCP
+        - name: downloader6880
+          containerPort: 6880
+          protocol: TCP
+
+    - name: nginx3
+      image: nginx:latest
+      command:
+      args:
+      workingDir:
+      ports:
+        - name: http2
+          containerPort: 80
+          protocol: TCP
