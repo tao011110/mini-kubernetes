@@ -1,4 +1,5 @@
 # etcd中存储的结构及其作用
+By hjk & tyc
 
 ````
 .etcd __ //meta data:
