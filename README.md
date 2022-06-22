@@ -1,5 +1,5 @@
 # **Mini-kubernetes验收文档**
-hjk，tyc，lsh
+[hjk](https://github.com/He-Jingkai)，[tyc](https://github.com/tao011110)，[lsh](https://github.com/Linshuhuai)
 
 2022.6
 
