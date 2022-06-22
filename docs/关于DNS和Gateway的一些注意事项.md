@@ -27,5 +27,13 @@
 
 #### 在其他node上要运行的操作：
 
-*（待补充*
+```
+#先停用 systemd-resolved 服务，因为云主机默认开启systemd-resolved监听53端口，导致coredns因端口占用而无法启动
+sudo systemctl stop systemd-resolved
+#修改/etc/resolv.conf
+vim /etc/resolv.conf
+#在第一行写入：
+nameserver master的IP
+```
 
+在/etc/hosts中第一行的127.0.0.1 localhost 后写上本台云主机的名称（理由同master）
