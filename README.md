@@ -1,10 +1,8 @@
-**Mini-kubernetes验收文档**
-
+# **Mini-kubernetes验收文档**
 hjk，tyc，lsh
-
 2022.6
 
-# [目录](#目录)
+## [目录](#目录)
 
 * [二. 系统架构概述](#系统架构概述)
 
@@ -110,7 +108,7 @@ hjk，tyc，lsh
 
 * [二十. 附录四：ETCD中的存储结构](#_Toc105529318)
 
-# 系统架构概述
+## 系统架构概述
 
 Mini-kubernetes主要包括如下组件：
 
@@ -178,7 +176,7 @@ Mini-kubernetes主要包括如下组件：
 
 -   **GPU Job Uploader**：内置ssh和Python http client，用户定义GPU Job时由spiserver-image factory填入cuda程序，Makefile和Slurm定义后打包得到新的镜像，可以自动上传和提交gpu任务并用轮询的方式判断任务完成情况，在任务完成后下载结果并输出至用户指定的文件目录，并通知apiServer结束Job.
 
-# 依赖和库
+## 依赖和库
 
 Mini-kubernetes使用Go语言开发，在开发预定义基础容器镜像时使用了python，Java和C，在开发过程中使用了如下开源库和开源组件：
 
@@ -210,7 +208,7 @@ Mini-kubernetes使用Go语言开发，在开发预定义基础容器镜像时使
 
 没有使用CNI插件
 
-# 演示视频
+## 演示视频
 
 Mini-kubernetes实现了文档要求的所有功能。
 
@@ -226,9 +224,9 @@ Mini-kubernetes实现了文档要求的所有功能。
 | 7    | 对应验收文档Serverless自选功能的1、3、4. 演示function的创建(仿照AWS，minik8s中对应activity类型)、get/describe、冷启动、http trigger（即invoke）、扩容至大于1实例，scale-to-0，更新(update)和删除| [video - OneDrive (sharepoint.com)](https://sjtueducn-my.sharepoint.com/personal/hjk020101_sjtu_edu_cn/_layouts/15/onedrive.aspx?ga=1&id=%2Fpersonal%2Fhjk020101%5Fsjtu%5Fedu%5Fcn%2FDocuments%2F%E4%BA%91%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E8%B7%B5%2Flab%2FMinik8s%2Fvideo) 中的"7.function.mp4"                                |
 | 8    | 对应验收文档Serverless自选功能的2. 演示workflow（仿照AWS，minik8s命名为state machine）的创建，get/describe，http trigger及其在不同输入下的不同workflow（根据条件进入不同分支），以及state machine的删除 | [video - OneDrive (sharepoint.com)](https://sjtueducn-my.sharepoint.com/personal/hjk020101_sjtu_edu_cn/_layouts/15/onedrive.aspx?ga=1&id=%2Fpersonal%2Fhjk020101%5Fsjtu%5Fedu%5Fcn%2FDocuments%2F%E4%BA%91%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E8%B7%B5%2Flab%2FMinik8s%2Fvideo) 中的"8.statemachine.mp4"                            |
 
-# 版本管理、开发流程和工程源代码结构
+## 版本管理、开发流程和工程源代码结构
 
-## 源代码仓库和分支
+### 源代码仓库和分支
 
 本项目使用Git管理，远端仓库地址为 <https://gitee.com/jkhe/mini-kubernetes>
 
@@ -238,7 +236,7 @@ Mini-kubernetes实现了文档要求的所有功能。
 
 -   hjk/tyc/lsh：各组员分别对应以名字缩写命名的Git分支，用于保存自己代码修改的提交，在完成一个功能（如一个组件、一个功能或修改一个bug）并进行测试后通过提交pull request，经过审查后并入主线。
 
-## CICD
+### CICD
 
 本项目使用Jenkins进行CICD，在项目的测试服务器上部署了pipeline服务，在Git发生push和pr时进行如下pipeline步骤:
 
@@ -256,7 +254,7 @@ CICD运行记录：
 
 ![](docs/pic/pic-1.png)
 
-## 软件测试方法
+### 软件测试方法
 
 在开发过程中，要求每个重点函数在开发完成后进行单元测试，每个功能/组件加入集群后进行系统测试和回归测试
 
@@ -264,7 +262,7 @@ CICD运行记录：
 
 -   系统测试和回归测试：测试集群运行状态下功能（如Pod的创建和删除等功能点）的运行，既测试新加入的功能可以正常运行，又测试之前实现的功能不受影响。测试脚本位于/presentation下，系统测试和回归测试通过运行具体功能的脚本的方式进行，测试用例经过多次迭代和修改其中一部分最终作为答辩演示时使用的测试用例
 
-## 新功能开发流程
+### 新功能开发流程
 
 -   负责人提出具体功能实现细节和对系统结构的修改，小组讨论后确定实现方式
 
@@ -276,7 +274,7 @@ CICD运行记录：
 
 -   功能或接口比较复杂时，负责人需要编写说明文件供参考（放置在/doc目录下）
 
-# Etcd及消息广播和传递机制
+## Etcd及消息广播和传递机制
 
 不同于kubernetes使用消息队列进行消息广播和传递，Mini-kubenetes使用Etcd既作为控制面数据持久化容器，又充当消息队列。Etcd运行在集群的各个节点上，除kube-proxy外的全部组件都会连接etcd的client.
 
@@ -288,11 +286,11 @@ Mini-kubenetes通过设计Etcd中各字段的修改者和读取者，保证各�
 
 Etcd中的存储结构和字段请见附录.
 
-# Node的加入、注册和删除
+## Node的加入、注册和删除
 
 Worker Node抽象的管理和Worker Node状态的维护由Node Controller负责。
 
-## Node的加入
+### Node的加入
 
 要启动Mini-kubernetes集群，用户需要手动启动Master Node，之后再各Worker Node上启动kubelet，启动kubelet时用户需要指定Node的name和master节点的注册url，Worker Node加入集群的过程如下
 
@@ -302,23 +300,23 @@ Worker Node抽象的管理和Worker Node状态的维护由Node Controller负责�
 
 -   Node上的kubelet根据该subnet IP区间创建自己的miniK8S-bridge网桥，我们的miniK8S集群中的网络通信，大部分就是依托于自建的miniK8S-bridge网桥实现的。
 
-## Node的heartbeat
+### Node的heartbeat
 
 集群中所有的kubelet需要每1min向Node Controller通过http POST的形式发送heartbeat，Node Controller会根据heartbeat更新存储在本地内存中的最近一次收到heartbeat的时间。每隔三分钟Node Controller会检查各Node的最近一次收到heartbeat的时间，如果距今超过3min则将该Node的状态由Ready改为NotReady，**Scheduler不会调度Pod到状态为NotReady的节点上，该节点上所有Pod的状态也将被设为Unknown(表示失联)。**下次检查时如果最近一次收到heartbeat的时间符合条件（距今小于3min），Node Controller会将该Node的状态重新设置为Ready
 
-## Node的删除
+### Node的删除
 
 用户可通过kubectl向apiserver发送http请求，要求将某一node从集群中移除。Apiserver收到http请求后，将其node ID信息从Node ID List中移除（因此之后不会再有Pod replica调度到该Node上），并在etcd中将存储的该node信息删除。之后，master和该node分别断开与彼此的vxlan隧道连接。
 
 删除Node意味着Node Controller不会再检查Node的状态（Ready/NotReady），Scheduler不会再将Pod replica调度到该Node之上，集群中IP table的修改也不会同步到该Node上，由于各Node与被删除Node的vxlan隧道被断开，该Node和其他Node的跨节点通信也无法进行。但是Mini-kubernetes集群不会删除在该Node上运行的Pod replica，只会在etcd状态中将这些Pod replica的状态设置为FAILED，为避免正在运行的任务受到删除Node的影响，集群管理者应保证删除Node时该Node上没有正在运行的Pod，或删除Node后将受到删除Node影响的任务重新部署。
 
-# Pod创建、管理、删除和内部通信
+## Pod创建、管理、删除和内部通信
 
-## Docker接口的实现
+### Docker接口的实现
 
 我们通过对Docker client库的相关函数和类型进行封装，实现了对容器（包括创建、启动、停止、删除、重启、查看、配置启动命令、将宿主机文件copy进容器等）、镜像（制作、打上tag、上传、拉取等）和容器网络（创建、查看、删除等）的相关操作。
 
-## Pod的创建和删除
+### Pod的创建和删除
 
 不同于传统K8S中的pod，考虑到后续replicas的存在，我们在这里定义了两种结构体：pod和podInstance（也会被称为Pod replica，包含Pod replica的具体信息，如运行的节点和状态）。具体地，前者是yaml文件解析的直接结果，可以看作是后者的元数据；后者相当于传统K8S当中的pod，可以看作是前者的具体实现。每个podInstance只能由一个pod创建而来，而一个pod可以用来创建多个pod-Instance。
 
@@ -338,7 +336,7 @@ Worker Node抽象的管理和Worker Node状态的维护由Node Controller负责�
 
 -   Kubelet：发现本Node的per node pod replica ID list中该Pod replica的ID被删除后，在本节点删除该Pod对应的各Docker容器，并删除该PodInstance在etcd中对应的数据
 
-## Pod的管理
+### Pod的管理
 
 Kubelet在创建Pod后，会监控器运行状态并更新到Etcd中供controller使用，对容器的监控使用开源组件CAdvisor进行
 
@@ -346,7 +344,7 @@ Kubelet在创建Pod后，会监控器运行状态并更新到Etcd中供controlle
 
 -   Kubelet每隔30s通过CAdvisor获取当前物理机上正常运行的所有Docker Container占用的资源，并和该节点上各Pod replica对应的Docker Container的ID对比，计算出该节点上各Pod replica占用的资源并存储在etcd中（AutoScaler Controller会使用此记录计算各Pod replica平均资源占用并决定是否进行扩容/缩容）
 
-## Pod中localhost通信、volume共享和重点参数实现
+### Pod中localhost通信、volume共享和重点参数实现
 
 1.  localhost通信：每个pod中都会被默认创建一个pause容器，pod内其他容器都通过network=container的网络模式共享该pause容器的网络地址空间。因而同一pod内的所有容器便可以通过localhost实现互相通信
 
@@ -360,9 +358,9 @@ Kubelet在创建Pod后，会监控器运行状态并更新到Etcd中供controlle
 
 6.  容器端口的暴露和映射：通过配置Docker client提供的Config结构体和HostConfig结构体的参数来实现
 
-# Kube-proxy、Pod间通信、service和跨集群通信
+## Kube-proxy、Pod间通信、service和跨集群通信
 
-## 跨集群使用浮动IP通信的实现
+### 跨集群使用浮动IP通信的实现
 
 在新的node加入集群后，会尝试使用 open-vswitch 与当前存在于集群中的master node 建立起 miniK8S-bridge 网桥之间的 vxlan 隧道，从而能够访问到其他 node 上的pod。具体地，我们通过open-vswitch新建网桥br0，将miniK8S-bridge和br0连接起来，然后将对应特定IP的vxlan隧道挂在br0上。
 
@@ -376,13 +374,13 @@ Kubelet在创建Pod后，会监控器运行状态并更新到Etcd中供controlle
 
 ![](docs/pic/pic-2.png)
 
-## Pod与Pod通信的实现
+### Pod与Pod通信的实现
 
 （1）相同node内的pod：每个node在向Node Controller注册后会被返回一个不与其他Node重叠的subnet IP 区间，node据此创建自己的miniK8S-bridge网桥，此后创建的所有pod的IP都位于该subnet区间中，各Pod的网络都接入此网桥中。具体地，每个pod中都会被默认创建一个pause容器通过network=bridge的网络模式接入到miniK8S-bridge网桥中，被分配到网桥中的唯一IP，pod内其他容器都通过network=container的网络模式共享该pause容器的网络地址空间。同一node内的所有pod便可以根据pod IP经由miniK8S-bridge网桥自由进行通信。
 
 （2）node的pod通信：由于每个向Node Controller注册的node都会被分配一个不与其他Node重叠的subnet IP 区间，而每个node中创建的pod 所具有的IP也都处于这不相重叠的地址空间内，所以这样就保证了集群内pod IP的唯一性。不同物理机上的pod之间便可以根据彼此的pod IP实现跨node通信。为了实现这一点，我们还需要在路由表里添加规则，使得对其余node的subnet地址空间的访问（即对IP处于该地址空间内pod的访问）都会被转发到本机的miniK8S-bridge网桥上，进而通过vxlan隧道到达目标pod所在node的miniK8S-bridge中，并最终被发送到目标pod的IP上。
 
-## Service的创建和删除
+### Service的创建和删除
 
 Apiserver收到Kubectl发送的创建Service的请求后，会先尝试在etcd中根据name查找service，若发现同名Service，则直接返回404告知Kubectl不可重复创建。否则进入创建service的流程：
 
@@ -392,7 +390,7 @@ Apiserver收到Kubectl发送的创建Service的请求后，会先尝试在etcd�
 
 Service的删除流程为通知kube-proxy清除创建时对IPtable的修改并删除etcd中存储的与此相关的信息。
 
-## Kube-proxy、Service通信的实现和负载均衡策略
+### Kube-proxy、Service通信的实现和负载均衡策略
 
 为了实现Service的功能需求，我们在iptables内新建了mK8S-SERVICES链，负责处理对于Service的访问，并把抵达mK8S-SERVICES链的相应转发规则加入到PREROUTING（处理外部网络和本机容器发出的请求）和OUTPUT（处理本机发出的请求）两条链中。
 
@@ -407,7 +405,7 @@ NodePort是在ClusterIP的基础上实现的，简而言之就是通过修改ipt
 ![](docs/pic/pic-3.png)
 
 
-## Service在Pod replica创建和删除时的更新
+### Service在Pod replica创建和删除时的更新
 
 当新的pod创建和删除时，ApiServer都会去etcd中找出所有符合该pod映射条件的service，更新其信息并存储在etcd中。
 
@@ -415,7 +413,7 @@ NodePort是在ClusterIP的基础上实现的，简而言之就是通过修改ipt
 
 通过这种方式，我们保证了Service的转发调度可根据pod的加入删除而动态调整。
 
-## Service与pod匹配机制、selector对多Pod的支持
+### Service与pod匹配机制、selector对多Pod的支持
 
 在确定service中包含的Pod时，我们将pod的metadata.label字段与service的selector.name字段进行比较，若二者相同，即说明该pod符合该service的映射条件，接下来我们再处理它们端口的匹配关系。Service的PortsBinding结构体记录了特定Service端口与特定容器端口的映射关系，以及需要转发到的容器IP List。因而即使Service的一个端口映射到了多个pod内容器的同一端口上，我们同样可以实现转发机制。
 
@@ -423,13 +421,13 @@ NodePort是在ClusterIP的基础上实现的，简而言之就是通过修改ipt
 
 每次Service建立时都会遍历Pod列表来确定需要被包含在其中的符合条件的Pod replica，每次有新Pod replica创建也会遍历全部Service来确定Pod replica是否需要加入Service，因此service可以支持多个Pod的多个replica，以及不断进行扩容缩容等删减更新操作的Pod replica。
 
-# Controller、Deployment的管理、AutoScaler的管理和动态扩容策略
+## Controller、Deployment的管理、AutoScaler的管理和动态扩容策略
 
 Controller负责管理集群中的Node、Deployment的AutoScaler，以三个go routine的形式分别实现了Node Controller(已述)、Deployment Controller和AutoScaler Controller。
 
 Controller创建Pod replica和删除Pod replica均调用apiserver创建Pod和删除Pod的接口，此接口在创建Pod replica和删除Pod replica的同时会将Pod replica加入符合条件的service或将其从所处的service中删除。
 
-## Deployment Controller
+### Deployment Controller
 
 Deployment Controller主要有如下任务
 
@@ -437,7 +435,7 @@ Deployment Controller主要有如下任务
 
 -   每隔30s检查一次Deployment的各replica是否正常运行（与kubelet配合），删除状态为FAILED的Pod replica并创建新的Pod replica补充
 
-## AutoScaler Controller
+### AutoScaler Controller
 
 AutoScaler Controller主要有如下任务
 
@@ -445,7 +443,7 @@ AutoScaler Controller主要有如下任务
 
 -   每隔30s检查一次autoScaler的各replica是否正常运行（与kubelet配合），计算其平均资源用量（资源提供CPU和Memory两种可选项）并判断是否应该扩容/缩容
 
-## AutoScaler Controller的水平扩容/缩容策略
+### AutoScaler Controller的水平扩容/缩容策略
 
 AutoScaler Controller的水平扩容/缩容策略可以概括为如下几点：低于最小平均值的80%缩容，高于最大平均值的120%缩容
 
@@ -463,9 +461,9 @@ AutoScaler Controller的水平扩容/缩容策略可以概括为如下几点：�
 
 之所以扩容和缩容的阈值分别对用户定义的最小资源平均用量和最大资源平均用量向下和向上偏移，是为了防止因为在并发请求数目波动的波峰波谷取样引起Pod replica数目的无意义波动，最大限度维持Pod replica数目的稳定，提高集群中Pod replica的利用率。
 
-# Scheduler和多机调度策略
+## Scheduler和多机调度策略
 
-## Scheduler的工作流程
+### Scheduler的工作流程
 
 Scheduler掌管着将Pod replica调度到集群中合适的机器上的工作和向对应kubelet发送删除Pod replica命令的任务，具体工作流程如下：
 
@@ -475,7 +473,7 @@ Scheduler掌管着将Pod replica调度到集群中合适的机器上的工作和
 
 -   发现pod replica ID list有Pod replica ID被删除时，代表有Pod replica需要被删除，Scheduler通过查看该Pod replica存储在etcd中的数据（其中有其运行在哪个Node）确定其运行的Node并通知该Node将其删除，具体方法为在该Node对应的per node pod replica ID list中删除该Pod replica的ID
 
-## Scheduler的调度策略
+### Scheduler的调度策略
 
 Scheduler的调度依据主要有如下几类信息：
 
@@ -507,7 +505,7 @@ $$空闲内存大小\left. （MB \right.） + 1000 \times (1 - CPU平均占用�
 
 在生产环境下，使用（1）号策略更有利于为Pod运行提供充足的资源，但在答辩验收环境下由于和Master节点运行在同一物理机上的Worker Node硬件资源显著少于其他Worker Node，为避免该Node无Pod运行，答辩演示时使用了（2）号选择策略。
 
-## Scheduler的初始化
+### Scheduler的初始化
 
 合适的初始化流程是控制面重启的关键，Scheduler需要在启动时需要初始化本地元数据，主要有如下几项
 
@@ -517,9 +515,9 @@ $$空闲内存大小\left. （MB \right.） + 1000 \times (1 - CPU平均占用�
 
 此外，Scheduler中还缓存了各Pod replica的概要信息来方便调度时减少etcd查询次数，主要是各Pod replica对应的Pod Name和Pod Label，也会在启动时初始化并实时同步。
 
-# Gateway和DNS功能实现
+## Gateway和DNS功能实现
 
-## 域名解析的实现
+### 域名解析的实现
 
 DNS利用开源的CoreDNS组件实现域名解析，CoreDNS启动后监听在Master节点的53端口。ApiServer根据yaml文件的配置，将特定的域名经处理后作为key，生成的Gateway pod的IP地址作为value，存入etcd中。此后对于该域名的所有访问都将经由coredns转发到Gateway pod中进行处理。
 
@@ -529,7 +527,7 @@ DNS利用开源的CoreDNS组件实现域名解析，CoreDNS启动后监听在Mas
 
 -   在每台云主机的/etc/hosts中第一行的127.0.0.1 localhost 后写上本台云主机的名称，这是为了避免出现"unable to resolve host cloud1: Temporary failure in name resolution"类似的报错
 
-## Gateway的实现
+### Gateway的实现
 
 在DNS服务里，Gateway的作用为根据用户的定义，将不同路径的请求分别转发到对应的service的ClusterIP。
 
@@ -545,15 +543,15 @@ DNS利用开源的CoreDNS组件实现域名解析，CoreDNS启动后监听在Mas
 
 -   Apiserver生成运行该Docker Image的Pod，并复用ApiServer创建Pod的接口在集群中部署运行此Gateway Pod。
 
-## DNS功能的创建、运行和删除
+### DNS功能的创建、运行和删除
 
 -   **创建：**Apiserver在获取到kubectl发送来的DNS信息后，从etcd中查找出相应的Service并补充在DNS的路径解析信息当中，然后将完善后的DNS信息存储在etcd中，接着创建Gateway pod
 
 -   **运行：**当master上的pod或用户进行域名访问时，由于配置本机为域名服务器，运行在53端口监听TCP请求的CoreDNS会直接进行处理；当其他node上的pod或用户进行域名访问时，会根据/etc/resolv.conf里的配置将master作为域名服务器。node向master发送域名解析请求，然后由master上的CoreDNS处理。CoreDNS将经处理后的域名作为key，从etcd中查找出对应Gateway pod的IP地址。之后请求将发往Gateway pod，Gateway pod会根据配置文件里的配置将访问请求转发到特定的Service里。
 
-# Activer和serverless功能实现
+## Activer和serverless功能实现
 
-## 函数的创建和删除
+### 函数的创建和删除
 
 用户定义函数时需要提供函数的源代码文件路径（源代码格式规范和代码环境支持见附录，用户在源代码中可以使用环境提供的预先解析的请求体和请求url中附带的参数），依赖文件路径（对于Python而言主要是Requirments.txt），以及函数的版本（为update准备）
 
@@ -567,7 +565,7 @@ ApiSever收到用户提交的函数定义文件后：
 
 Function的删除使用需要ApiServer删除集群中正在运行的全部Pod Replica，并在Etcd的function name list中删除function的Name(Watch该list的Activer会删除内存中用于记录的并发访问数的map条目)，之后删除function对应的Service、function和对应Pod的定义文件。删除Pod replica和Service复用了Pod和Service的删除接口。
 
-## http trigger、冷启动、负载均衡和动态扩缩容（包括scale-to-0）
+### http trigger、冷启动、负载均衡和动态扩缩容（包括scale-to-0）
 
 Activer处理http trigger的流程为：
 
@@ -585,7 +583,7 @@ Activer会记录并发访问的次数，以此为依据进行动态扩容和缩�
 
 由动态扩缩容策略可知，若一段时间内某function没有http trigger，其对应的Pod replica将以每30s减少一个的速度逐步减少到0，实现scale-to-0。
 
-## 函数的更新
+### 函数的更新
 
 Mini-kubernetes为用户提供了两种function update接口：
 
@@ -593,7 +591,7 @@ Mini-kubernetes为用户提供了两种function update接口：
 
 -   Hard-Update：ApiServer会使用新版function定义重新创建Docker Image和Pod定义文件来替换原有的，并删除集群中运行的旧版function实例，之后新版function重新进行冷启动流程。Hard-Update相当于Delete+Create，它一次性停止集群内全部旧版function的更新，但代价是函数服务会停止运行一段时间，适合因为漏洞和缺陷需要应急更新函数和接口不向后兼容的函数的更新。
 
-## StateMachine(workflow)的定义和实现
+### StateMachine(workflow)的定义和实现
 
 StateMachine仿照AWS StateMachine的定义格式，每个function和分支判断都被定义为一个State，workflow在State中不断传递，如果State时function(对应Task)则以上个State返回response body作为输入对该function发起http trigger（复用了function的http trigger接口），如果State是分支判断则使用上个State的response body进行判断并以该response body作为本State的输出，状态机以用户定义的\`StartAt\`状态开始，向各State的\`NextState\`传递（Task有一个，Choice的每个分支各对应一个），在定义为\`EndState\`的State结束并将response body返回给用户。与形式化理论中的状态机工作过程类似。
 
@@ -603,7 +601,7 @@ StateMachine同样使用绑定在物理机浮动IP和Port上的url进行http tri
 
 StateMachine的删除同样也只需要删除etcd中存储的StateMachine定义即可。
 
-## Activer的实现
+### Activer的实现
 
 Activer由以下三个线程组成：
 
@@ -613,7 +611,7 @@ Activer由以下三个线程组成：
 
 -   扩缩容线程：每30s唤醒一次，执行function对于的Pod Replica的动态扩容缩容，扩容缩容策略已述。
 
-# GPU功能实现
+## GPU功能实现
 
 Mini-kubernetes实现GPU任务上传和运行功能的方式为Job，创建一个GPU JOB的流程如下：
 
@@ -653,7 +651,7 @@ GPU JOB的删除流程为若GPU JOB对应的Pod没有运行结束被自动删除
 
 GPU JOB的实现通过不同GPU JOB单独在一个Pod中运行和不同GPU JOB上传到服务器的不同目录下实现了GPU JOB的并行运行，通过Pod主动向ApiServer发送任务完成信号实现了Job的主动停止和结果的传递。
 
-# 容错和控制面重启
+## 容错和控制面重启
 
 为方便控制面重启，Mini-Kubernetes中的每个组件都实现为无状态，具体而言：
 
@@ -665,7 +663,7 @@ GPU JOB的实现通过不同GPU JOB单独在一个Pod中运行和不同GPU JOB�
 
 总之，控制面重启通过及时持久化对集群状态的更新和在组件启动时初始化以探测集群状态来实现。
 
-# 分工和贡献概览
+## 分工和贡献概览
 
 具体分工请见各次迭代计划
 
@@ -676,9 +674,9 @@ GPU JOB的实现通过不同GPU JOB单独在一个Pod中运行和不同GPU JOB�
 |tyc|略|0|
 |lsh|略|0|
 
-# 附录一：kubectl交互格式和报错处理
+## 附录一：kubectl交互格式和报错处理
 
-## Kubectl 提供的命令接口及其功能
+### Kubectl 提供的命令接口及其功能
 
 1.1 Pod
 
@@ -865,7 +863,7 @@ NAME IP STATUS ID
 
 ![](docs/pic/pic-9.png)
 
-## Kubectl的异常处理和报错
+### Kubectl的异常处理和报错
 
 2.1 未找到文件或地址
 
@@ -887,7 +885,7 @@ NAME IP STATUS ID
 
 直接输出API server返回的错误信息
 
-# 附录二：function源代码环境支持和代码规范
+## 附录二：function源代码环境支持和代码规范
 
 1.  function源代码中应该有一个定义为handler(env)的函数，Mini-Kubelet通过调用该函数处理请求完成函数服务
 
@@ -899,7 +897,7 @@ NAME IP STATUS ID
 
 3.  对于handler中返回的结果，基础执行环境会将其转为json格式作为响应返回。
 
-# 附录三：pipeline流水线CICD脚本
+## 附录三：pipeline流水线CICD脚本
 ````
 pipeline {
 	agent any
@@ -937,7 +935,7 @@ pipeline {
 	}
 }
 ````
-# 附录四：ETCD中的存储结构
+## 附录四：ETCD中的存储结构
 ````
 .etcd_____//meta data:
 		|____{pod meta}(per pod)
