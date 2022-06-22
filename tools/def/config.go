@@ -26,7 +26,7 @@ const (
 	//for image upload
 	RgistryAddr     = "registry.cn-hangzhou.aliyuncs.com/taoyucheng/mink8s:"
 	RgistryUsername = "taoyucheng"
-	RgistryPassword = "Tyc20010925tyc"
+	RgistryPassword = "Tyc"
 
 	//for gateway image
 	GatewayImage                   = "hejingkai/zuul"
